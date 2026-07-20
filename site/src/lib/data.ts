@@ -93,6 +93,24 @@ export function formatDate(iso: string | null): string {
   return `${d} ${MONTHS[m - 1]}`;
 }
 
+/**
+ * Relative freshness for the statement card, e.g. 'today', '1d', '3d'. Compares
+ * a date-only string ('2026-07-17') to today's date in SAST. Empty for null.
+ * Additive helper — leaves formatDate and other exports untouched.
+ */
+export function formatRelative(iso: string | null): string {
+  if (!iso) return '';
+  const [y, m, d] = iso.split('-').map(Number);
+  if (!y || !m || !d) return '';
+  const posted = Date.UTC(y, m - 1, d);
+  const [ty, tm, td] = sastYmd(new Date()).split('-').map(Number);
+  const today = Date.UTC(ty, tm - 1, td);
+  const days = Math.round((today - posted) / 86_400_000);
+  if (days <= 0) return 'today';
+  if (days === 1) return '1d';
+  return `${days}d`;
+}
+
 const SAST = 'Africa/Johannesburg';
 
 function sastYmd(date: Date): string {

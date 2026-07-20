@@ -2,13 +2,29 @@
 import Base from '../layouts/Base.astro';
 import JobRow from '../components/JobRow.astro';
 import TrustStrip from '../components/TrustStrip.astro';
-import { saJobs, meta } from '../lib/data';
+import { saJobs, meta, formatRelative } from '../lib/data';
 
 const sa = saJobs();
 const absa = meta.sources.find((s) => s.id === 'absa');
 
-// Real per-source coverage from meta, then the banks we don't yet cover.
-const comingSoon = ['Standard Bank', 'FNB · RMB · WesBank', 'Nedbank', 'Capitec'];
+// The four most recent SA jobs for the signature statement card.
+const statement = sa.slice(0, 4);
+
+// Today's date, SAST, for the statement header, e.g. "20 Jul 2026".
+const statementDate = new Intl.DateTimeFormat('en-ZA', {
+  timeZone: 'Africa/Johannesburg',
+  day: '2-digit',
+  month: 'short',
+  year: 'numeric',
+}).format(new Date());
+
+// Real coverage: only Absa has live data. The rest are honestly "coming soon".
+const comingSoon = ['FirstRand', 'Standard Bank', 'Nedbank', 'Capitec'];
+
+// Source line for a statement row: 'Absa · Category[ · City]'.
+function stSource(brand: string, category: string, city: string | null): string {
+  return city ? `${brand} · ${category} · ${city}` : `${brand} · ${category}`;
+}
 
 const description =
   "Every official South African bank vacancy on one page. Listings come straight from the banks' own career systems — no agencies, no reposts. Apply on the bank's own site.";
@@ -17,118 +33,169 @@ const description =
 <Base
   title="BankJobs SA — Every official bank vacancy in South Africa"
   description={description}
+  bleed
 >
-  <section>
-    <p class="eyebrow">Free · No ads · No agencies</p>
-    <h1>Every official bank vacancy in South Africa. One page.</h1>
-    <p class="lede">
-      We fetch listings straight from the banks' own career systems — no recruiter reposts, no
-      duplicates, no expired ads. Every job links to the bank's official apply page.
-    </p>
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <p class="eyebrow">Free · No ads · No agencies</p>
+        <h1 class="hero-h">Every <em>official</em> bank vacancy in South&nbsp;Africa. One page.</h1>
+        <p class="lede">
+          We fetch listings straight from the banks' own career systems — no recruiter reposts, no
+          duplicates, no expired ads. Every job links to the bank's official apply page.
+        </p>
 
-    <form class="searchform" role="search" action="/search" method="get">
-      <label class="sr-only" for="q">Search job title or keyword</label>
-      <input
-        type="search"
-        id="q"
-        name="q"
-        placeholder="Try “teller”, “developer”, “credit analyst”…"
-        autocomplete="off"
-      />
-      <button type="submit" class="btn">Search</button>
-    </form>
+        <form class="search" role="search" action="/search" method="get">
+          <label class="sr-only" for="q">Search job title or keyword</label>
+          <input
+            type="search"
+            id="q"
+            name="q"
+            placeholder="Try “teller”, “developer”, “credit analyst”…"
+            autocomplete="off"
+          />
+          <button type="submit" class="display">Search</button>
+        </form>
+
+        <p class="quick">
+          Popular:
+          <a href="/browse/branch-retail">Branch &amp; retail</a>
+          <a href="/browse/software-it">Software &amp; IT</a>
+          <a href="/browse/sales">Sales</a>
+          <a href="/search?q=Gauteng">Gauteng</a>
+          <a href="/search?q=Western+Cape">Western Cape</a>
+        </p>
+      </div>
+
+      <aside class="statement" aria-label="Most recent listings">
+        <div class="st-head">
+          <span class="t">Statement of vacancies</span>
+          <span class="d">{statementDate}</span>
+        </div>
+        {
+          statement.map((job) => (
+            <div class="st-row">
+              <p class="job">
+                <a href={`/jobs/${job.slug}/`}>{job.title}</a>
+                <span class="src">
+                  {stSource(job.brand, job.category, job.locations[0]?.city ?? null)}
+                </span>
+              </p>
+              <span class="when">posted {formatRelative(job.postedDate)}</span>
+            </div>
+          ))
+        }
+        <div class="st-foot">
+          <span>{statement.length} of {meta.totalSA} shown</span>
+          <span>source: banks' own systems</span>
+        </div>
+        <span class="stamp" aria-hidden="true">Direct from<br />the bank</span>
+      </aside>
+    </div>
   </section>
 
   <TrustStrip />
 
-  <section aria-labelledby="coverage-h">
-    <p class="eyebrow">Coverage</p>
-    <h2 id="coverage-h">The banks we cover</h2>
-    <ul class="coverage">
+  <section class="section" aria-labelledby="coverage-h">
+    <div class="wrap">
+      <p class="sec-eyebrow">Coverage</p>
+      <h2 id="coverage-h" class="sec-title">The banks on the statement</h2>
       {
         absa && (
-          <li>
+          <a class="bank-line" href="/search?q=Absa">
             <span class="name">{absa.name}</span>
-            <span class="count tnum">{absa.count} open roles</span>
-          </li>
+            <span class="dots" />
+            <span class="count">
+              {absa.count}
+              <small>open roles</small>
+            </span>
+          </a>
         )
       }
       {
         comingSoon.map((name) => (
-          <li class="soon">
+          <div class="bank-line soon" aria-disabled="true">
             <span class="name">{name}</span>
+            <span class="dots" />
             <span class="count">coming soon</span>
-          </li>
+          </div>
         ))
       }
-    </ul>
-    <p class="small muted" style="margin-top:0.9rem;max-width:60ch">
-      Counts update with every fetch. A bank listed as “coming soon” is one we're still building a
-      reliable, respectful connection to — we'd rather show nothing than show stale jobs.
-    </p>
+      <p class="banks-note">
+        Counts update with every fetch. A bank listed as “coming soon” is one we're still building a
+        reliable, respectful connection to — we'd rather show nothing than show stale jobs.
+      </p>
+    </div>
   </section>
 
-  <section aria-labelledby="jobs-h">
-    <h2 id="jobs-h">Open vacancies in South Africa <span class="muted tnum">({sa.length})</span></h2>
-    {
-      sa.length > 0 ? (
-        <ul class="joblist">
-          {sa.map((job) => (
-            <JobRow
-              slug={job.slug}
-              title={job.title}
-              brand={job.brand}
-              category={job.category}
-              primaryLocation={job.primaryLocation}
-              postedDate={job.postedDate}
-            />
-          ))}
-        </ul>
-      ) : (
-        <p class="muted">No open vacancies right now — check back soon.</p>
-      )
-    }
+  <section class="section" aria-labelledby="jobs-h">
+    <div class="wrap">
+      <p class="sec-eyebrow">All vacancies</p>
+      <h2 id="jobs-h" class="sec-title">
+        Open vacancies in South Africa <span class="mono">({sa.length})</span>
+      </h2>
+      {
+        sa.length > 0 ? (
+          <ul class="joblist">
+            {sa.map((job) => (
+              <JobRow
+                slug={job.slug}
+                title={job.title}
+                brand={job.brand}
+                category={job.category}
+                primaryLocation={job.primaryLocation}
+                postedDate={job.postedDate}
+              />
+            ))}
+          </ul>
+        ) : (
+          <p class="list-empty">No open vacancies right now — check back soon.</p>
+        )
+      }
 
-    {
-      meta.totalInternational > 0 && (
-        <p style="margin-top:1.25rem">
-          <a href="/browse/international">
-            {`${meta.totalInternational} international ${
-              meta.totalInternational === 1 ? 'role' : 'roles'
-            } at these banks →`}
-          </a>
-        </p>
-      )
-    }
+      {
+        meta.totalInternational > 0 && (
+          <p class="intl-link">
+            <a href="/browse/international">
+              {`${meta.totalInternational} international ${
+                meta.totalInternational === 1 ? 'role' : 'roles'
+              } at these banks →`}
+            </a>
+          </p>
+        )
+      }
+    </div>
   </section>
 
-  <section aria-labelledby="honest-h">
-    <p class="eyebrow">Method</p>
-    <h2 id="honest-h">How we keep it honest</h2>
-    <div class="trio">
-      <div>
-        <span class="k">FETCHED</span>
-        <h3>Straight from the source</h3>
-        <p>
-          A few times a day we read each bank's own career system — the same listings you'd find on
-          their site, gathered in one place.
-        </p>
-      </div>
-      <div>
-        <span class="k">VERIFIED</span>
-        <h3>Closed jobs come down</h3>
-        <p>
-          When a vacancy disappears from the bank's system, it's removed here. Anything we can't
-          re-confirm within 60 days is taken down regardless.
-        </p>
-      </div>
-      <div>
-        <span class="k">DATED</span>
-        <h3>You can see the freshness</h3>
-        <p>
-          The “last updated” time at the top of every page is real. If our fetch ever breaks, the
-          date will say so — we won't pretend.
-        </p>
+  <section class="how" aria-labelledby="honest-h">
+    <div class="wrap section">
+      <p class="sec-eyebrow">Method</p>
+      <h2 id="honest-h" class="sec-title">How the statement stays honest</h2>
+      <div class="how-grid">
+        <div>
+          <span class="k">FETCHED</span>
+          <h3>Straight from the source</h3>
+          <p>
+            A few times a day we read each bank's own career system — the same listings you'd find
+            on their site, gathered in one place.
+          </p>
+        </div>
+        <div>
+          <span class="k">VERIFIED</span>
+          <h3>Closed jobs come down</h3>
+          <p>
+            When a vacancy disappears from the bank's system, it's removed here. Anything we can't
+            re-confirm within 60 days is taken down regardless.
+          </p>
+        </div>
+        <div>
+          <span class="k">DATED</span>
+          <h3>You can see the freshness</h3>
+          <p>
+            The “last updated” time at the top of every page is real. If our fetch ever breaks, the
+            date will say so — we won't pretend.
+          </p>
+        </div>
       </div>
     </div>
   </section>

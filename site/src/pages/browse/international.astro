@@ -24,7 +24,7 @@ const description =
 <Base title="International roles — BankJobs SA" description={description}>
   <a class="backlink" href="/">← All vacancies</a>
   <p class="eyebrow">Outside South Africa</p>
-  <h1>International roles <span class="muted tnum">({jobs.length})</span></h1>
+  <h1>International roles <span class="mono muted">({jobs.length})</span></h1>
   <p class="lede">
     These are open roles at the banks we cover that are based outside South Africa. Everything on
     the home page and category pages is South African by default — these live here on purpose.
@@ -33,9 +33,9 @@ const description =
   {
     orderedGroups.length > 0 ? (
       orderedGroups.map(([country, list]) => (
-        <section aria-label={`${country} roles`}>
+        <section class="country-group" aria-label={`${country} roles`}>
           <h2>
-            {country} <span class="muted tnum">({list.length})</span>
+            {country} <span class="mono muted">({list.length})</span>
           </h2>
           <ul class="joblist">
             {list.map((job) => (

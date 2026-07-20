@@ -19,8 +19,9 @@ const { job } = Astro.props;
 const isInternational = job.country !== 'ZA';
 const loc = job.locations[0];
 
-// Meta line: brand · category · primaryLocation · posted date · employmentType
-const metaParts: string[] = [job.brand, job.category];
+// Eyebrow: brand · category. Meta line: location · posted date · employmentType.
+const eyebrow = `${job.brand} · ${job.category}`;
+const metaParts: string[] = [];
 if (job.primaryLocation) metaParts.push(job.primaryLocation);
 if (job.postedDate) metaParts.push(`posted ${formatDate(job.postedDate)}`);
 if (job.employmentType) metaParts.push(job.employmentType);
@@ -60,8 +61,10 @@ const jsonLdString = JSON.stringify(jsonLd);
 
   {isInternational && <p class="badge">International — {countryName(job.country)}</p>}
 
-  <h1>{job.title}</h1>
-  <p class="job-meta">{metaLine}</p>
+  <p class="detail-eyebrow">{eyebrow}</p>
+  <h1 class="detail-title display">{job.title}</h1>
+  <hr class="detail-rule" />
+  {metaLine && <p class="detail-meta">{metaLine}</p>}
 
   <div class="jobdesc" set:html={job.descriptionHtml} />
 

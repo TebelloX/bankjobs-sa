@@ -7,11 +7,13 @@ interface Props {
   description: string;
   /** Constrain <main> to the narrow measure (detail / about pages). */
   narrow?: boolean;
+  /** Full-bleed main: the page manages its own .wrap per section (homepage). */
+  bleed?: boolean;
 }
 
-const { title, description, narrow = false } = Astro.props;
+const { title, description, narrow = false, bleed = false } = Astro.props;
 const wrapClass = narrow ? 'wrap wrap--narrow' : 'wrap';
-const freshness = `Last updated ${formatUpdated(meta.generatedAt)} · ${meta.totalSA} open vacancies`;
+const updated = formatUpdated(meta.generatedAt);
 const year = new Date().getFullYear();
 ---
 
@@ -30,15 +32,15 @@ const year = new Date().getFullYear();
 
     <header class="site-header">
       <div class="wrap bar">
-        <a class="wordmark" href="/">BankJobs SA</a>
-        <p class="freshness tnum">{freshness}</p>
+        <a class="wordmark" href="/">BankJobs<span>&nbsp;SA</span></a>
+        <p class="freshness">
+          Last updated <strong>{updated}</strong> · <strong>{meta.totalSA}</strong> open vacancies
+        </p>
       </div>
     </header>
 
-    <main id="main">
-      <div class={wrapClass}>
-        <slot />
-      </div>
+    <main id="main" class:list={['site-main', { bleed }]}>
+      {bleed ? <slot /> : <div class={wrapClass}><slot /></div>}
     </main>
 
     <footer class="site-footer">
@@ -51,9 +53,11 @@ const year = new Date().getFullYear();
         <p>
           Something wrong, or listing your organisation's jobs and want them removed?
           <a href="mailto:hello@example.co.za">hello@example.co.za</a> — requests are honoured
-          promptly.
+          promptly.<br /><br />
+          <span class="mono small"
+            >Light on data by design · works on any phone · &copy; {year} BankJobs SA</span
+          >
         </p>
-        <p class="small">Light on data by design · works on any phone · &copy; {year} BankJobs SA</p>
       </div>
     </footer>
   </body>

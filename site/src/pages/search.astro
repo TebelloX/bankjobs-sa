@@ -10,6 +10,7 @@ const description =
 ---
 
 <Base title="Search vacancies — BankJobs SA" description={description}>
+  <p class="eyebrow">Search</p>
   <h1>Search vacancies</h1>
 
   <div class="search-controls">
@@ -95,25 +96,37 @@ const description =
           : pool;
 
         // Rebuild the list with DOM APIs only — never innerHTML with data.
+        // Ledger-row markup, matching JobRow.astro: cell (title + source) | when.
         while (list!.firstChild) list!.removeChild(list!.firstChild);
         for (const r of matched) {
           const li = document.createElement('li');
           li.className = 'job-row';
+
+          const cell = document.createElement('span');
+          cell.className = 'job-cell';
 
           const a = document.createElement('a');
           a.className = 'job-title';
           a.href = `/jobs/${r.slug}/`;
           a.textContent = r.title;
 
-          const p = document.createElement('p');
-          p.className = 'job-meta';
+          const src = document.createElement('span');
+          src.className = 'src';
           const parts = [r.brand, r.category];
           if (r.primaryLocation) parts.push(r.primaryLocation);
-          if (r.postedDate) parts.push(`posted ${fmtDate(r.postedDate)}`);
-          p.textContent = parts.join(' · ');
+          src.textContent = parts.join(' · ');
 
-          li.appendChild(a);
-          li.appendChild(p);
+          cell.appendChild(a);
+          cell.appendChild(src);
+          li.appendChild(cell);
+
+          if (r.postedDate) {
+            const when = document.createElement('span');
+            when.className = 'when';
+            when.textContent = `posted ${fmtDate(r.postedDate)}`;
+            li.appendChild(when);
+          }
+
           list!.appendChild(li);
         }
 

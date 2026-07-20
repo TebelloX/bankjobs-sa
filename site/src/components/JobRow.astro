@@ -12,14 +12,17 @@ interface Props {
 
 const { slug, title, brand, category, primaryLocation, postedDate } = Astro.props;
 
-// One muted meta line: 'Absa · Branch & Retail · Lydenburg, Mpumalanga · posted 17 Jul'
-const parts: string[] = [brand, category];
-if (primaryLocation) parts.push(primaryLocation);
-if (postedDate) parts.push(`posted ${formatDate(postedDate)}`);
-const metaLine = parts.join(' · ');
+// Source line: 'Absa · Branch & Retail · Lydenburg, Mpumalanga'
+const srcParts: string[] = [brand, category];
+if (primaryLocation) srcParts.push(primaryLocation);
+const src = srcParts.join(' · ');
+const when = postedDate ? `posted ${formatDate(postedDate)}` : '';
 ---
 
 <li class="job-row">
-  <a class="job-title" href={`/jobs/${slug}/`}>{title}</a>
-  <p class="job-meta">{metaLine}</p>
+  <span class="job-cell">
+    <a class="job-title" href={`/jobs/${slug}/`}>{title}</a>
+    <span class="src">{src}</span>
+  </span>
+  {when && <span class="when">{when}</span>}
 </li>
