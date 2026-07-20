@@ -1,0 +1,60 @@
+---
+import '../styles/global.css';
+import { meta, formatUpdated } from '../lib/data';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Constrain <main> to the narrow measure (detail / about pages). */
+  narrow?: boolean;
+}
+
+const { title, description, narrow = false } = Astro.props;
+const wrapClass = narrow ? 'wrap wrap--narrow' : 'wrap';
+const freshness = `Last updated ${formatUpdated(meta.generatedAt)} · ${meta.totalSA} open vacancies`;
+const year = new Date().getFullYear();
+---
+
+<!doctype html>
+<html lang="en-ZA">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header">
+      <div class="wrap bar">
+        <a class="wordmark" href="/">BankJobs SA</a>
+        <p class="freshness tnum">{freshness}</p>
+      </div>
+    </header>
+
+    <main id="main">
+      <div class={wrapClass}>
+        <slot />
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <p>
+          <strong>BankJobs SA</strong> is an independent, free service and is not affiliated with,
+          endorsed by, or acting on behalf of any bank. Bank names are used only to identify whose
+          public vacancies are listed. All applications happen on the banks' own official websites.
+        </p>
+        <p>
+          Something wrong, or listing your organisation's jobs and want them removed?
+          <a href="mailto:hello@example.co.za">hello@example.co.za</a> — requests are honoured
+          promptly.
+        </p>
+        <p class="small">Light on data by design · works on any phone · &copy; {year} BankJobs SA</p>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "@bankjobs/ingest",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "ingest": "NODE_OPTIONS=--disable-warning=ExperimentalWarning tsx src/cli.ts"
+  },
+  "dependencies": {
+    "@bankjobs/adapters": "workspace:*",
+    "@bankjobs/core": "workspace:*"
+  }
+}

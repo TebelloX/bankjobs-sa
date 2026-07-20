@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BankJobs SA — Every official bank vacancy in South Africa</title>
+<meta name="description" content="A free, ad-free search across the official career listings of South Africa's banks. No agencies, no reposts — every listing links to the bank's own apply page.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,600;125,800;125,900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F3F5F0;        /* pale ledger paper */
+    --paper-deep:#E9EDE4;   /* section alternation */
+    --ink:#122F28;          /* bank-ledger green ink */
+    --ink-soft:#3E5A50;     /* secondary text */
+    --rule:#C7D2C2;         /* ledger ruling */
+    --stamp:#A83A2B;        /* rubber-stamp red — signature only */
+    --focus:#1C5E4C;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font:16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .display{font-family:"Archivo", Arial, sans-serif; font-stretch:125%;}
+  .mono{font-family:"IBM Plex Mono", ui-monospace, "Courier New", monospace; font-variant-numeric:tabular-nums;}
+  a{color:inherit}
+  :focus-visible{outline:3px solid var(--focus); outline-offset:2px}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+
+  /* ---------- top bar ---------- */
+  header{border-bottom:1px solid var(--rule); background:var(--paper)}
+  .bar{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:18px 0}
+  .wordmark{font-family:"Archivo",sans-serif;font-stretch:125%;font-weight:900;font-size:20px;letter-spacing:.01em;text-decoration:none}
+  .wordmark span{color:var(--stamp)}
+  .bar .meta{font-size:12.5px;color:var(--ink-soft)}
+  .bar .meta strong{color:var(--ink);font-weight:600}
+
+  /* ---------- hero ---------- */
+  .hero{padding:56px 0 48px}
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:start}
+  .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:18px}
+  h1{
+    font-family:"Archivo",sans-serif;font-stretch:125%;font-weight:900;
+    font-size:clamp(34px, 5.2vw, 56px);line-height:1.04;letter-spacing:-.01em;
+    margin-bottom:20px;
+  }
+  h1 em{font-style:normal;box-shadow:inset 0 -0.42em 0 rgba(168,58,43,.16)}
+  .lede{font-size:17.5px;color:var(--ink-soft);max-width:46ch;margin-bottom:28px}
+
+  .search{display:flex;gap:0;max-width:520px;border:2px solid var(--ink);background:#fff}
+  .search input{
+    flex:1;border:0;background:transparent;padding:14px 16px;font:inherit;font-size:16px;color:var(--ink);min-width:0;
+  }
+  .search input::placeholder{color:#7d8f87}
+  .search button{
+    border:0;background:var(--ink);color:var(--paper);
+    font-family:"Archivo",sans-serif;font-stretch:125%;font-weight:800;font-size:15px;letter-spacing:.03em;
+    padding:0 26px;cursor:pointer;
+  }
+  .search button:hover{background:#0c231e}
+  .quick{margin-top:14px;font-size:13.5px;color:var(--ink-soft)}
+  .quick a{margin-right:14px;text-decoration:underline;text-decoration-color:var(--rule);text-underline-offset:3px}
+  .quick a:hover{text-decoration-color:var(--ink)}
+
+  /* ---------- the statement (signature) ---------- */
+  .statement{
+    position:relative;background:#FBFCF9;border:1px solid var(--rule);
+    box-shadow:0 1px 0 var(--rule), 0 14px 30px -22px rgba(18,47,40,.45);
+    padding:22px 22px 16px;
+  }
+  .statement::before{ /* punched ledger margin line */
+    content:"";position:absolute;top:0;bottom:0;left:44px;width:1px;background:rgba(168,58,43,.25);
+  }
+  .st-head{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:4px;padding-left:36px}
+  .st-head .t{font-family:"Archivo",sans-serif;font-stretch:125%;font-weight:800;font-size:13px;letter-spacing:.12em;text-transform:uppercase}
+  .st-head .d{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-soft)}
+  .row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:baseline;padding:11px 0 11px 36px;border-bottom:1px solid var(--rule)}
+  .row:last-of-type{border-bottom:2px solid var(--ink)}
+  .row .job{font-size:14.5px;font-weight:600;line-height:1.35}
+  .row .src{display:block;font-size:12px;font-weight:400;color:var(--ink-soft)}
+  .row .when{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-soft);white-space:nowrap}
+  .st-foot{display:flex;justify-content:space-between;padding:10px 0 4px 36px;font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-soft)}
+  .stamp{
+    position:absolute;right:14px;bottom:34px;transform:rotate(-7deg);
+    font-family:"Archivo",sans-serif;font-stretch:125%;font-weight:900;font-size:13px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--stamp);border:3px double var(--stamp);border-radius:4px;padding:8px 12px;line-height:1.25;text-align:center;
+    background:rgba(251,252,249,.6);
+    mask-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence baseFrequency='.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 .6 .6 .6 0 0'/></filter><rect width='120' height='120' filter='url(%23n)' opacity='.92'/></svg>");
+    mask-size:120px;
+    animation:stamp-in .35s cubic-bezier(.2,1.4,.4,1) .4s backwards;
+  }
+  @keyframes stamp-in{from{transform:rotate(-7deg) scale(1.6);opacity:0}to{transform:rotate(-7deg) scale(1);opacity:1}}
+  @media (prefers-reduced-motion: reduce){ .stamp{animation:none} html{scroll-behavior:auto} }
+
+  /* ---------- trust strip ---------- */
+  .trust{border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);background:var(--paper-deep)}
+  .trust .wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;padding:26px 20px}
+  .trust h2{font-family:"Archivo",sans-serif;font-stretch:125%;font-weight:800;font-size:15px;margin-bottom:6px}
+  .trust p{font-size:14px;color:var(--ink-soft)}
+
+  /* ---------- banks ledger ---------- */
+  section.banks, section.how{padding:56px 0}
+  .sec-eyebrow{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:10px}
+  .sec-title{font-family:"Archivo",sans-serif;font-stretch:125%;font-weight:900;font-size:clamp(24px,3.4vw,34px);line-height:1.1;margin-bottom:28px;max-width:24ch}
+  .bank-line{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:baseline;padding:13px 2px;border-bottom:1px solid var(--rule);text-decoration:none}
+  .bank-line:first-of-type{border-top:2px solid var(--ink)}
+  .bank-line .name{font-family:"Archivo",sans-serif;font-stretch:125%;font-weight:800;font-size:17px}
+  .bank-line .dots{border-bottom:1px dotted var(--rule);transform:translateY(-4px)}
+  .bank-line .count{font-family:"IBM Plex Mono",monospace;font-size:14px}
+  .bank-line .count small{color:var(--ink-soft);font-size:11.5px;margin-left:8px}
+  .bank-line:hover .name{text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:2px}
+  .soon{color:var(--ink-soft)}
+  .soon .count{color:var(--ink-soft)}
+  .banks-note{margin-top:16px;font-size:13px;color:var(--ink-soft);max-width:60ch}
+
+  /* ---------- how it works ---------- */
+  .how{background:var(--paper-deep);border-top:1px solid var(--rule)}
+  .how-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:32px}
+  .how h3{font-family:"Archivo",sans-serif;font-stretch:125%;font-weight:800;font-size:16px;margin-bottom:8px}
+  .how p{font-size:14.5px;color:var(--ink-soft)}
+  .how .k{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--stamp);display:block;margin-bottom:10px;letter-spacing:.08em}
+
+  /* ---------- footer ---------- */
+  footer{border-top:2px solid var(--ink);padding:30px 0 44px;font-size:13px;color:var(--ink-soft)}
+  footer .wrap{display:grid;grid-template-columns:1.2fr .8fr;gap:32px}
+  footer strong{color:var(--ink)}
+  footer a{text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--rule)}
+  footer a:hover{text-decoration-color:var(--ink)}
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 860px){
+    .hero{padding:40px 0 36px}
+    .hero-grid{grid-template-columns:1fr;gap:36px}
+    .trust .wrap{grid-template-columns:1fr;gap:18px;padding:22px 20px}
+    .how-grid{grid-template-columns:1fr;gap:24px}
+    footer .wrap{grid-template-columns:1fr}
+    .statement{max-width:560px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="wordmark" href="#">BankJobs<span>&nbsp;SA</span></a>
+    <p class="meta mono">Last updated <strong>today 12:04</strong> · <strong>412</strong> open vacancies</p>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <p class="eyebrow">Free · No ads · No agencies</p>
+        <h1>Every <em>official</em> bank vacancy in South&nbsp;Africa. One page.</h1>
+        <p class="lede">We fetch listings straight from the banks' own career systems — no recruiter reposts, no duplicates, no expired ads. Every job links to the bank's official apply page.</p>
+        <form class="search" role="search" onsubmit="return false">
+          <input type="search" placeholder="Try “teller”, “developer”, “credit analyst”…" aria-label="Search job title or keyword">
+          <button type="submit" class="display">Search</button>
+        </form>
+        <p class="quick">
+          Popular:
+          <a href="#">Branch &amp; retail</a>
+          <a href="#">Software &amp; IT</a>
+          <a href="#">Sales</a>
+          <a href="#">Gauteng</a>
+          <a href="#">Western Cape</a>
+        </p>
+      </div>
+
+      <aside class="statement" aria-label="Sample of today's listings">
+        <div class="st-head">
+          <span class="t">Statement of vacancies</span>
+          <span class="d">20 Jul 2026</span>
+        </div>
+        <div class="row">
+          <p class="job">Bank Teller — Soweto, Maponya Mall<span class="src">Absa · Branch &amp; Retail</span></p>
+          <span class="when">posted 2d</span>
+        </div>
+        <div class="row">
+          <p class="job">Software Engineer, Payments<span class="src">FNB · Software &amp; IT · Johannesburg</span></p>
+          <span class="when">posted 1d</span>
+        </div>
+        <div class="row">
+          <p class="job">Universal Banker — Bellville<span class="src">Standard Bank · Customer Service</span></p>
+          <span class="when">posted 4h</span>
+        </div>
+        <div class="row">
+          <p class="job">Junior Credit Analyst<span class="src">RMB · Credit &amp; Lending · Sandton</span></p>
+          <span class="when">posted 3d</span>
+        </div>
+        <div class="st-foot">
+          <span>4 of 412 shown</span>
+          <span>source: banks' own systems</span>
+        </div>
+        <span class="stamp" aria-hidden="true">Direct from<br>the bank</span>
+      </aside>
+    </div>
+  </section>
+
+  <section class="trust" aria-label="Why trust these listings">
+    <div class="wrap">
+      <div>
+        <h2 class="display">Official sources only</h2>
+        <p>Listings come from the banks' own career systems, checked a few times a day. If a bank closes a job, it comes off this site.</p>
+      </div>
+      <div>
+        <h2 class="display">Apply on the bank's site</h2>
+        <p>We never take your CV or details. The apply button always goes to the bank's own official application page.</p>
+      </div>
+      <div>
+        <h2 class="display">Free means free</h2>
+        <p>No ads, no sponsored listings, no accounts. Built to make the search easier, not to make money from it.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="banks">
+    <div class="wrap">
+      <p class="sec-eyebrow">Coverage</p>
+      <h2 class="sec-title">The banks on the statement</h2>
+      <a class="bank-line" href="#">
+        <span class="name display">Absa</span><span class="dots"></span>
+        <span class="count mono">96<small>open roles</small></span>
+      </a>
+      <a class="bank-line" href="#">
+        <span class="name display">FNB · RMB · WesBank</span><span class="dots"></span>
+        <span class="count mono">173<small>open roles</small></span>
+      </a>
+      <a class="bank-line" href="#">
+        <span class="name display">Standard Bank</span><span class="dots"></span>
+        <span class="count mono">128<small>open roles</small></span>
+      </a>
+      <a class="bank-line" href="#">
+        <span class="name display">SA Reserve Bank</span><span class="dots"></span>
+        <span class="count mono">15<small>open roles</small></span>
+      </a>
+      <div class="bank-line soon" aria-disabled="true">
+        <span class="name display">Nedbank</span><span class="dots"></span>
+        <span class="count mono">coming soon</span>
+      </div>
+      <div class="bank-line soon" aria-disabled="true">
+        <span class="name display">Capitec</span><span class="dots"></span>
+        <span class="count mono">coming soon</span>
+      </div>
+      <p class="banks-note">Counts update with every fetch. A bank listed as “coming soon” is one we're still building a reliable, respectful connection to — we'd rather show nothing than show stale jobs.</p>
+    </div>
+  </section>
+
+  <section class="how">
+    <div class="wrap">
+      <p class="sec-eyebrow">Method</p>
+      <h2 class="sec-title">How the statement stays honest</h2>
+      <div class="how-grid">
+        <div>
+          <span class="k">FETCHED</span>
+          <h3>Straight from the source</h3>
+          <p>A few times a day we read each bank's own career system — the same listings you'd find on their site, gathered in one place.</p>
+        </div>
+        <div>
+          <span class="k">VERIFIED</span>
+          <h3>Closed jobs come down</h3>
+          <p>When a vacancy disappears from the bank's system, it's removed here. Anything we can't re-confirm within 60 days is taken down regardless.</p>
+        </div>
+        <div>
+          <span class="k">DATED</span>
+          <h3>You can see the freshness</h3>
+          <p>The “last updated” time at the top of every page is real. If our fetch ever breaks, the date will say so — we won't pretend.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p><strong>BankJobs SA</strong> is an independent, free service and is not affiliated with, endorsed by, or acting on behalf of any bank. Bank names are used only to identify whose public vacancies are listed. All applications happen on the banks' own official websites.</p>
+    <p>Something wrong, or listing your organisation's jobs and want them removed? <a href="mailto:hello@example.co.za">hello@example.co.za</a> — requests are honoured promptly.<br><br><span class="mono" style="font-size:12px">Light on data by design · works on any phone</span></p>
+  </div>
+</footer>
+
+</body>
+</html>

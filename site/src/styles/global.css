@@ -1,0 +1,403 @@
+/* BankJobs SA — one stylesheet, system fonts only, no third-party requests.
+   Design: "fast reference, quietly credible". */
+
+:root {
+  --bg: #fafaf8;
+  --ink: #1b1f1d;
+  --muted: #5a615d;
+  --hairline: #e2e5e1;
+  --accent: #0b6b4f;
+  --accent-ink: #ffffff;
+
+  --font: -apple-system, 'Segoe UI', Roboto, 'Noto Sans', sans-serif;
+  --measure-wide: 60rem;
+  --measure-narrow: 44rem;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+/* ---- links ---- */
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+/* ---- focus ---- */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ---- skip link ---- */
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  padding: 0.5rem 0.75rem;
+  background: var(--ink);
+  color: #fff;
+  z-index: 10;
+}
+.skip-link:focus {
+  left: 0.5rem;
+  top: 0.5rem;
+}
+
+/* ---- layout shell ---- */
+.wrap {
+  width: 100%;
+  max-width: var(--measure-wide);
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+.wrap--narrow {
+  max-width: var(--measure-narrow);
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Visually hidden but available to assistive tech. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---- header ---- */
+.site-header {
+  border-bottom: 1px solid var(--hairline);
+}
+.site-header .bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  padding: 0.9rem 0;
+}
+.wordmark {
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.01em;
+}
+.wordmark:hover {
+  text-decoration: none;
+}
+.freshness {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+/* ---- main ---- */
+main {
+  padding: 2rem 0 3rem;
+}
+section {
+  margin: 0 0 2.5rem;
+}
+section:last-child {
+  margin-bottom: 0;
+}
+
+h1 {
+  font-size: 1.9rem;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.75rem;
+}
+h2 {
+  font-size: 1.15rem;
+  margin: 0 0 0.75rem;
+}
+h3 {
+  font-size: 1rem;
+  margin: 1.25rem 0 0.4rem;
+}
+p {
+  margin: 0 0 0.9rem;
+}
+.lede {
+  font-size: 1.1rem;
+  color: var(--muted);
+  max-width: 46ch;
+}
+.eyebrow {
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 0.4rem;
+}
+.muted {
+  color: var(--muted);
+}
+.small {
+  font-size: 0.85rem;
+}
+
+/* ---- search form (home) ---- */
+.searchform {
+  display: flex;
+  gap: 0.5rem;
+  max-width: 34rem;
+  margin: 1.5rem 0 0;
+}
+.searchform input[type='search'] {
+  flex: 1 1 auto;
+  min-width: 0;
+  font: inherit;
+  padding: 0.65rem 0.75rem;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--hairline);
+  border-radius: 4px;
+}
+.searchform input::placeholder {
+  color: #8a918c;
+}
+
+/* ---- buttons ---- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.5rem 1.1rem;
+  font: inherit;
+  font-weight: 600;
+  color: var(--accent-ink);
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.btn:hover {
+  text-decoration: none;
+  background: #095b43;
+}
+.btn--block {
+  width: 100%;
+}
+
+/* ---- job list ---- */
+.joblist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--hairline);
+}
+.job-row {
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--hairline);
+}
+.job-title {
+  color: var(--ink);
+  font-size: 1.02rem;
+  font-weight: 600;
+}
+.job-title:hover {
+  text-decoration: underline;
+}
+.job-meta {
+  margin: 0.2rem 0 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- coverage list ---- */
+.coverage {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--hairline);
+}
+.coverage li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--hairline);
+}
+.coverage .name {
+  font-weight: 600;
+  color: var(--ink);
+}
+.coverage .count {
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.coverage .soon .name,
+.coverage .soon .count {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+/* ---- trust / honesty trios ---- */
+.trio {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+.trio h3 {
+  margin: 0 0 0.3rem;
+  font-size: 0.98rem;
+}
+.trio p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.trio .k {
+  display: block;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  margin-bottom: 0.35rem;
+}
+
+/* ---- detail page ---- */
+.backlink {
+  display: inline-block;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  margin-bottom: 0.6rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+}
+.jobdesc {
+  margin: 1.5rem 0;
+}
+.jobdesc h3 {
+  font-size: 1.02rem;
+}
+.jobdesc ul,
+.jobdesc ol {
+  padding-left: 1.2rem;
+}
+.jobdesc li {
+  margin: 0.25rem 0;
+}
+.applybox {
+  margin: 1.75rem 0 0;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--hairline);
+}
+.applybox .note {
+  margin: 0.75rem 0 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+/* ---- search results page ---- */
+.search-controls {
+  margin: 1.25rem 0 0.5rem;
+}
+.search-controls label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+.search-controls input[type='search'] {
+  width: 100%;
+  max-width: 34rem;
+  font: inherit;
+  padding: 0.65rem 0.75rem;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--hairline);
+  border-radius: 4px;
+}
+.checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+  font-weight: 400;
+}
+.results-count {
+  margin: 1rem 0 0.25rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+.catlinks {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+}
+.catlinks li {
+  padding: 0.35rem 0;
+}
+
+/* ---- footer ---- */
+.site-footer {
+  border-top: 1px solid var(--hairline);
+  padding: 1.75rem 0 2.5rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.site-footer p {
+  margin: 0 0 0.75rem;
+  max-width: 70ch;
+}
+.site-footer a {
+  color: var(--accent);
+}
+
+/* ---- responsive ---- */
+@media (max-width: 700px) {
+  h1 {
+    font-size: 1.55rem;
+  }
+  .trio {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+  .searchform {
+    flex-direction: column;
+  }
+  .searchform .btn {
+    width: 100%;
+  }
+}

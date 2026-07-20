@@ -1,0 +1,5 @@
+fixtures/
+**/__snapshots__/
+site/dist/
+pnpm-lock.yaml
+docs/

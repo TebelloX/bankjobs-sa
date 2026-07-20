@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "global": [
+    {
+      "category": "Software & IT",
+      "keywords": [
+        "developer",
+        "software",
+        "devops",
+        "cloud engineer",
+        "engineer",
+        "java",
+        ".net",
+        "cyber",
+        "network",
+        "systems analyst",
+        "solution analyst",
+        "solution architect",
+        "IT",
+        "technology",
+        "technical"
+      ]
+    },
+    {
+      "category": "Data & Analytics",
+      "keywords": ["data", "analytics", "quantitative", "scientist", "BI", "MIS"]
+    },
+    {
+      "category": "Credit & Lending",
+      "keywords": ["credit", "lending", "collections", "loan"]
+    },
+    {
+      "category": "Risk & Compliance",
+      "keywords": [
+        "risk",
+        "compliance",
+        "audit",
+        "forensic",
+        "AML",
+        "sanctions",
+        "governance",
+        "legal"
+      ]
+    },
+    {
+      "category": "Finance & Accounting",
+      "keywords": ["accountant", "accounting", "finance", "financial", "tax", "treasury"]
+    },
+    {
+      "category": "Branch & Retail",
+      "keywords": ["teller", "branch", "universal banker", "atm", "retail banking"]
+    },
+    {
+      "category": "Customer Service",
+      "keywords": [
+        "customer service",
+        "client service",
+        "contact centre",
+        "call centre",
+        "customer experience",
+        "service consultant"
+      ]
+    },
+    {
+      "category": "Sales",
+      "keywords": [
+        "sales",
+        "business development",
+        "relationship manager",
+        "relationship banker",
+        "adviser",
+        "advisor",
+        "banker"
+      ]
+    },
+    {
+      "category": "Operations & Admin",
+      "keywords": [
+        "operations",
+        "administrator",
+        "admin",
+        "processing",
+        "back office",
+        "office manager",
+        "coordinator",
+        "specialist"
+      ]
+    }
+  ],
+  "perSource": {
+    "absa": [],
+    "firstrand": [],
+    "standardbank": []
+  }
+}

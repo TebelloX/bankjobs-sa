@@ -1,0 +1,68 @@
+---
+import Base from '../layouts/Base.astro';
+
+const description =
+  'What BankJobs SA is, how the data works, and how to reach us. An independent, free, ad-free index of official South African bank vacancies.';
+---
+
+<Base title="About — BankJobs SA" description={description} narrow>
+  <a class="backlink" href="/">← All vacancies</a>
+  <h1>About BankJobs SA</h1>
+
+  <p class="lede">
+    One page that gathers every official South African bank vacancy, straight from the banks' own
+    career systems — so you don't have to check each site one by one.
+  </p>
+
+  <h2>What this is</h2>
+  <p>
+    BankJobs SA reads the banks' own career systems a few times a day and lists what's genuinely
+    open, in one place. Every job links back to the bank's official application page. There are no
+    recruiter reposts, no duplicates, and no expired ads — if a bank closes a job, it comes off this
+    site.
+  </p>
+  <p>
+    We never take your CV or personal details. The apply button always sends you to the bank's own
+    official application page, where the actual application happens. This is a free service: no ads,
+    no sponsored listings, no accounts, and nothing to sell.
+  </p>
+
+  <h2>Not affiliated with any bank</h2>
+  <p>
+    BankJobs SA is an independent service and is not affiliated with, endorsed by, or acting on
+    behalf of any bank. Bank names are used only to identify whose public vacancies are listed. All
+    applications happen on the banks' own official websites.
+  </p>
+
+  <h2>How the data works</h2>
+  <p>
+    A few times a day we fetch each covered bank's public vacancy feed and compare it to what we
+    already have. New roles are added; roles that have disappeared from the bank's system are
+    removed.
+  </p>
+  <p>
+    To avoid flicker from a single hiccup, a job is only marked closed after it has been absent from
+    the bank's system for two consecutive checks. As a backstop, anything we cannot re-confirm
+    within 60 days is taken down regardless — we would rather show nothing than show a stale job. The
+    “last updated” time at the top of every page is real; if a fetch ever breaks, that time will
+    show it.
+  </p>
+  <p>
+    South African roles are shown by default. Some banks also advertise roles outside South Africa;
+    those are kept on a separate <a href="/browse/international">international roles</a> page and
+    clearly marked, never mixed into the default lists.
+  </p>
+
+  <h2>Privacy</h2>
+  <p>
+    No accounts, no cookies, no tracking. We don't ask for your details and we have nothing to log
+    you into. At most we use privacy-friendly, cookieless analytics to count page views in
+    aggregate — never anything that identifies you.
+  </p>
+
+  <h2>Contact and takedowns</h2>
+  <p>
+    Something wrong, or listing your organisation's jobs and want them removed? Email
+    <a href="mailto:hello@example.co.za">hello@example.co.za</a> — requests are honoured promptly.
+  </p>
+</Base>

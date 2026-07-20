@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.astro/
+db/*.db*
+site/public/data/
+site/src/data/jobs-full.json
+.DS_Store
+.wrangler/
+coverage/
+*.log

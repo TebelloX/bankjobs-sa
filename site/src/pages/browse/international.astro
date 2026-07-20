@@ -1,0 +1,58 @@
+---
+import Base from '../../layouts/Base.astro';
+import JobRow from '../../components/JobRow.astro';
+import { countryName } from '@bankjobs/core';
+import { internationalJobs } from '../../lib/data';
+import type { FullJob } from '../../lib/data';
+
+const jobs = internationalJobs();
+
+// Group by country display name, ordered by country name, date desc within.
+const groups = new Map<string, FullJob[]>();
+for (const job of jobs) {
+  const name = countryName(job.country);
+  const list = groups.get(name) ?? [];
+  list.push(job);
+  groups.set(name, list);
+}
+const orderedGroups = [...groups.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+
+const description =
+  'Roles at the banks we cover that are located outside South Africa — clearly separated from the South African listings.';
+---
+
+<Base title="International roles — BankJobs SA" description={description}>
+  <a class="backlink" href="/">← All vacancies</a>
+  <p class="eyebrow">Outside South Africa</p>
+  <h1>International roles <span class="muted tnum">({jobs.length})</span></h1>
+  <p class="lede">
+    These are open roles at the banks we cover that are based outside South Africa. Everything on
+    the home page and category pages is South African by default — these live here on purpose.
+  </p>
+
+  {
+    orderedGroups.length > 0 ? (
+      orderedGroups.map(([country, list]) => (
+        <section aria-label={`${country} roles`}>
+          <h2>
+            {country} <span class="muted tnum">({list.length})</span>
+          </h2>
+          <ul class="joblist">
+            {list.map((job) => (
+              <JobRow
+                slug={job.slug}
+                title={job.title}
+                brand={job.brand}
+                category={job.category}
+                primaryLocation={job.primaryLocation}
+                postedDate={job.postedDate}
+              />
+            ))}
+          </ul>
+        </section>
+      ))
+    ) : (
+      <p class="muted">No international roles open right now.</p>
+    )
+  }
+</Base>

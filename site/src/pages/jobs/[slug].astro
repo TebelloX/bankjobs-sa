@@ -1,0 +1,78 @@
+---
+import Base from '../../layouts/Base.astro';
+import { allOpenJobs, formatDate } from '../../lib/data';
+import { countryName } from '@bankjobs/core';
+import type { FullJob } from '../../lib/data';
+
+export function getStaticPaths() {
+  return allOpenJobs().map((job) => ({
+    params: { slug: job.slug },
+    props: { job },
+  }));
+}
+
+interface Props {
+  job: FullJob;
+}
+
+const { job } = Astro.props;
+const isInternational = job.country !== 'ZA';
+const loc = job.locations[0];
+
+// Meta line: brand · category · primaryLocation · posted date · employmentType
+const metaParts: string[] = [job.brand, job.category];
+if (job.primaryLocation) metaParts.push(job.primaryLocation);
+if (job.postedDate) metaParts.push(`posted ${formatDate(job.postedDate)}`);
+if (job.employmentType) metaParts.push(job.employmentType);
+const metaLine = metaParts.join(' · ');
+
+// validThrough = lastSeen + 7 days (ISO), per plan §10.
+const validThrough = new Date(new Date(job.lastSeen).getTime() + 7 * 86_400_000).toISOString();
+
+const EMPLOYMENT_TYPE_MAP: Record<string, string> = {
+  'Full time': 'FULL_TIME',
+  'Part time': 'PART_TIME',
+};
+const mappedEmployment = job.employmentType ? EMPLOYMENT_TYPE_MAP[job.employmentType] : undefined;
+
+const address: Record<string, string> = { '@type': 'PostalAddress', addressCountry: job.country };
+if (loc?.city) address.addressLocality = loc.city;
+if (loc?.province) address.addressRegion = loc.province;
+
+const jsonLd: Record<string, unknown> = {
+  '@context': 'https://schema.org/',
+  '@type': 'JobPosting',
+  title: job.title,
+  description: job.excerpt,
+  validThrough,
+  hiringOrganization: { '@type': 'Organization', name: job.brand },
+  jobLocation: { '@type': 'Place', address },
+  directApply: false,
+};
+if (job.postedDate) jsonLd.datePosted = job.postedDate;
+if (mappedEmployment) jsonLd.employmentType = mappedEmployment;
+
+const jsonLdString = JSON.stringify(jsonLd);
+---
+
+<Base title={`${job.title} — ${job.brand} | BankJobs SA`} description={job.excerpt} narrow>
+  <a class="backlink" href="/">← All vacancies</a>
+
+  {isInternational && <p class="badge">International — {countryName(job.country)}</p>}
+
+  <h1>{job.title}</h1>
+  <p class="job-meta">{metaLine}</p>
+
+  <div class="jobdesc" set:html={job.descriptionHtml} />
+
+  <div class="applybox">
+    <a class="btn btn--block" href={job.applyUrl} rel="nofollow noopener" target="_blank">
+      Apply on {job.brand}'s official site
+    </a>
+    <p class="note">
+      You'll apply on the bank's own system. We never handle applications or CVs.
+    </p>
+  </div>
+
+  <script type="application/ld+json" set:html={jsonLdString} is:inline />
+</Base>

@@ -1,0 +1,25 @@
+---
+import { formatDate } from '../lib/data';
+
+interface Props {
+  slug: string;
+  title: string;
+  brand: string;
+  category: string;
+  primaryLocation: string | null;
+  postedDate: string | null;
+}
+
+const { slug, title, brand, category, primaryLocation, postedDate } = Astro.props;
+
+// One muted meta line: 'Absa · Branch & Retail · Lydenburg, Mpumalanga · posted 17 Jul'
+const parts: string[] = [brand, category];
+if (primaryLocation) parts.push(primaryLocation);
+if (postedDate) parts.push(`posted ${formatDate(postedDate)}`);
+const metaLine = parts.join(' · ');
+---
+
+<li class="job-row">
+  <a class="job-title" href={`/jobs/${slug}/`}>{title}</a>
+  <p class="job-meta">{metaLine}</p>
+</li>

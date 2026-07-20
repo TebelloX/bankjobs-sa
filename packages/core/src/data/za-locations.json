@@ -1,0 +1,448 @@
+{
+  "aliases": {
+    "johannesburg": {
+      "city": "Johannesburg",
+      "province": "Gauteng"
+    },
+    "sandton": {
+      "city": "Sandton",
+      "province": "Gauteng"
+    },
+    "midrand": {
+      "city": "Midrand",
+      "province": "Gauteng"
+    },
+    "randburg": {
+      "city": "Randburg",
+      "province": "Gauteng"
+    },
+    "roodepoort": {
+      "city": "Roodepoort",
+      "province": "Gauteng"
+    },
+    "soweto": {
+      "city": "Soweto",
+      "province": "Gauteng"
+    },
+    "pretoria": {
+      "city": "Pretoria",
+      "province": "Gauteng"
+    },
+    "centurion": {
+      "city": "Centurion",
+      "province": "Gauteng"
+    },
+    "kempton park": {
+      "city": "Kempton Park",
+      "province": "Gauteng"
+    },
+    "boksburg": {
+      "city": "Boksburg",
+      "province": "Gauteng"
+    },
+    "benoni": {
+      "city": "Benoni",
+      "province": "Gauteng"
+    },
+    "germiston": {
+      "city": "Germiston",
+      "province": "Gauteng"
+    },
+    "vereeniging": {
+      "city": "Vereeniging",
+      "province": "Gauteng"
+    },
+    "krugersdorp": {
+      "city": "Krugersdorp",
+      "province": "Gauteng"
+    },
+    "alberton": {
+      "city": "Alberton",
+      "province": "Gauteng"
+    },
+    "edenvale": {
+      "city": "Edenvale",
+      "province": "Gauteng"
+    },
+    "springs": {
+      "city": "Springs",
+      "province": "Gauteng"
+    },
+    "brakpan": {
+      "city": "Brakpan",
+      "province": "Gauteng"
+    },
+    "fourways": {
+      "city": "Fourways",
+      "province": "Gauteng"
+    },
+    "rosebank": {
+      "city": "Rosebank",
+      "province": "Gauteng"
+    },
+    "bedfordview": {
+      "city": "Bedfordview",
+      "province": "Gauteng"
+    },
+    "vanderbijlpark": {
+      "city": "Vanderbijlpark",
+      "province": "Gauteng"
+    },
+    "tembisa": {
+      "city": "Tembisa",
+      "province": "Gauteng"
+    },
+    "mamelodi": {
+      "city": "Mamelodi",
+      "province": "Gauteng"
+    },
+    "cape town": {
+      "city": "Cape Town",
+      "province": "Western Cape"
+    },
+    "bellville": {
+      "city": "Bellville",
+      "province": "Western Cape"
+    },
+    "stellenbosch": {
+      "city": "Stellenbosch",
+      "province": "Western Cape"
+    },
+    "paarl": {
+      "city": "Paarl",
+      "province": "Western Cape"
+    },
+    "george": {
+      "city": "George",
+      "province": "Western Cape"
+    },
+    "somerset west": {
+      "city": "Somerset West",
+      "province": "Western Cape"
+    },
+    "worcester": {
+      "city": "Worcester",
+      "province": "Western Cape"
+    },
+    "mossel bay": {
+      "city": "Mossel Bay",
+      "province": "Western Cape"
+    },
+    "table view": {
+      "city": "Table View",
+      "province": "Western Cape"
+    },
+    "claremont": {
+      "city": "Claremont",
+      "province": "Western Cape"
+    },
+    "century city": {
+      "city": "Century City",
+      "province": "Western Cape"
+    },
+    "durbanville": {
+      "city": "Durbanville",
+      "province": "Western Cape"
+    },
+    "wellington": {
+      "city": "Wellington",
+      "province": "Western Cape"
+    },
+    "malmesbury": {
+      "city": "Malmesbury",
+      "province": "Western Cape"
+    },
+    "knysna": {
+      "city": "Knysna",
+      "province": "Western Cape"
+    },
+    "oudtshoorn": {
+      "city": "Oudtshoorn",
+      "province": "Western Cape"
+    },
+    "durban": {
+      "city": "Durban",
+      "province": "KwaZulu-Natal"
+    },
+    "umhlanga": {
+      "city": "Umhlanga",
+      "province": "KwaZulu-Natal"
+    },
+    "pinetown": {
+      "city": "Pinetown",
+      "province": "KwaZulu-Natal"
+    },
+    "pietermaritzburg": {
+      "city": "Pietermaritzburg",
+      "province": "KwaZulu-Natal"
+    },
+    "richards bay": {
+      "city": "Richards Bay",
+      "province": "KwaZulu-Natal"
+    },
+    "newcastle": {
+      "city": "Newcastle",
+      "province": "KwaZulu-Natal"
+    },
+    "ballito": {
+      "city": "Ballito",
+      "province": "KwaZulu-Natal"
+    },
+    "amanzimtoti": {
+      "city": "Amanzimtoti",
+      "province": "KwaZulu-Natal"
+    },
+    "westville": {
+      "city": "Westville",
+      "province": "KwaZulu-Natal"
+    },
+    "ladysmith": {
+      "city": "Ladysmith",
+      "province": "KwaZulu-Natal"
+    },
+    "empangeni": {
+      "city": "Empangeni",
+      "province": "KwaZulu-Natal"
+    },
+    "port shepstone": {
+      "city": "Port Shepstone",
+      "province": "KwaZulu-Natal"
+    },
+    "gqeberha": {
+      "city": "Gqeberha",
+      "province": "Eastern Cape"
+    },
+    "port elizabeth": {
+      "city": "Gqeberha",
+      "province": "Eastern Cape"
+    },
+    "east london": {
+      "city": "East London",
+      "province": "Eastern Cape"
+    },
+    "mthatha": {
+      "city": "Mthatha",
+      "province": "Eastern Cape"
+    },
+    "makhanda": {
+      "city": "Makhanda",
+      "province": "Eastern Cape"
+    },
+    "grahamstown": {
+      "city": "Makhanda",
+      "province": "Eastern Cape"
+    },
+    "queenstown": {
+      "city": "Queenstown",
+      "province": "Eastern Cape"
+    },
+    "jeffreys bay": {
+      "city": "Jeffreys Bay",
+      "province": "Eastern Cape"
+    },
+    "uitenhage": {
+      "city": "Uitenhage",
+      "province": "Eastern Cape"
+    },
+    "bloemfontein": {
+      "city": "Bloemfontein",
+      "province": "Free State"
+    },
+    "welkom": {
+      "city": "Welkom",
+      "province": "Free State"
+    },
+    "bethlehem": {
+      "city": "Bethlehem",
+      "province": "Free State"
+    },
+    "sasolburg": {
+      "city": "Sasolburg",
+      "province": "Free State"
+    },
+    "kroonstad": {
+      "city": "Kroonstad",
+      "province": "Free State"
+    },
+    "polokwane": {
+      "city": "Polokwane",
+      "province": "Limpopo"
+    },
+    "tzaneen": {
+      "city": "Tzaneen",
+      "province": "Limpopo"
+    },
+    "thohoyandou": {
+      "city": "Thohoyandou",
+      "province": "Limpopo"
+    },
+    "mokopane": {
+      "city": "Mokopane",
+      "province": "Limpopo"
+    },
+    "bela bela": {
+      "city": "Bela-Bela",
+      "province": "Limpopo"
+    },
+    "lephalale": {
+      "city": "Lephalale",
+      "province": "Limpopo"
+    },
+    "musina": {
+      "city": "Musina",
+      "province": "Limpopo"
+    },
+    "mbombela": {
+      "city": "Mbombela",
+      "province": "Mpumalanga"
+    },
+    "nelspruit": {
+      "city": "Mbombela",
+      "province": "Mpumalanga"
+    },
+    "emalahleni": {
+      "city": "eMalahleni",
+      "province": "Mpumalanga"
+    },
+    "witbank": {
+      "city": "eMalahleni",
+      "province": "Mpumalanga"
+    },
+    "middelburg": {
+      "city": "Middelburg",
+      "province": "Mpumalanga"
+    },
+    "secunda": {
+      "city": "Secunda",
+      "province": "Mpumalanga"
+    },
+    "lydenburg": {
+      "city": "Lydenburg",
+      "province": "Mpumalanga"
+    },
+    "ermelo": {
+      "city": "Ermelo",
+      "province": "Mpumalanga"
+    },
+    "barberton": {
+      "city": "Barberton",
+      "province": "Mpumalanga"
+    },
+    "rustenburg": {
+      "city": "Rustenburg",
+      "province": "North West"
+    },
+    "potchefstroom": {
+      "city": "Potchefstroom",
+      "province": "North West"
+    },
+    "klerksdorp": {
+      "city": "Klerksdorp",
+      "province": "North West"
+    },
+    "mahikeng": {
+      "city": "Mahikeng",
+      "province": "North West"
+    },
+    "mafikeng": {
+      "city": "Mahikeng",
+      "province": "North West"
+    },
+    "brits": {
+      "city": "Brits",
+      "province": "North West"
+    },
+    "vryburg": {
+      "city": "Vryburg",
+      "province": "North West"
+    },
+    "kimberley": {
+      "city": "Kimberley",
+      "province": "Northern Cape"
+    },
+    "upington": {
+      "city": "Upington",
+      "province": "Northern Cape"
+    },
+    "kuruman": {
+      "city": "Kuruman",
+      "province": "Northern Cape"
+    },
+    "springbok": {
+      "city": "Springbok",
+      "province": "Northern Cape"
+    },
+    "de aar": {
+      "city": "De Aar",
+      "province": "Northern Cape"
+    },
+    "gauteng": {
+      "city": null,
+      "province": "Gauteng"
+    },
+    "western cape": {
+      "city": null,
+      "province": "Western Cape"
+    },
+    "kwazulu natal": {
+      "city": null,
+      "province": "KwaZulu-Natal"
+    },
+    "eastern cape": {
+      "city": null,
+      "province": "Eastern Cape"
+    },
+    "free state": {
+      "city": null,
+      "province": "Free State"
+    },
+    "limpopo": {
+      "city": null,
+      "province": "Limpopo"
+    },
+    "mpumalanga": {
+      "city": null,
+      "province": "Mpumalanga"
+    },
+    "north west": {
+      "city": null,
+      "province": "North West"
+    },
+    "northern cape": {
+      "city": null,
+      "province": "Northern Cape"
+    },
+    "south africa": {
+      "city": null,
+      "province": null
+    },
+    "goodwood": {
+      "city": "Goodwood",
+      "province": "Western Cape"
+    },
+    "rondebosch": {
+      "city": "Rondebosch",
+      "province": "Western Cape"
+    },
+    "swellendam": {
+      "city": "Swellendam",
+      "province": "Western Cape"
+    },
+    "vredendal": {
+      "city": "Vredendal",
+      "province": "Western Cape"
+    },
+    "kakamas": {
+      "city": "Kakamas",
+      "province": "Northern Cape"
+    },
+    "warrenton": {
+      "city": "Warrenton",
+      "province": "Northern Cape"
+    },
+    "vryheid": {
+      "city": "Vryheid",
+      "province": "KwaZulu-Natal"
+    }
+  }
+}

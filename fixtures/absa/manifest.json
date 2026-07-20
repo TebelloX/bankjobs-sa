@@ -1,0 +1,21 @@
+{
+  "source": "absa",
+  "capturedAt": "2026-07-20T19:52:00+02:00",
+  "endpoints": {
+    "list": "POST https://absa.wd3.myworkdayjobs.com/wday/cxs/absa/ABSAcareersite/jobs",
+    "detail": "GET https://absa.wd3.myworkdayjobs.com/wday/cxs/absa/ABSAcareersite{externalPath}"
+  },
+  "totalAtCapture": 78,
+  "files": {
+    "list-page1.json": "First list page, limit 20, offset 0",
+    "detail-1.json": "R-15987866 — Adviser AIFA: Everyday Banking (FAIS), Lydenburg, South Africa",
+    "detail-2.json": "R-15989107 — Specialist Solution Analyst - Investor Services, Sandton, South Africa",
+    "detail-3.json": "R-15989226 — Information Risk Manager, Grand Anse, Seychelles (non-ZA test case)"
+  },
+  "notes": [
+    "Workday returns 406 for non-browser User-Agents; captured with a Chrome UA + Accept: application/json.",
+    "jobPostingInfo.country is an object {descriptor, id}, not a string — map descriptor to ISO alpha-2.",
+    "jobPostingInfo.startDate is the ISO posted date; postedOn is relative text and must not be used.",
+    "Page size caps at 20 regardless of requested limit."
+  ]
+}

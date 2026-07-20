@@ -1,0 +1,15 @@
+{
+  "name": "@bankjobs/adapters",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "capture": "tsx scripts/capture-fixtures.ts"
+  },
+  "dependencies": {
+    "@bankjobs/core": "workspace:*"
+  }
+}

@@ -1,0 +1,159 @@
+---
+import Base from '../layouts/Base.astro';
+import { CATEGORY_SLUGS } from '@bankjobs/core';
+import type { Category } from '@bankjobs/core';
+
+const categories = Object.entries(CATEGORY_SLUGS) as Array<[Category, string]>;
+
+const description =
+  "Search every official South African bank vacancy by title, bank, category or location. Apply on the bank's own site.";
+---
+
+<Base title="Search vacancies — BankJobs SA" description={description}>
+  <h1>Search vacancies</h1>
+
+  <div class="search-controls">
+    <label for="search-input">Search by title, bank, category or location</label>
+    <input
+      type="search"
+      id="search-input"
+      name="q"
+      placeholder="Try “teller”, “developer”, “credit analyst”…"
+      autocomplete="off"
+    />
+    <div>
+      <label class="checkbox">
+        <input type="checkbox" id="include-intl" />
+        Include international roles
+      </label>
+    </div>
+  </div>
+
+  <p id="results-count" class="results-count" aria-live="polite" role="status">Loading vacancies…</p>
+
+  <ul id="search-results" class="joblist" aria-label="Search results"></ul>
+
+  <noscript>
+    <p class="muted">Search needs JavaScript — browse by category instead:</p>
+    <ul class="catlinks">
+      {
+        categories.map(([name, slug]) => (
+          <li>
+            <a href={`/browse/${slug}`}>{name}</a>
+          </li>
+        ))
+      }
+      <li><a href="/browse/international">International roles</a></li>
+    </ul>
+  </noscript>
+
+  <script>
+    import { SEARCH_DATA_URL } from '../lib/searchClient';
+    import type { SearchRow } from '../lib/searchClient';
+
+    const input = document.getElementById('search-input') as HTMLInputElement | null;
+    const intl = document.getElementById('include-intl') as HTMLInputElement | null;
+    const list = document.getElementById('search-results') as HTMLUListElement | null;
+    const count = document.getElementById('results-count');
+
+    if (input && list && count) {
+      const MONTHS = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ];
+
+      function fmtDate(iso: string | null): string {
+        if (!iso) return '';
+        const [y, m, d] = iso.split('-').map(Number);
+        if (!y || !m || !d) return '';
+        return `${d} ${MONTHS[m - 1]}`;
+      }
+
+      let rows: SearchRow[] = [];
+      let loaded = false;
+
+      function render(): void {
+        const q = input!.value.trim().toLowerCase();
+        const includeIntl = !!(intl && intl.checked);
+        const pool = rows.filter((r) => includeIntl || r.country === 'ZA');
+        const matched = q
+          ? pool.filter((r) => {
+              const hay =
+                `${r.title} ${r.brand} ${r.category} ${r.primaryLocation ?? ''}`.toLowerCase();
+              return hay.includes(q);
+            })
+          : pool;
+
+        // Rebuild the list with DOM APIs only — never innerHTML with data.
+        while (list!.firstChild) list!.removeChild(list!.firstChild);
+        for (const r of matched) {
+          const li = document.createElement('li');
+          li.className = 'job-row';
+
+          const a = document.createElement('a');
+          a.className = 'job-title';
+          a.href = `/jobs/${r.slug}/`;
+          a.textContent = r.title;
+
+          const p = document.createElement('p');
+          p.className = 'job-meta';
+          const parts = [r.brand, r.category];
+          if (r.primaryLocation) parts.push(r.primaryLocation);
+          if (r.postedDate) parts.push(`posted ${fmtDate(r.postedDate)}`);
+          p.textContent = parts.join(' · ');
+
+          li.appendChild(a);
+          li.appendChild(p);
+          list!.appendChild(li);
+        }
+
+        count!.textContent = loaded
+          ? `${matched.length} of ${pool.length} vacancies`
+          : 'Loading vacancies…';
+      }
+
+      function updateUrl(): void {
+        const url = new URL(location.href);
+        if (input!.value) url.searchParams.set('q', input!.value);
+        else url.searchParams.delete('q');
+        history.replaceState(null, '', url);
+      }
+
+      // Prefill from a shared ?q link.
+      input.value = new URLSearchParams(location.search).get('q') ?? '';
+
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      input.addEventListener('input', () => {
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(() => {
+          updateUrl();
+          render();
+        }, 150);
+      });
+      if (intl) intl.addEventListener('change', render);
+
+      fetch(SEARCH_DATA_URL)
+        .then((r) => r.json())
+        .then((data: SearchRow[]) => {
+          rows = data;
+          loaded = true;
+          render();
+        })
+        .catch(() => {
+          count.textContent = 'Could not load vacancies. Please refresh the page.';
+        });
+
+      render();
+    }
+  </script>
+</Base>
