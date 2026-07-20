@@ -5,7 +5,6 @@ import TrustStrip from '../components/TrustStrip.astro';
 import { saJobs, meta, formatRelative } from '../lib/data';
 
 const sa = saJobs();
-const absa = meta.sources.find((s) => s.id === 'absa');
 
 // The four most recent SA jobs for the signature statement card.
 const statement = sa.slice(0, 4);
@@ -18,8 +17,32 @@ const statementDate = new Intl.DateTimeFormat('en-ZA', {
   year: 'numeric',
 }).format(new Date());
 
-// Real coverage: only Absa has live data. The rest are honestly "coming soon".
-const comingSoon = ['FirstRand', 'Standard Bank', 'Nedbank', 'Capitec'];
+// Display names for the banks ledger. Sub-brands are what job seekers recognise,
+// so FirstRand shows as its franchises.
+const BANK_DISPLAY_NAMES: Record<string, string> = {
+  absa: 'Absa',
+  firstrand: 'FNB · RMB · WesBank',
+  standardbank: 'Standard Bank',
+};
+function bankName(id: string, fallback: string): string {
+  return BANK_DISPLAY_NAMES[id] ?? fallback;
+}
+
+// Live rows: every source with open roles, largest ledger first. The search
+// query is the source's real name (the client search matches source ids and
+// brands), not the multi-brand display label, which would match nothing.
+const liveBanks = meta.sources
+  .filter((s) => s.count > 0)
+  .map((s) => ({ name: bankName(s.id, s.name), query: s.name, count: s.count }))
+  .sort((a, b) => b.count - a.count);
+
+// Muted "coming soon" rows: any source with nothing live yet, plus the banks we
+// haven't started building a connection to.
+const comingSoon = [
+  ...meta.sources.filter((s) => s.count === 0).map((s) => bankName(s.id, s.name)),
+  'Nedbank',
+  'Capitec',
+];
 
 // Source line for a statement row: 'Absa · Category[ · City]'.
 function stSource(brand: string, category: string, city: string | null): string {
@@ -101,16 +124,16 @@ const description =
       <p class="sec-eyebrow">Coverage</p>
       <h2 id="coverage-h" class="sec-title">The banks on the statement</h2>
       {
-        absa && (
-          <a class="bank-line" href="/search?q=Absa">
-            <span class="name">{absa.name}</span>
+        liveBanks.map((bank) => (
+          <a class="bank-line" href={`/search?q=${encodeURIComponent(bank.query)}`}>
+            <span class="name">{bank.name}</span>
             <span class="dots" />
             <span class="count">
-              {absa.count}
+              {bank.count}
               <small>open roles</small>
             </span>
           </a>
-        )
+        ))
       }
       {
         comingSoon.map((name) => (

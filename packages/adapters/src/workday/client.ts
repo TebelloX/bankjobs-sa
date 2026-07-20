@@ -204,16 +204,25 @@ export async function fetchAllWorkday(
   }
 
   const capped = postings.slice(0, SAFETY_CAP);
+
+  // Some postings are malformed/hidden: no title and no externalPath (e.g.
+  // bulletFields ['R51859','Permanent','FNB'] with neither). They cannot be
+  // fetched or normalized, so drop them before the detail pass and report how
+  // many were skipped.
+  const fetchable = capped.filter((li) => Boolean(li.externalPath) && Boolean(li.title));
+  const skipped = capped.length - fetchable.length;
+  if (skipped > 0) opts?.log?.(`${label}: skipped ${skipped} malformed list items`);
+
   const result: WorkdayRawPosting[] = [];
 
-  for (let i = 0; i < capped.length; i += 1) {
-    const listItem = capped[i];
+  for (let i = 0; i < fetchable.length; i += 1) {
+    const listItem = fetchable[i];
     if (listItem === undefined) continue;
     await pace();
     const { data, usedUa: ua } = await requestJobDetail(cfg, listItem.externalPath, opts, usedUa);
     usedUa = ua;
     result.push({ listItem, detail: data });
-    opts?.log?.(`${label}: details ${i + 1}/${capped.length}`);
+    opts?.log?.(`${label}: details ${i + 1}/${fetchable.length}`);
   }
 
   return result;

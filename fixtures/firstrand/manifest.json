@@ -1,0 +1,24 @@
+{
+  "source": "firstrand",
+  "capturedAt": "2026-07-20T21:35:00+02:00",
+  "endpoints": {
+    "list": "POST https://firstrand.wd3.myworkdayjobs.com/wday/cxs/firstrand/FRB/jobs",
+    "detail": "GET https://firstrand.wd3.myworkdayjobs.com/wday/cxs/firstrand/FRB{externalPath}"
+  },
+  "totalAtCapture": 179,
+  "files": {
+    "list-page1.json": "First list page, limit 20, offset 0",
+    "detail-1.json": "R49624 — Banking Advisor Wealth, Bellville, South Africa (brand FNB)",
+    "detail-2.json": "R41608 — Murex Specialist (Back Office), Johannesburg, South Africa (brand RMB)",
+    "detail-3.json": "R51496 — Lend Deal Maker (Gauteng), Randburg, South Africa (brand WesBank)",
+    "detail-4.json": "R51835 — Information Governance Manager, Ezulwini, Eswatini (brand FNB, non-ZA test case)"
+  },
+  "notes": [
+    "Tenant 'firstrand', site 'FRB' on wd3 — discovered 20 Jul 2026; same 406-on-non-browser-UA behavior as Absa.",
+    "Sub-brand (FNB / RMB / WesBank / Ashburton / DirectAxis) is NOT in the detail — hiringOrganization is 'FirstRand Bank Limited' for SA postings. The brand is the LAST element of the list item's bulletFields.",
+    "bulletFields are variable-length: [city, country, reqId, brand] or [city, country, reqId, contractType, brand]; reqId matches /^R\\d+$/.",
+    "Some postings are malformed: no title, no externalPath, bulletFields like [reqId, contractType, brand] — skip them before detail fetch.",
+    "Locations are sometimes full street addresses; countries include Eswatini, Namibia, Mozambique.",
+    "DirectAxis and Ashburton had zero postings at capture but remain valid brands."
+  ]
+}

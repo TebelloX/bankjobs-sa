@@ -90,7 +90,7 @@ const description =
         const matched = q
           ? pool.filter((r) => {
               const hay =
-                `${r.title} ${r.brand} ${r.category} ${r.primaryLocation ?? ''}`.toLowerCase();
+                `${r.title} ${r.brand} ${r.source} ${r.category} ${r.primaryLocation ?? ''}`.toLowerCase();
               return hay.includes(q);
             })
           : pool;

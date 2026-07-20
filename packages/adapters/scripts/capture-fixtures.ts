@@ -1,34 +1,31 @@
 /**
- * Re-capture the committed Absa Workday fixtures from the LIVE endpoint.
- *   pnpm --filter @bankjobs/adapters run capture
+ * Re-capture the committed fixtures from the LIVE endpoints.
+ *   pnpm --filter @bankjobs/adapters run capture -- --source=absa
+ *   pnpm --filter @bankjobs/adapters run capture -- --source=firstrand
+ *   pnpm --filter @bankjobs/adapters run capture -- --source=standardbank
  *
- * This talks to the network. It re-verifies the list endpoint first; if the
- * site name has drifted it prints probing instructions and exits non-zero
- * rather than writing garbage over the ground-truth fixtures. Do not run this
- * in CI or tests — the tests read the committed fixtures offline.
+ * This talks to the network. It re-verifies the list endpoint first; if it has
+ * drifted it prints guidance and exits non-zero rather than writing garbage over
+ * the ground-truth fixtures. Do not run this in CI or tests — the tests read the
+ * committed fixtures offline. Default source is absa.
  */
+import { parseArgs } from 'node:util';
 import { writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { ABSA_WORKDAY_CONFIG } from '../src/absa';
+import { FIRSTRAND_WORKDAY_CONFIG } from '../src/firstrand';
+import { STANDARDBANK_SR_CONFIG } from '../src/standardbank';
 import { BROWSER_UA, HONEST_UA } from '../src/workday/client';
+import type { WorkdayConfig } from '../src/workday/client';
 import type { WorkdayJobDetail, WorkdayListResponse } from '../src/workday/types';
+import { SMARTRECRUITERS_UA } from '../src/smartrecruiters/client';
+import type { SmartRecruitersConfig } from '../src/smartrecruiters/client';
+import type { SrListResponse, SrPostingDetail } from '../src/smartrecruiters/types';
 
-const cfg = ABSA_WORKDAY_CONFIG;
-const pageSize = cfg.pageSize ?? 20;
-const delayMs = cfg.delayMs ?? 400;
-
-// Resolve fixtures dir relative to THIS script: scripts/ -> package -> packages -> repo root.
 const scriptDir = dirname(fileURLToPath(import.meta.url));
-const fixturesDir = join(scriptDir, '../../../fixtures/absa');
-
-const listUrl = `https://${cfg.host}/wday/cxs/${cfg.tenant}/${cfg.site}/jobs`;
-const detailBase = `https://${cfg.host}/wday/cxs/${cfg.tenant}/${cfg.site}`;
-
-// Mirror the client's User-Agent policy: honest first, fall back once to a
-// browser UA on 406, then reuse whatever worked for the rest of the run.
-let resolvedUa: string | undefined;
+const fixturesRoot = join(scriptDir, '../../../fixtures');
 
 function withUserAgent(init: RequestInit, ua: string): RequestInit {
   return {
@@ -37,68 +34,64 @@ function withUserAgent(init: RequestInit, ua: string): RequestInit {
   };
 }
 
-async function wdFetch(url: string, init: RequestInit): Promise<Response> {
-  if (resolvedUa !== undefined) {
-    return fetch(url, withUserAgent(init, resolvedUa));
-  }
-  const res = await fetch(url, withUserAgent(init, HONEST_UA));
-  if (res.status === 406) {
-    resolvedUa = BROWSER_UA;
-    return fetch(url, withUserAgent(init, BROWSER_UA));
-  }
-  resolvedUa = HONEST_UA;
-  return res;
-}
-
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// Simple title heuristic to pick an "IT-ish" posting for variety.
+// A title heuristic to pick an "IT-ish" posting for variety.
 const IT_TITLE_RE =
   /\b(analyst|developer|engineer|software|data|it|technolog|solution|architect|devops|programmer|cyber|digital)\b/i;
 
-interface Captured {
-  detail: WorkdayJobDetail;
-  text: string;
-}
+const KNOWN_SUB_BRANDS = new Set(['FNB', 'RMB', 'WesBank', 'Ashburton', 'DirectAxis']);
 
-async function fetchDetail(externalPath: string): Promise<Captured> {
-  await sleep(delayMs);
-  const res = await wdFetch(`${detailBase}${externalPath}`, {
-    headers: { Accept: 'application/json' },
-  });
-  if (res.status !== 200) {
-    throw new Error(`Detail request for ${externalPath} returned HTTP ${res.status}`);
+// ---------------------------------------------------------------------------
+// Workday sources (absa, firstrand).
+// ---------------------------------------------------------------------------
+
+async function captureWorkday(source: 'absa' | 'firstrand', cfg: WorkdayConfig): Promise<void> {
+  const pageSize = cfg.pageSize ?? 20;
+  const delayMs = cfg.delayMs ?? 400;
+  const fixturesDir = join(fixturesRoot, source);
+  const listUrl = `https://${cfg.host}/wday/cxs/${cfg.tenant}/${cfg.site}/jobs`;
+  const detailBase = `https://${cfg.host}/wday/cxs/${cfg.tenant}/${cfg.site}`;
+
+  // Mirror the client UA policy: honest first, browser fallback on 406.
+  let resolvedUa: string | undefined;
+  async function wdFetch(url: string, init: RequestInit): Promise<Response> {
+    if (resolvedUa !== undefined) return fetch(url, withUserAgent(init, resolvedUa));
+    const res = await fetch(url, withUserAgent(init, HONEST_UA));
+    if (res.status === 406) {
+      resolvedUa = BROWSER_UA;
+      return fetch(url, withUserAgent(init, BROWSER_UA));
+    }
+    resolvedUa = HONEST_UA;
+    return res;
   }
-  const text = await res.text();
-  return { detail: JSON.parse(text) as WorkdayJobDetail, text };
-}
 
-function fileNote(c: Captured, tag: string): string {
-  const info = c.detail.jobPostingInfo;
-  return `${info.jobReqId} — ${info.title}, ${info.location} (${tag})`;
-}
+  async function fetchDetail(
+    externalPath: string,
+  ): Promise<{ detail: WorkdayJobDetail; text: string }> {
+    await sleep(delayMs);
+    const res = await wdFetch(`${detailBase}${externalPath}`, {
+      headers: { Accept: 'application/json' },
+    });
+    if (res.status !== 200) {
+      throw new Error(`Detail request for ${externalPath} returned HTTP ${res.status}`);
+    }
+    const text = await res.text();
+    return { detail: JSON.parse(text) as WorkdayJobDetail, text };
+  }
 
-async function main(): Promise<void> {
-  // 1) Re-verify the list endpoint.
   const listRes = await wdFetch(listUrl, {
     method: 'POST',
     headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
     body: JSON.stringify({ appliedFacets: {}, limit: pageSize, offset: 0, searchText: '' }),
   });
-
   if (listRes.status !== 200) {
     console.error(
-      `Absa list endpoint returned HTTP ${listRes.status} — the site name may have drifted.`,
+      `${source} list endpoint returned HTTP ${listRes.status} — site name may have drifted.`,
     );
     console.error(`Tried: POST ${listUrl}`);
-    console.error('Probe candidate site names by POSTing to:');
-    console.error(`  https://${cfg.host}/wday/cxs/${cfg.tenant}/{SITE}/jobs`);
-    console.error(
-      '  candidate {SITE} values: ABSAcareersite, Absa, AbsaCareers, External, careers, Careers',
-    );
-    console.error('Then update ABSA_WORKDAY_CONFIG.site in packages/adapters/src/absa.ts.');
     process.exit(1);
   }
 
@@ -107,68 +100,232 @@ async function main(): Promise<void> {
   writeFileSync(join(fixturesDir, 'list-page1.json'), listText);
   console.log(`Wrote list-page1.json (${list.jobPostings.length} postings, total ${list.total}).`);
 
-  // 2) Walk postings, fetching details until we have one of each variety:
-  //    a SA non-IT role, an IT-ish role, and a non-SA role.
-  let saNonIt: Captured | undefined;
-  let itish: Captured | undefined;
-  let nonSa: Captured | undefined;
+  const postings = list.jobPostings.filter((p) => Boolean(p.externalPath) && Boolean(p.title));
 
-  for (const posting of list.jobPostings) {
-    if (saNonIt && itish && nonSa) break;
-    const captured = await fetchDetail(posting.externalPath);
-    const info = captured.detail.jobPostingInfo;
-    const isSa = (info.country?.descriptor ?? '') === 'South Africa';
-    const isIt = IT_TITLE_RE.test(info.title);
-
-    if (!isSa) {
-      if (!nonSa) nonSa = captured;
-    } else if (isIt) {
-      if (!itish) itish = captured;
-    } else {
-      if (!saNonIt) saNonIt = captured;
+  if (source === 'absa') {
+    // Variety: an SA non-IT role, an IT-ish role, and a non-SA role.
+    let saNonIt, itish, nonSa;
+    for (const posting of postings) {
+      if (saNonIt && itish && nonSa) break;
+      const captured = await fetchDetail(posting.externalPath);
+      const info = captured.detail.jobPostingInfo;
+      const isSa = (info.country?.descriptor ?? '') === 'South Africa';
+      if (!isSa) nonSa ??= captured;
+      else if (IT_TITLE_RE.test(info.title)) itish ??= captured;
+      else saNonIt ??= captured;
     }
+    if (!saNonIt || !itish || !nonSa) {
+      console.error('Could not find all three fixture varieties on page 1.');
+      process.exit(1);
+    }
+    writeFileSync(join(fixturesDir, 'detail-1.json'), saNonIt.text);
+    writeFileSync(join(fixturesDir, 'detail-2.json'), itish.text);
+    writeFileSync(join(fixturesDir, 'detail-3.json'), nonSa.text);
+    writeManifest(fixturesDir, {
+      source,
+      listUrl,
+      detailBase,
+      total: list.total,
+      pageSize,
+      files: {
+        'detail-1.json': fileNote(saNonIt.detail, 'SA non-IT'),
+        'detail-2.json': fileNote(itish.detail, 'IT-ish'),
+        'detail-3.json': fileNote(nonSa.detail, 'non-ZA test case'),
+      },
+    });
+    console.log(`Wrote detail-1/2/3.json + manifest.json to ${fixturesDir}.`);
+    return;
   }
 
-  if (!saNonIt || !itish || !nonSa) {
-    console.error('Could not find all three fixture varieties on page 1:');
-    console.error(`  SA non-IT: ${saNonIt ? 'ok' : 'MISSING'}`);
-    console.error(`  IT-ish:    ${itish ? 'ok' : 'MISSING'}`);
-    console.error(`  non-SA:    ${nonSa ? 'ok' : 'MISSING'}`);
+  // firstrand: variety across sub-brands (FNB / RMB / WesBank) + a non-SA role.
+  // The sub-brand is the LAST bulletField of the list item.
+  const bySubBrand = new Map<string, { detail: WorkdayJobDetail; text: string }>();
+  let nonSa: { detail: WorkdayJobDetail; text: string } | undefined;
+  const wanted = ['FNB', 'RMB', 'WesBank'];
+  for (const posting of postings) {
+    const enough = wanted.every((b) => bySubBrand.has(b)) && nonSa;
+    if (enough) break;
+    const last = posting.bulletFields[posting.bulletFields.length - 1];
+    const brand = last && KNOWN_SUB_BRANDS.has(last) ? last : 'FirstRand';
+    const country = posting.bulletFields.length >= 2 ? posting.bulletFields[1] : '';
+    const isSa = country === 'South Africa';
+    const needBrand = wanted.includes(brand) && !bySubBrand.has(brand);
+    const needNonSa = !isSa && !nonSa;
+    if (!needBrand && !needNonSa) continue;
+    const captured = await fetchDetail(posting.externalPath);
+    if (needBrand) bySubBrand.set(brand, captured);
+    if (needNonSa) nonSa = captured;
+  }
+  const fnb = bySubBrand.get('FNB');
+  const rmb = bySubBrand.get('RMB');
+  const wesbank = bySubBrand.get('WesBank');
+  if (!fnb || !rmb || !wesbank || !nonSa) {
     console.error(
-      'Widen the search (fetch a second page) or relax the IT title keywords, then re-run.',
+      'Could not find all four FirstRand fixture varieties on page 1 (widen the search).',
     );
     process.exit(1);
   }
+  writeFileSync(join(fixturesDir, 'detail-1.json'), fnb.text);
+  writeFileSync(join(fixturesDir, 'detail-2.json'), rmb.text);
+  writeFileSync(join(fixturesDir, 'detail-3.json'), wesbank.text);
+  writeFileSync(join(fixturesDir, 'detail-4.json'), nonSa.text);
+  writeManifest(fixturesDir, {
+    source,
+    listUrl,
+    detailBase,
+    total: list.total,
+    pageSize,
+    files: {
+      'detail-1.json': fileNote(fnb.detail, 'brand FNB'),
+      'detail-2.json': fileNote(rmb.detail, 'brand RMB'),
+      'detail-3.json': fileNote(wesbank.detail, 'brand WesBank'),
+      'detail-4.json': fileNote(nonSa.detail, 'non-ZA test case'),
+    },
+  });
+  console.log(`Wrote detail-1..4.json + manifest.json to ${fixturesDir}.`);
+}
 
-  writeFileSync(join(fixturesDir, 'detail-1.json'), saNonIt.text);
-  writeFileSync(join(fixturesDir, 'detail-2.json'), itish.text);
+function fileNote(detail: WorkdayJobDetail, tag: string): string {
+  const info = detail.jobPostingInfo;
+  return `${info.jobReqId} — ${info.title}, ${info.location} (${tag})`;
+}
+
+// ---------------------------------------------------------------------------
+// SmartRecruiters source (standardbank).
+// ---------------------------------------------------------------------------
+
+async function captureSmartRecruiters(cfg: SmartRecruitersConfig): Promise<void> {
+  const delayMs = cfg.delayMs ?? 400;
+  const listLimit = 20; // small representative first page for the fixture
+  const fixturesDir = join(fixturesRoot, 'standardbank');
+  const base = `https://api.smartrecruiters.com/v1/companies/${cfg.company}/postings`;
+
+  async function srFetch(url: string): Promise<Response> {
+    return fetch(url, {
+      headers: { 'User-Agent': SMARTRECRUITERS_UA, Accept: 'application/json' },
+    });
+  }
+
+  const listUrl = `${base}?limit=${listLimit}&offset=0`;
+  const listRes = await srFetch(listUrl);
+  if (listRes.status !== 200) {
+    console.error(`standardbank list endpoint returned HTTP ${listRes.status}.`);
+    console.error(`Tried: GET ${listUrl}`);
+    process.exit(1);
+  }
+  const listText = await listRes.text();
+  const list = JSON.parse(listText) as SrListResponse;
+  writeFileSync(join(fixturesDir, 'list-page1.json'), listText);
+  console.log(
+    `Wrote list-page1.json (${list.content.length} postings, totalFound ${list.totalFound}).`,
+  );
+
+  async function fetchDetail(id: string): Promise<{ detail: SrPostingDetail; text: string }> {
+    await sleep(delayMs);
+    const res = await srFetch(`${base}/${id}`);
+    if (res.status !== 200) throw new Error(`Detail request for ${id} returned HTTP ${res.status}`);
+    const text = await res.text();
+    return { detail: JSON.parse(text) as SrPostingDetail, text };
+  }
+
+  // Variety: an SA branch/retail role, an SA IT role, and a non-SA role.
+  let saBranch, saIt, nonSa;
+  for (const posting of list.content) {
+    if (saBranch && saIt && nonSa) break;
+    const isSa = (posting.location?.country ?? '') === 'za';
+    const captured = await fetchDetail(posting.id);
+    if (!isSa) nonSa ??= captured;
+    else if (IT_TITLE_RE.test(posting.name)) saIt ??= captured;
+    else saBranch ??= captured;
+  }
+  if (!saBranch || !saIt || !nonSa) {
+    console.error('Could not find all three standardbank fixture varieties on page 1.');
+    process.exit(1);
+  }
+  writeFileSync(join(fixturesDir, 'detail-1.json'), saBranch.text);
+  writeFileSync(join(fixturesDir, 'detail-2.json'), saIt.text);
   writeFileSync(join(fixturesDir, 'detail-3.json'), nonSa.text);
 
-  // 3) Manifest — timestamp, endpoints, total, file descriptions, and the notes
-  //    that document the endpoint gotchas.
   const manifest = {
-    source: 'absa',
+    source: 'standardbank',
     capturedAt: new Date().toISOString(),
     endpoints: {
-      list: `POST ${listUrl}`,
-      detail: `GET ${detailBase}{externalPath}`,
+      list: `GET ${base}?limit=100&offset=N`,
+      detail: `GET ${base}/{id}`,
     },
-    totalAtCapture: list.total,
+    totalAtCapture: list.totalFound,
     files: {
-      'list-page1.json': `First list page, limit ${pageSize}, offset 0`,
-      'detail-1.json': fileNote(saNonIt, 'SA non-IT'),
-      'detail-2.json': fileNote(itish, 'IT-ish'),
-      'detail-3.json': fileNote(nonSa, 'non-ZA test case'),
+      'list-page1.json': `First list page, limit ${listLimit}, offset 0`,
+      'detail-1.json': `${saBranch.detail.id} — ${saBranch.detail.name}`,
+      'detail-2.json': `${saIt.detail.id} — ${saIt.detail.name}`,
+      'detail-3.json': `${nonSa.detail.id} — ${nonSa.detail.name} (non-ZA test case)`,
     },
     notes: [
-      'Workday returns 406 for non-browser User-Agents; captured with a Chrome UA + Accept: application/json.',
-      'jobPostingInfo.country is an object {descriptor, id}, not a string — map descriptor to ISO alpha-2.',
-      'jobPostingInfo.startDate is the ISO posted date; postedOn is relative text and must not be used.',
-      'Page size caps at 20 regardless of requested limit.',
+      'Public documented API, no auth, no User-Agent restrictions; pagination cap is 100 per page.',
+      "location.country is a LOWERCASE ISO alpha-2 code ('za', 'im', 'ng') — uppercase it directly.",
+      'postedDate: use the date part of releasedDate.',
+      'Description HTML lives in jobAd.sections; companyDescription/additionalInformation are boilerplate.',
     ],
   };
   writeFileSync(join(fixturesDir, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
   console.log(`Wrote detail-1/2/3.json + manifest.json to ${fixturesDir}.`);
+}
+
+interface WorkdayManifestArgs {
+  source: string;
+  listUrl: string;
+  detailBase: string;
+  total: number;
+  pageSize: number;
+  files: Record<string, string>;
+}
+
+function writeManifest(fixturesDir: string, args: WorkdayManifestArgs): void {
+  const manifest = {
+    source: args.source,
+    capturedAt: new Date().toISOString(),
+    endpoints: {
+      list: `POST ${args.listUrl}`,
+      detail: `GET ${args.detailBase}{externalPath}`,
+    },
+    totalAtCapture: args.total,
+    files: {
+      'list-page1.json': `First list page, limit ${args.pageSize}, offset 0`,
+      ...args.files,
+    },
+    notes: [
+      'Workday returns 406 for non-browser User-Agents; captured with a Chrome UA + Accept: application/json.',
+      'jobPostingInfo.country is an object {descriptor, id} — map descriptor to ISO alpha-2.',
+      'jobPostingInfo.startDate is the ISO posted date; postedOn is relative text.',
+      'Page size caps at 20 regardless of requested limit.',
+    ],
+  };
+  writeFileSync(join(fixturesDir, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
+}
+
+// ---------------------------------------------------------------------------
+
+async function main(): Promise<void> {
+  const { values } = parseArgs({
+    options: { source: { type: 'string', default: 'absa' } },
+    allowPositionals: false,
+  });
+  const source = values.source;
+
+  switch (source) {
+    case 'absa':
+      await captureWorkday('absa', ABSA_WORKDAY_CONFIG);
+      return;
+    case 'firstrand':
+      await captureWorkday('firstrand', FIRSTRAND_WORKDAY_CONFIG);
+      return;
+    case 'standardbank':
+      await captureSmartRecruiters(STANDARDBANK_SR_CONFIG);
+      return;
+    default:
+      console.error(`Unknown --source '${source}' (expected absa | firstrand | standardbank).`);
+      process.exit(1);
+  }
 }
 
 main().catch((err: unknown) => {

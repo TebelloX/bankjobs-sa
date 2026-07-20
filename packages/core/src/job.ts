@@ -2,7 +2,7 @@ export const SOURCES = ['absa', 'firstrand', 'standardbank'] as const;
 export type SourceId = (typeof SOURCES)[number];
 
 export type Brand =
-  'Absa' | 'FNB' | 'RMB' | 'WesBank' | 'Ashburton' | 'DirectAxis' | 'Standard Bank';
+  'Absa' | 'FNB' | 'RMB' | 'WesBank' | 'Ashburton' | 'DirectAxis' | 'FirstRand' | 'Standard Bank';
 
 export const CATEGORIES = [
   'Branch & Retail',

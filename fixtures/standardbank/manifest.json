@@ -1,0 +1,24 @@
+{
+  "source": "standardbank",
+  "capturedAt": "2026-07-20T21:38:00+02:00",
+  "endpoints": {
+    "list": "GET https://api.smartrecruiters.com/v1/companies/standardbankgroup/postings?limit=100&offset=N",
+    "detail": "GET https://api.smartrecruiters.com/v1/companies/standardbankgroup/postings/{id}"
+  },
+  "totalAtCapture": 132,
+  "files": {
+    "list-page1.json": "First list page, limit 20, offset 0",
+    "detail-1.json": "744000138643793 — Manager, Branch, Johannesburg, ZA",
+    "detail-2.json": "744000138642446 — Engineer, Business Support & Development (Murex), Johannesburg, ZA",
+    "detail-3.json": "744000138697014 — Head: Credit Risk, Douglas, Isle of Man (non-ZA test case)"
+  },
+  "notes": [
+    "Public documented API, no auth, no User-Agent restrictions; pagination cap is 100 per page (totalFound/offset/limit envelope).",
+    "location.country is a LOWERCASE ISO alpha-2 code ('za', 'im', 'ng') — uppercase it directly, no name mapping needed.",
+    "postedDate: use the date part of releasedDate (full ISO timestamp).",
+    "applyUrl is the official apply deep link (jobs.smartrecruiters.com/StandardBankGroup/...); postingUrl is the posting page.",
+    "Description HTML lives in jobAd.sections.{companyDescription, jobDescription, qualifications, additionalInformation} — each {title, text}. companyDescription is generic bank boilerplate.",
+    "typeOfEmployment: {id: 'permanent', label: 'Full-time'} — use the label; Part-time postings exist.",
+    "function/department labels are mostly 'Other' — categorize from the title."
+  ]
+}

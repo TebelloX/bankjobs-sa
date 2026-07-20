@@ -21,8 +21,37 @@ export {
   BROWSER_UA,
 } from './workday/client';
 
-import { absaAdapter } from './absa';
-export { absaAdapter, ABSA_WORKDAY_CONFIG } from './absa';
+export type {
+  SrListResponse,
+  SrListPosting,
+  SrPostingDetail,
+  SrLocation,
+  SrEmploymentType,
+  SrJobAd,
+  SrJobAdSections,
+  SrSection,
+  SrRawPosting,
+} from './smartrecruiters/types';
 
-/** Adapter registry — absa only for now. */
-export const adapters = { absa: absaAdapter } as const;
+export type { SmartRecruitersConfig } from './smartrecruiters/client';
+export {
+  fetchPostingsList,
+  fetchPostingDetail,
+  fetchAllSmartRecruiters,
+  SMARTRECRUITERS_UA,
+} from './smartrecruiters/client';
+
+import { absaAdapter } from './absa';
+import { firstrandAdapter } from './firstrand';
+import { standardbankAdapter } from './standardbank';
+
+export { absaAdapter, ABSA_WORKDAY_CONFIG } from './absa';
+export { firstrandAdapter, FIRSTRAND_WORKDAY_CONFIG } from './firstrand';
+export { standardbankAdapter, STANDARDBANK_SR_CONFIG } from './standardbank';
+
+/** Adapter registry — one entry per live source. */
+export const adapters = {
+  absa: absaAdapter,
+  firstrand: firstrandAdapter,
+  standardbank: standardbankAdapter,
+} as const;

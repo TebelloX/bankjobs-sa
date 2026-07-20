@@ -163,14 +163,19 @@ describe('fetchAllWorkday — pagination & UA fallback', () => {
       delayMs: 0, // no real sleeping in tests
     };
 
-    const total = 45; // -> pages of 20, 20, 5
-    const allPostings = Array.from({ length: total }, (_, i) => ({
+    const validCount = 45;
+    const valid = Array.from({ length: validCount }, (_, i) => ({
       title: `Job ${i}`,
       externalPath: `/job/City/Job_${i}`,
       locationsText: 'City',
       postedOn: 'Posted Today',
       bulletFields: [`R-${1000 + i}`, '2026-07-20'],
     }));
+    // A malformed/hidden posting: no title, no externalPath (verified live on
+    // FirstRand's list endpoint). It must be skipped before the detail pass.
+    const malformed = { bulletFields: ['R-51859', 'Permanent', 'FNB'] };
+    const allPostings = [...valid.slice(0, 5), malformed, ...valid.slice(5)];
+    const total = allPostings.length; // 46 -> pages of 20, 20, 6 (one skipped)
 
     const calls: Array<{ url: string; method: string; ua: string | undefined }> = [];
 
@@ -221,8 +226,9 @@ describe('fetchAllWorkday — pagination & UA fallback', () => {
       log: (m) => log.push(m),
     });
 
-    // Every posting was collected and paired with a detail.
-    expect(result).toHaveLength(total);
+    // Every VALID posting was collected and paired with a detail; the malformed
+    // one was dropped before the detail pass.
+    expect(result).toHaveLength(validCount);
 
     // Honest UA tried once, then browser UA for everything after the 406.
     expect(calls[0]?.ua).toBe(HONEST_UA);
@@ -232,16 +238,17 @@ describe('fetchAllWorkday — pagination & UA fallback', () => {
     }
 
     // First page fetched twice (honest 406 + browser retry), then 2 more pages,
-    // then one GET per posting.
+    // then one GET per VALID posting (the malformed item is never fetched).
     const listCalls = calls.filter((c) => c.method === 'POST').length;
     const detailCalls = calls.filter((c) => c.method === 'GET').length;
     expect(listCalls).toBe(4); // page1 honest + page1 browser + page2 + page3
-    expect(detailCalls).toBe(total);
+    expect(detailCalls).toBe(validCount);
 
     // Progress logging.
     expect(log).toContain('absa: page 1/3');
     expect(log).toContain('absa: page 2/3');
     expect(log).toContain('absa: page 3/3');
-    expect(log).toContain(`absa: details ${total}/${total}`);
+    expect(log).toContain(`absa: details ${validCount}/${validCount}`);
+    expect(log).toContain('absa: skipped 1 malformed list items');
   });
 });

@@ -1,7 +1,14 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import type { CanonicalJob, SourceId } from '@bankjobs/core';
-import type { WorkdayJobDetail, WorkdayListResponse, WorkdayRawPosting } from '@bankjobs/adapters';
+import type {
+  SrListResponse,
+  SrPostingDetail,
+  SrRawPosting,
+  WorkdayJobDetail,
+  WorkdayListResponse,
+  WorkdayRawPosting,
+} from '@bankjobs/adapters';
 import { openIngestDb, repoRoot } from './db';
 import type { JobsDb } from './db';
 import { registry } from './registry';
@@ -23,28 +30,31 @@ const FAILURE_RATIO = 0.1;
 
 type Outcome = 'success' | 'warning' | 'failure';
 
+const FIXTURE_DETAIL_RE = /^detail-.*\.json$/;
+
+function fixtureDetailFiles(dir: string): string[] {
+  return readdirSync(dir)
+    .filter((f) => FIXTURE_DETAIL_RE.test(f))
+    .sort();
+}
+
 /**
- * Build raw postings from committed fixtures (offline dev + CI). Only Absa has
- * fixtures today; we pair each captured detail with its list item by jobReqId.
- * `normalize` only reads the detail, so a missing list item is synthesised.
+ * Workday fixtures (absa, firstrand): pair each captured detail with the list
+ * item whose bulletFields contain its jobReqId. `normalize` only reads the
+ * detail (plus the list item's bulletFields for firstrand's sub-brand), so a
+ * missing list item is synthesised.
  */
-function loadFixtures(source: SourceId): WorkdayRawPosting[] {
-  if (source !== 'absa') {
-    throw new Error(`no fixtures available for source '${source}'`);
-  }
-  const dir = join(repoRoot(), 'fixtures', 'absa');
+function loadWorkdayFixtures(source: SourceId): WorkdayRawPosting[] {
+  const dir = join(repoRoot(), 'fixtures', source);
   const list = JSON.parse(
     readFileSync(join(dir, 'list-page1.json'), 'utf8'),
   ) as WorkdayListResponse;
-  const detailFiles = readdirSync(dir)
-    .filter((f) => /^detail-.*\.json$/.test(f))
-    .sort();
 
   const pairs: WorkdayRawPosting[] = [];
-  for (const file of detailFiles) {
+  for (const file of fixtureDetailFiles(dir)) {
     const detail = JSON.parse(readFileSync(join(dir, file), 'utf8')) as WorkdayJobDetail;
     const reqId = detail.jobPostingInfo.jobReqId;
-    const listItem = list.jobPostings.find((p) => p.bulletFields[0] === reqId) ?? {
+    const listItem = list.jobPostings.find((p) => p.bulletFields.includes(reqId)) ?? {
       title: detail.jobPostingInfo.title,
       externalPath: '',
       bulletFields: [reqId, detail.jobPostingInfo.startDate],
@@ -52,6 +62,30 @@ function loadFixtures(source: SourceId): WorkdayRawPosting[] {
     pairs.push({ listItem, detail });
   }
   return pairs;
+}
+
+/**
+ * SmartRecruiters fixtures (standardbank): pair each captured detail with its
+ * list item by id. The detail is a superset of the list posting, so it doubles
+ * as its own fallback list item when the list page doesn't carry the id.
+ */
+function loadSrFixtures(): SrRawPosting[] {
+  const dir = join(repoRoot(), 'fixtures', 'standardbank');
+  const list = JSON.parse(readFileSync(join(dir, 'list-page1.json'), 'utf8')) as SrListResponse;
+
+  const pairs: SrRawPosting[] = [];
+  for (const file of fixtureDetailFiles(dir)) {
+    const detail = JSON.parse(readFileSync(join(dir, file), 'utf8')) as SrPostingDetail;
+    const listItem = list.content.find((p) => p.id === detail.id) ?? detail;
+    pairs.push({ listItem, detail });
+  }
+  return pairs;
+}
+
+/** Build raw postings from committed fixtures (offline dev + CI). */
+function loadFixtures(source: SourceId): unknown[] {
+  if (source === 'standardbank') return loadSrFixtures();
+  return loadWorkdayFixtures(source);
 }
 
 function finalizeRun(

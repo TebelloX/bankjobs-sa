@@ -443,6 +443,94 @@
     "vryheid": {
       "city": "Vryheid",
       "province": "KwaZulu-Natal"
+    },
+    "caledon": {
+      "city": "Caledon",
+      "province": "Western Cape"
+    },
+    "de doorns": {
+      "city": "De Doorns",
+      "province": "Western Cape"
+    },
+    "plettenberg bay": {
+      "city": "Plettenberg Bay",
+      "province": "Western Cape"
+    },
+    "hermanus": {
+      "city": "Hermanus",
+      "province": "Western Cape"
+    },
+    "clanwilliam": {
+      "city": "Clanwilliam",
+      "province": "Western Cape"
+    },
+    "cofimvaba": {
+      "city": "Cofimvaba",
+      "province": "Eastern Cape"
+    },
+    "humansdorp": {
+      "city": "Humansdorp",
+      "province": "Eastern Cape"
+    },
+    "bothaville": {
+      "city": "Bothaville",
+      "province": "Free State"
+    },
+    "christiana": {
+      "city": "Christiana",
+      "province": "North West"
+    },
+    "delareyville": {
+      "city": "Delareyville",
+      "province": "North West"
+    },
+    "sannieshof": {
+      "city": "Sannieshof",
+      "province": "North West"
+    },
+    "bushbuckridge": {
+      "city": "Bushbuckridge",
+      "province": "Mpumalanga"
+    },
+    "hazyview": {
+      "city": "Hazyview",
+      "province": "Mpumalanga"
+    },
+    "kabokweni": {
+      "city": "Kabokweni",
+      "province": "Mpumalanga"
+    },
+    "modjadjiskloof": {
+      "city": "Modjadjiskloof",
+      "province": "Limpopo"
+    },
+    "soshanguve": {
+      "city": "Soshanguve",
+      "province": "Gauteng"
+    },
+    "melville": {
+      "city": "Melville",
+      "province": "Gauteng"
+    },
+    "parktown": {
+      "city": "Parktown",
+      "province": "Gauteng"
+    },
+    "dolphin coast": {
+      "city": "Dolphin Coast",
+      "province": "KwaZulu-Natal"
+    },
+    "drakensburg": {
+      "city": "Drakensberg",
+      "province": "KwaZulu-Natal"
+    },
+    "kwa dukuza": {
+      "city": "KwaDukuza",
+      "province": "KwaZulu-Natal"
+    },
+    "raisethorpe": {
+      "city": "Raisethorpe",
+      "province": "KwaZulu-Natal"
     }
   }
 }
