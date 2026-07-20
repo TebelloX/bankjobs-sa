@@ -31,9 +31,23 @@ function bankName(id: string, fallback: string): string {
 // Live rows: every source with open roles, largest ledger first. The search
 // query is the source's real name (the client search matches source ids and
 // brands), not the multi-brand display label, which would match nothing.
+//
+// Displayed counts are SOUTH AFRICAN roles only, so the ledger sums to the
+// same number as the header and the "Open vacancies in South Africa" list —
+// meta.sources[].count is all countries and would make the page contradict
+// itself. Liveness still comes from the all-countries count, so a source
+// whose SA count happens to be 0 stays a live row rather than "coming soon".
+const saCountBySource = new Map<string, number>();
+for (const job of sa) {
+  saCountBySource.set(job.source, (saCountBySource.get(job.source) ?? 0) + 1);
+}
 const liveBanks = meta.sources
   .filter((s) => s.count > 0)
-  .map((s) => ({ name: bankName(s.id, s.name), query: s.name, count: s.count }))
+  .map((s) => ({
+    name: bankName(s.id, s.name),
+    query: s.name,
+    count: saCountBySource.get(s.id) ?? 0,
+  }))
   .sort((a, b) => b.count - a.count);
 
 // Muted "coming soon" rows: any source with nothing live yet, plus the banks we
@@ -144,9 +158,23 @@ const description =
           </div>
         ))
       }
+      {
+        meta.totalInternational > 0 && (
+          <a class="bank-line intl-total" href="/browse/international/">
+            <span class="name soft">Outside South Africa</span>
+            <span class="dots" />
+            <span class="count">
+              {meta.totalInternational}
+              <small>international roles</small>
+            </span>
+          </a>
+        )
+      }
       <p class="banks-note">
-        Counts update with every fetch. A bank listed as “coming soon” is one we're still building a
-        reliable, respectful connection to — we'd rather show nothing than show stale jobs.
+        Counts are South African roles; the banks' roles elsewhere in Africa and abroad are listed
+        separately. Counts update with every fetch. A bank listed as “coming soon” is one we're
+        still building a reliable, respectful connection to — we'd rather show nothing than show
+        stale jobs.
       </p>
     </div>
   </section>
