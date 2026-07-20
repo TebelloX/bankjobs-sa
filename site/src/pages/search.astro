@@ -34,6 +34,8 @@ const description =
 
   <ul id="search-results" class="joblist" aria-label="Search results"></ul>
 
+  <div id="search-more" class="search-more"></div>
+
   <noscript>
     <p class="muted">Search needs JavaScript — browse by category instead:</p>
     <ul class="catlinks">
@@ -56,8 +58,9 @@ const description =
     const intl = document.getElementById('include-intl') as HTMLInputElement | null;
     const list = document.getElementById('search-results') as HTMLUListElement | null;
     const count = document.getElementById('results-count');
+    const more = document.getElementById('search-more');
 
-    if (input && list && count) {
+    if (input && list && count && more) {
       const MONTHS = [
         'Jan',
         'Feb',
@@ -83,7 +86,15 @@ const description =
       let rows: SearchRow[] = [];
       let loaded = false;
 
-      function render(): void {
+      // Long result sets render in statement-sized batches of 50: a first page
+      // of 50 rows, then a "show more" button that reveals another 50 each
+      // click. `shown` is the current cap; a fresh search resets it.
+      const PAGE_SIZE = 50;
+      let shown = PAGE_SIZE;
+
+      function render(reset = true): void {
+        if (reset) shown = PAGE_SIZE;
+
         const q = input!.value.trim().toLowerCase();
         const includeIntl = !!(intl && intl.checked);
         const pool = rows.filter((r) => includeIntl || r.country === 'ZA');
@@ -95,10 +106,12 @@ const description =
             })
           : pool;
 
+        const visible = matched.slice(0, shown);
+
         // Rebuild the list with DOM APIs only — never innerHTML with data.
         // Ledger-row markup, matching JobRow.astro: cell (title + source) | when.
         while (list!.firstChild) list!.removeChild(list!.firstChild);
-        for (const r of matched) {
+        for (const r of visible) {
           const li = document.createElement('li');
           li.className = 'job-row';
 
@@ -130,9 +143,31 @@ const description =
           list!.appendChild(li);
         }
 
-        count!.textContent = loaded
-          ? `${matched.length} of ${pool.length} vacancies`
-          : 'Loading vacancies…';
+        // Reveal control: a ledger-styled "show more" button when the match
+        // set exceeds the current cap.
+        while (more!.firstChild) more!.removeChild(more!.firstChild);
+        if (loaded && matched.length > shown) {
+          const remaining = matched.length - shown;
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'show-more';
+          btn.textContent = `Show ${PAGE_SIZE} more (${remaining} remaining)`;
+          btn.addEventListener('click', () => {
+            shown += PAGE_SIZE;
+            render(false);
+          });
+          more!.appendChild(btn);
+        }
+
+        // The count line always states the TOTAL match set; "— showing N" is
+        // appended only while the list is capped below that total.
+        if (!loaded) {
+          count!.textContent = 'Loading vacancies…';
+        } else if (matched.length > shown) {
+          count!.textContent = `${matched.length} of ${pool.length} vacancies — showing ${visible.length}`;
+        } else {
+          count!.textContent = `${matched.length} of ${pool.length} vacancies`;
+        }
       }
 
       function updateUrl(): void {
@@ -153,7 +188,7 @@ const description =
           render();
         }, 150);
       });
-      if (intl) intl.addEventListener('change', render);
+      if (intl) intl.addEventListener('change', () => render());
 
       fetch(SEARCH_DATA_URL)
         .then((r) => r.json())

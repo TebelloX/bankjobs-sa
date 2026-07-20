@@ -1,0 +1,39 @@
+---
+import type { Page } from 'astro';
+
+interface Props {
+  /** The Astro paginate() Page object for the current list page. */
+  page: Page;
+}
+
+const { page } = Astro.props;
+const { currentPage, lastPage, url } = page;
+---
+
+{
+  lastPage > 1 && (
+    <nav class="pager" aria-label="Pagination">
+      {url.prev ? (
+        <a class="pager-link newer" href={url.prev}>
+          ← Newer
+        </a>
+      ) : (
+        <span class="pager-link newer is-off" aria-disabled="true">
+          ← Newer
+        </span>
+      )}
+      <span class="page-label">
+        page {currentPage} of {lastPage}
+      </span>
+      {url.next ? (
+        <a class="pager-link older" href={url.next}>
+          Older →
+        </a>
+      ) : (
+        <span class="pager-link older is-off" aria-disabled="true">
+          Older →
+        </span>
+      )}
+    </nav>
+  )
+}

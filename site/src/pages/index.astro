@@ -9,6 +9,10 @@ const sa = saJobs();
 // The four most recent SA jobs for the signature statement card.
 const statement = sa.slice(0, 4);
 
+// The homepage shows the 20 most recent SA jobs; the full ledger lives at
+// /vacancies/. The "browse all" row below carries the true total (sa.length).
+const latest = sa.slice(0, 20);
+
 // Today's date, SAST, for the statement header, e.g. "20 Jul 2026".
 const statementDate = new Intl.DateTimeFormat('en-ZA', {
   timeZone: 'Africa/Johannesburg',
@@ -181,14 +185,12 @@ const description =
 
   <section class="section" aria-labelledby="jobs-h">
     <div class="wrap">
-      <p class="sec-eyebrow">All vacancies</p>
-      <h2 id="jobs-h" class="sec-title">
-        Open vacancies in South Africa <span class="mono">({sa.length})</span>
-      </h2>
+      <p class="sec-eyebrow">Latest vacancies</p>
+      <h2 id="jobs-h" class="sec-title">Latest vacancies in South Africa</h2>
       {
         sa.length > 0 ? (
           <ul class="joblist">
-            {sa.map((job) => (
+            {latest.map((job) => (
               <JobRow
                 slug={job.slug}
                 title={job.title}
@@ -201,6 +203,15 @@ const description =
           </ul>
         ) : (
           <p class="list-empty">No open vacancies right now — check back soon.</p>
+        )
+      }
+
+      {
+        sa.length > 0 && (
+          <a class="browse-all" href="/vacancies/">
+            <span class="display">Browse all {sa.length} South African vacancies</span>
+            <span class="arrow" aria-hidden="true">→</span>
+          </a>
         )
       }
 
