@@ -20,6 +20,10 @@ import { ABSA_WORKDAY_CONFIG } from '../src/absa';
 import { FIRSTRAND_WORKDAY_CONFIG } from '../src/firstrand';
 import { STANDARDBANK_SR_CONFIG } from '../src/standardbank';
 import { INVESTEC_EARCU_CONFIG } from '../src/investec';
+import { GOTYME_WORKABLE_CONFIG } from '../src/gotyme';
+import { WORKABLE_UA } from '../src/workable/client';
+import type { WorkableConfig } from '../src/workable/client';
+import type { WorkableJobDetail, WorkableListResponse } from '../src/workable/types';
 import { BROWSER_UA, HONEST_UA } from '../src/workday/client';
 import type { WorkdayConfig } from '../src/workday/client';
 import type { WorkdayJobDetail, WorkdayListResponse } from '../src/workday/types';
@@ -407,6 +411,134 @@ function fileNoteEarcu(captured: { url: string; posting: EarcuJobPosting } | und
   return `${String(id)} — ${captured.posting.title ?? '?'} (${locality})`;
 }
 
+// ---------------------------------------------------------------------------
+// Workable source (gotyme).
+// ---------------------------------------------------------------------------
+
+// The real GoTyme feed is empty, so the populated-schema fixtures come from a
+// public stand-in Workable account. 'careers' is Workable's own board — small
+// (<=20 roles), stable, and unmistakably NOT GoTyme. Re-point this to re-capture
+// the stand-ins reproducibly.
+const WORKABLE_STANDIN_SLUG = 'careers';
+
+async function captureWorkable(cfg: WorkableConfig): Promise<void> {
+  const delayMs = cfg.delayMs ?? 400;
+  const fixturesDir = join(fixturesRoot, 'gotyme');
+  const apiBase = 'https://apply.workable.com/api';
+
+  const wkListUrl = (slug: string): string => `${apiBase}/v3/accounts/${slug}/jobs`;
+  const wkDetailUrl = (slug: string, shortcode: string): string =>
+    `${apiBase}/v1/accounts/${slug}/jobs/${shortcode}`;
+
+  const postList = (url: string): Promise<Response> =>
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'User-Agent': WORKABLE_UA,
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: '{}',
+    });
+
+  // 1) The REAL GoTyme empty list — today's ground truth (verify it is still 0;
+  // a re-capture from a populated feed must replace the stand-ins entirely).
+  const realUrl = wkListUrl(cfg.slug);
+  const realRes = await postList(realUrl);
+  if (realRes.status !== 200) {
+    console.error(`gotyme real list endpoint returned HTTP ${realRes.status}.`);
+    console.error(`Tried: POST ${realUrl}`);
+    process.exit(1);
+  }
+  const realText = await realRes.text();
+  const real = JSON.parse(realText) as WorkableListResponse;
+  writeFileSync(join(fixturesDir, 'list-empty.json'), realText);
+  console.log(`Wrote list-empty.json (real GoTyme feed, total ${real.total}).`);
+  if (real.total !== 0) {
+    console.warn(
+      `NOTE: GoTyme now advertises ${real.total} roles — re-capture the real list/detail and RETIRE the stand-ins.`,
+    );
+  }
+
+  // 2) Stand-in list page.
+  await sleep(delayMs);
+  const standinUrl = wkListUrl(WORKABLE_STANDIN_SLUG);
+  const standinRes = await postList(standinUrl);
+  if (standinRes.status !== 200) {
+    console.error(`stand-in (${WORKABLE_STANDIN_SLUG}) list returned HTTP ${standinRes.status}.`);
+    process.exit(1);
+  }
+  const standinText = await standinRes.text();
+  const standin = JSON.parse(standinText) as WorkableListResponse;
+  writeFileSync(join(fixturesDir, 'standin-list.json'), standinText);
+  console.log(`Wrote standin-list.json (${standin.results.length} postings, total ${standin.total}).`);
+
+  // 3) Up to three stand-in details for schema variety.
+  const chosen = standin.results.slice(0, 3);
+  if (chosen.length === 0) {
+    console.error(`Stand-in account ${WORKABLE_STANDIN_SLUG} has no open roles — pick another.`);
+    process.exit(1);
+  }
+  const details: WorkableJobDetail[] = [];
+  for (let i = 0; i < chosen.length; i += 1) {
+    const item = chosen[i];
+    if (!item) continue;
+    await sleep(delayMs);
+    const res = await fetch(wkDetailUrl(WORKABLE_STANDIN_SLUG, item.shortcode), {
+      headers: { 'User-Agent': WORKABLE_UA, Accept: 'application/json' },
+    });
+    if (res.status !== 200) {
+      throw new Error(`Detail ${item.shortcode} returned HTTP ${res.status}`);
+    }
+    const text = await res.text();
+    details.push(JSON.parse(text) as WorkableJobDetail);
+    writeFileSync(join(fixturesDir, `standin-detail-${i + 1}.json`), text);
+  }
+
+  const manifest = {
+    source: 'gotyme',
+    capturedAt: new Date().toISOString(),
+    ats: 'Workable',
+    brand: 'GoTyme Bank (ex-TymeBank; tymebank.co.za 301s to gotyme.co.za)',
+    real: {
+      slug: cfg.slug,
+      note: 'Slug is NOT discoverable from gotyme.co.za HTML/sitemap — pinned in the adapter. Distinct from GoTyme Philippines (gotyme.com.ph).',
+      list: `POST ${realUrl}`,
+      corroborating: [
+        `https://apply.workable.com/${cfg.slug}/jobs.md`,
+        `https://apply.workable.com/${cfg.slug}/llms.txt`,
+      ],
+      totalAtCapture: real.total,
+    },
+    standin: {
+      slug: WORKABLE_STANDIN_SLUG,
+      why: "The real GoTyme feed is empty; this public Workable board pins the populated schema (client parsing + normalize mapping) against genuine payloads. Brand normalizes to 'GoTyme Bank' over this employer's data — intentional, schema-pinning only.",
+      list: `POST ${wkListUrl(WORKABLE_STANDIN_SLUG)}`,
+      detail: `GET ${wkDetailUrl(WORKABLE_STANDIN_SLUG, '{shortcode}')}`,
+      totalAtCapture: standin.total,
+    },
+    files: {
+      'list-empty.json': `Real GoTyme empty list (total ${real.total}) — today's ground truth.`,
+      'standin-list.json': `Stand-in list page (${standin.results.length} postings).`,
+      ...Object.fromEntries(
+        details.map((d, i) => [
+          `standin-detail-${i + 1}.json`,
+          `${d.shortcode} — ${d.title} (${d.location?.city ?? 'no city'}, ${d.location?.country ?? '?'})`,
+        ]),
+      ),
+    },
+    notes: [
+      'List is v3 POST-only (GET 404s); page 1 body {}, subsequent pages echo the response nextPage cursor back as the request body {token}.',
+      'Detail is the v1 GET endpoint (v3 has no per-job GET); it carries the HTML body in description + requirements + benefits.',
+      'No apply-URL field: the durable public job page is https://apply.workable.com/{slug}/j/{shortcode}/.',
+      'location.country is a DISPLAY name (mapped via countryCodeFor); countryCode/type/published/department are also present.',
+      'RE-CAPTURE from the real account and retire the stand-ins the moment GoTyme posts roles (verify field completeness first).',
+    ],
+  };
+  writeFileSync(join(fixturesDir, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
+  console.log(`Wrote standin-detail-1..${details.length}.json + manifest.json to ${fixturesDir}.`);
+}
+
 interface WorkdayManifestArgs {
   source: string;
   listUrl: string;
@@ -461,9 +593,12 @@ async function main(): Promise<void> {
     case 'investec':
       await captureEarcu(INVESTEC_EARCU_CONFIG);
       return;
+    case 'gotyme':
+      await captureWorkable(GOTYME_WORKABLE_CONFIG);
+      return;
     default:
       console.error(
-        `Unknown --source '${source}' (expected absa | firstrand | standardbank | investec).`,
+        `Unknown --source '${source}' (expected absa | firstrand | standardbank | investec | gotyme).`,
       );
       process.exit(1);
   }

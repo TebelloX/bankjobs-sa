@@ -60,15 +60,34 @@ export {
   EARCU_UA,
 } from './earcu/client';
 
+export type {
+  WorkableLocation,
+  WorkableListItem,
+  WorkableListResponse,
+  WorkableJobDetail,
+  WorkableRawPosting,
+} from './workable/types';
+
+export type { WorkableConfig } from './workable/client';
+export {
+  fetchWorkableJobList,
+  fetchWorkableJobDetail,
+  fetchAllWorkable,
+  workableJobUrl,
+  WORKABLE_UA,
+} from './workable/client';
+
 import { absaAdapter } from './absa';
 import { firstrandAdapter } from './firstrand';
 import { standardbankAdapter } from './standardbank';
 import { investecAdapter } from './investec';
+import { gotymeAdapter } from './gotyme';
 
 export { absaAdapter, ABSA_WORKDAY_CONFIG } from './absa';
 export { firstrandAdapter, FIRSTRAND_WORKDAY_CONFIG } from './firstrand';
 export { standardbankAdapter, STANDARDBANK_SR_CONFIG } from './standardbank';
 export { investecAdapter, INVESTEC_EARCU_CONFIG } from './investec';
+export { gotymeAdapter, GOTYME_WORKABLE_CONFIG } from './gotyme';
 
 /** Adapter registry — one entry per live source. */
 export const adapters = {
@@ -76,4 +95,5 @@ export const adapters = {
   firstrand: firstrandAdapter,
   standardbank: standardbankAdapter,
   investec: investecAdapter,
+  gotyme: gotymeAdapter,
 } as const;

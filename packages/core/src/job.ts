@@ -1,4 +1,4 @@
-export const SOURCES = ['absa', 'firstrand', 'standardbank', 'investec'] as const;
+export const SOURCES = ['absa', 'firstrand', 'standardbank', 'investec', 'gotyme'] as const;
 export type SourceId = (typeof SOURCES)[number];
 
 export type Brand =
@@ -10,7 +10,8 @@ export type Brand =
   | 'DirectAxis'
   | 'FirstRand'
   | 'Standard Bank'
-  | 'Investec';
+  | 'Investec'
+  | 'GoTyme Bank';
 
 export const CATEGORIES = [
   'Branch & Retail',

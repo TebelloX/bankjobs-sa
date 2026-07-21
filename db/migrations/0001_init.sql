@@ -14,7 +14,11 @@ INSERT INTO sources (id, name, enabled) VALUES
   ('absa', 'Absa', 1),
   ('firstrand', 'FirstRand', 1),
   ('standardbank', 'Standard Bank', 1),
-  ('investec', 'Investec', 1);
+  ('investec', 'Investec', 1),
+  -- Adapter ready, but the GoTyme Workable feed is empty at build time. Seeded
+  -- disabled so scheduled runs skip it (a 0-job source trips the guardrail on
+  -- every run); flip enabled to 1 when GoTyme posts roles.
+  ('gotyme', 'GoTyme Bank', 0);
 
 CREATE TABLE jobs (
   id               TEXT PRIMARY KEY,

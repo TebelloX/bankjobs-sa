@@ -6,6 +6,9 @@ import type {
   SrListResponse,
   SrPostingDetail,
   SrRawPosting,
+  WorkableJobDetail,
+  WorkableListResponse,
+  WorkableRawPosting,
   WorkdayJobDetail,
   WorkdayListResponse,
   WorkdayRawPosting,
@@ -34,6 +37,7 @@ type Outcome = 'success' | 'warning' | 'failure';
 
 const FIXTURE_DETAIL_RE = /^detail-.*\.json$/;
 const FIXTURE_DETAIL_HTML_RE = /^detail-.*\.html$/;
+const FIXTURE_STANDIN_DETAIL_RE = /^standin-detail-.*\.json$/;
 
 function fixtureDetailFiles(dir: string): string[] {
   return readdirSync(dir)
@@ -107,10 +111,35 @@ function loadEarcuFixtures(): EarcuRawPosting[] {
   return raws;
 }
 
+/**
+ * Workable fixtures (gotyme): the real GoTyme feed is empty, so the offline
+ * fixtures are a stand-in employer captured to pin the populated schema. Pair
+ * each standin-detail with its standin-list item by shortcode (the detail is a
+ * superset, so it doubles as its own fallback list item).
+ */
+function loadWorkableFixtures(): WorkableRawPosting[] {
+  const dir = join(repoRoot(), 'fixtures', 'gotyme');
+  const list = JSON.parse(
+    readFileSync(join(dir, 'standin-list.json'), 'utf8'),
+  ) as WorkableListResponse;
+  const files = readdirSync(dir)
+    .filter((f) => FIXTURE_STANDIN_DETAIL_RE.test(f))
+    .sort();
+
+  const pairs: WorkableRawPosting[] = [];
+  for (const file of files) {
+    const detail = JSON.parse(readFileSync(join(dir, file), 'utf8')) as WorkableJobDetail;
+    const listItem = list.results.find((p) => p.shortcode === detail.shortcode) ?? detail;
+    pairs.push({ listItem, detail });
+  }
+  return pairs;
+}
+
 /** Build raw postings from committed fixtures (offline dev + CI). */
 function loadFixtures(source: SourceId): unknown[] {
   if (source === 'standardbank') return loadSrFixtures();
   if (source === 'investec') return loadEarcuFixtures();
+  if (source === 'gotyme') return loadWorkableFixtures();
   return loadWorkdayFixtures(source);
 }
 

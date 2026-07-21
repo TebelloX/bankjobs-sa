@@ -1,0 +1,36 @@
+{
+  "source": "gotyme",
+  "capturedAt": "2026-07-21T09:48:38.164Z",
+  "ats": "Workable",
+  "brand": "GoTyme Bank (ex-TymeBank; tymebank.co.za 301s to gotyme.co.za)",
+  "real": {
+    "slug": "gotyme-za-south-africa",
+    "note": "Slug is NOT discoverable from gotyme.co.za HTML/sitemap — pinned in the adapter. Distinct from GoTyme Philippines (gotyme.com.ph).",
+    "list": "POST https://apply.workable.com/api/v3/accounts/gotyme-za-south-africa/jobs",
+    "corroborating": [
+      "https://apply.workable.com/gotyme-za-south-africa/jobs.md",
+      "https://apply.workable.com/gotyme-za-south-africa/llms.txt"
+    ],
+    "totalAtCapture": 0
+  },
+  "standin": {
+    "slug": "careers",
+    "why": "The real GoTyme feed is empty; this public Workable board pins the populated schema (client parsing + normalize mapping) against genuine payloads. Brand normalizes to 'GoTyme Bank' over this employer's data — intentional, schema-pinning only.",
+    "list": "POST https://apply.workable.com/api/v3/accounts/careers/jobs",
+    "detail": "GET https://apply.workable.com/api/v1/accounts/careers/jobs/{shortcode}",
+    "totalAtCapture": 2
+  },
+  "files": {
+    "list-empty.json": "Real GoTyme empty list (total 0) — today's ground truth.",
+    "standin-list.json": "Stand-in list page (2 postings).",
+    "standin-detail-1.json": "401786A940 — Implementation Manager (Boston, United States)",
+    "standin-detail-2.json": "5656BF6FBE — Senior Software Engineer (Athens, Greece)"
+  },
+  "notes": [
+    "List is v3 POST-only (GET 404s); page 1 body {}, subsequent pages echo the response nextPage cursor back as the request body {token}.",
+    "Detail is the v1 GET endpoint (v3 has no per-job GET); it carries the HTML body in description + requirements + benefits.",
+    "No apply-URL field: the durable public job page is https://apply.workable.com/{slug}/j/{shortcode}/.",
+    "location.country is a DISPLAY name (mapped via countryCodeFor); countryCode/type/published/department are also present.",
+    "RE-CAPTURE from the real account and retire the stand-ins the moment GoTyme posts roles (verify field completeness first)."
+  ]
+}
