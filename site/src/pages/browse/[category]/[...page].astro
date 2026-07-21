@@ -39,8 +39,8 @@ const noun = total === 1 ? 'vacancy' : 'vacancies';
 const intlCount = internationalJobs().filter((j) => j.categorySlug === slug).length;
 
 const title = isFirst
-  ? `${name} vacancies — myBankjobs`
-  : `${name} vacancies — page ${page.currentPage} — myBankjobs`;
+  ? `${name} vacancies — mybankjobs`
+  : `${name} vacancies — page ${page.currentPage} — mybankjobs`;
 const baseDesc = `Open ${name} vacancies at South African banks — official listings, updated a few times a day.`;
 const description = isFirst ? baseDesc : `${baseDesc} — page ${page.currentPage}`;
 

@@ -1,4 +1,4 @@
-/* myBankjobs — one stylesheet. Self-hosted fonts (fontsource), no third-party
+/* mybankjobs — one stylesheet. Self-hosted fonts (fontsource), no third-party
    requests. Design system ported from docs/bankjobs-sa-landing.html:
    a pale ledger / bank-statement look, Archivo for display, IBM Plex Mono for
    meta. The rubber-stamp red is a signature accent — homepage statement card
@@ -873,9 +873,7 @@ a.pager-link:hover {
   color: var(--ink-soft);
 }
 .site-footer .wrap {
-  display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
-  gap: 32px;
+  text-align: center;
 }
 .site-footer p {
   margin: 0;
@@ -924,9 +922,6 @@ a.pager-link:hover {
   .how-grid {
     grid-template-columns: 1fr;
     gap: 24px;
-  }
-  .site-footer .wrap {
-    grid-template-columns: 1fr;
   }
 }
 

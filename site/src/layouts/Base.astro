@@ -29,6 +29,9 @@ const year = new Date().getFullYear();
         alive) — an absolute canonical on every page keeps search engines on
         the real domain. */}
     <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/favicon-16.png" type="image/png" sizes="16x16" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="sitemap" href="/sitemap-index.xml" />
   </head>
   <body>
@@ -47,21 +50,11 @@ const year = new Date().getFullYear();
       {bleed ? <slot /> : <div class={wrapClass}><slot /></div>}
     </main>
 
+    {/* The unaffiliated disclaimer + takedown contact live on /about — the
+        footer keeps a link there so they stay one click away on every page. */}
     <footer class="site-footer">
       <div class="wrap">
-        <p>
-          <strong>myBankjobs</strong> is an independent, free service and is not affiliated with,
-          endorsed by, or acting on behalf of any bank. Bank names are used only to identify whose
-          public vacancies are listed. All applications happen on the banks' own official websites.
-        </p>
-        <p>
-          Something wrong, or listing your organisation's jobs and want them removed?
-          <a href="mailto:tebellonamo@gmail.com">tebellonamo@gmail.com</a> — requests are honoured
-          promptly.<br /><br />
-          <span class="mono small"
-            >Light on data by design · works on any phone · &copy; {year} myBankjobs</span
-          >
-        </p>
+        <p>made with ❤️ by tebello · &copy; {year} mybankjobs · <a href="/about/">about</a></p>
       </div>
     </footer>
   </body>
