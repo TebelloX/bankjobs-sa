@@ -10,7 +10,7 @@
       "database_name": "bankjobs",
       // DEPLOY-TIME FILL: replace with the real id from `wrangler d1 create bankjobs`.
       // Ignored locally — miniflare/vitest simulate D1 regardless of this value.
-      "database_id": "REPLACE_WITH_D1_DATABASE_ID",
+      "database_id": "1ed5662e-2fab-402b-96d1-bac8175a52a6",
     },
   ],
   // route / custom domain intentionally unset — a deploy decision.

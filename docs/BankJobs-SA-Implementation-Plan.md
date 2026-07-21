@@ -1,6 +1,6 @@
 # BankJobs SA — Implementation Plan
 
-**Version:** 0.8 · **Date:** 21 July 2026 · **Companion to:** BankJobs SA PRD v0.2
+**Version:** 0.9 · **Date:** 21 July 2026 · **Companion to:** BankJobs SA PRD v0.2
 
 This plan translates the PRD into a build sequence. It is written for a solo developer working in evenings/weekends; effort estimates are rough and assume familiarity with TypeScript. Each phase ends with a working, deployable system — never a half-built one.
 
@@ -114,8 +114,8 @@ Per adapter:
 - [x] Edge caching: Cache API on a normalized URL (sorted/whitelisted params), `max-age=300, s-maxage=900`; cache HITs served before the rate limiter spends a token.
 - [x] Per-IP token bucket (in-memory per-isolate — documented caveat; adequate free-tier protection), 429 + Retry-After.
 - [x] FTS5+triggers spike, LOCAL: `packages/api/test/d1-fts-spike.test.ts` proves the virtual table, all three triggers (incl. lifecycle-only updates NOT churning the index), and bm25 ranking against real workerd D1.
-- [ ] **FTS5+triggers spike, REMOTE — required before first deploy**: run `packages/api/scripts/spike-remote-d1.sql` per the README once wrangler is authenticated and the prod DB exists. If managed D1 rejects FTS5/triggers, the documented fallback is explicit `jobs_fts` maintenance in ingest's diff step (not built).
-- [ ] Deploy-time: fill `database_id` in `wrangler.jsonc`, decide the route/domain, `wrangler deploy`.
+- [x] **FTS5+triggers spike, REMOTE — PASSED 21 Jul 2026.** `bankjobs` D1 created (WEUR, id wired into wrangler.jsonc), schema applied cleanly, spike matched its expected table row-for-row on managed D1. The ingest-maintains-index fallback is not needed. (Remote quirk worth remembering: multi-statement `--file` returns only aggregate stats — replay via `--command` to see rows.)
+- [ ] Deploy-time: decide the route/domain, `wrangler deploy`.
 
 ### 2.7 Astro frontend
 

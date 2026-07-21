@@ -78,7 +78,16 @@ Against a real D1 binding via `@cloudflare/vitest-pool-workers`, applying `db/sc
 `wrangler dev` with local D1 additionally smoke-tested clean: list, `q=`, category+province,
 `/api/jobs/:id`, `/api/meta`, hostile-`q`, 404, 405, and cache MISS→HIT with key normalization.
 
-### REQUIRED before first deploy — remote spike
+### Remote spike — PASSED 21 Jul 2026 ✅
+
+Run against the real `bankjobs` database (WEUR, id `1ed5662e-2fab-402b-96d1-bac8175a52a6`,
+now wired into `wrangler.jsonc`): schema.sql applied cleanly (fts5 virtual table + all three
+triggers accepted), and the spike below matched its expected table **row-for-row** (replayed
+statement-by-statement via `--command`, since a multi-statement `--file` on remote D1 reports
+only aggregate stats — worth knowing for future remote debugging). Managed D1 fully supports
+our FTS setup; the ingest-maintains-the-index fallback is NOT needed.
+
+### The spike (for reference / re-runs)
 
 The local runtime is workerd; **managed D1 is not proven until you run the remote spike.** Once
 `wrangler login` is done and the DB exists:
