@@ -531,6 +531,22 @@
     "raisethorpe": {
       "city": "Raisethorpe",
       "province": "KwaZulu-Natal"
+    },
+    "muldersdrift": {
+      "city": "Muldersdrift",
+      "province": "Gauteng"
+    },
+    "lichtenburg": {
+      "city": "Lichtenburg",
+      "province": "North West"
+    },
+    "umlazi": {
+      "city": "Umlazi",
+      "province": "KwaZulu-Natal"
+    },
+    "franschhoek": {
+      "city": "Franschhoek",
+      "province": "Western Cape"
     }
   }
 }

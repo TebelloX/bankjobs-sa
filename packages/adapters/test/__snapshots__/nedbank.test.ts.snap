@@ -1,0 +1,350 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`nedbankAdapter.normalize — snapshots > normalizes 1375204433 1`] = `
+{
+  "applyUrl": "https://jobs.nedbank.co.za/job/Muldersdrift-Banquet-Co-Ordinator/1375204433/",
+  "brand": "Nedbank",
+  "category": "Operations & Admin",
+  "country": "ZA",
+  "descriptionHtml": "<p></p>
+<h3><strong>Requisition Details and Talent Acquisition Contact</strong></h3>
+<p>REQ ID: 144600 - Michelle Thabethe</p>
+<p>Location: South Africa</p>
+<p>Cluster: Group Finance - Corporate Real Estate (OLWAZINI CONFERENCE CENTRE)</p>
+<p>Closing date: 30 April 2026</p><h3>Job Family</h3>
+<p>Administration, Operations and Facilities</p>
+<h3>Career Stream</h3>
+<p>Canteen</p>
+<h3>Leadership Pipeline</h3>
+<p>Manage Others</p>
+<h3><strong>Job Purpose</strong></h3>
+<p>The Banqueting Coordinator is responsible for planning, organising and executing events across the Conference Centre and Dining Rooms. The role includes client liaison, team management, event coordination, stock control, financial administration and ensuring a world‑class hospitality experience.</p><h3><strong>Key Requirements</strong></h3>
+<ul>
+<li>Strong leadership; able to manage waitrons, bartenders.</li>
+<li>Exceptional attention to detail and initiative</li>
+<li>Hospitality, food &amp; beverage and bartending experience</li>
+<li>Multimedia/AV knowledge for conference environments</li>
+<li>Excellent customer service and communication skills</li>
+<li>Ability to make quick decisions and resolve problems</li>
+<li>Computer literate; driver’s licence; Matric; hospitality diploma preferred</li>
+<li>Ability to evenings weekly</li>
+</ul>
+<p> </p>
+<h3><strong>Conference Centre Responsibilities</strong></h3>
+<ul>
+<li>Manage conference centre operations (capacity ±196 guests)</li>
+<li>Daily client liaison and management of event requirements</li>
+<li>Coordinate room layouts, equipment needs and documentation requests</li>
+<li>Manage a team of waiters plus ad‑hoc staff</li>
+<li>Ensure precise setup of meal services and conference layouts</li>
+<li>Oversee and maintain multimedia/AV equipment and furnishings</li>
+<li>Conduct stock takes of equipment and linen</li>
+<li>Manage teambuilding logistics and safety requirements</li>
+<li>Arrange, plan and execute client events end‑to‑end </li>
+<li>Report maintenance issues</li>
+</ul>
+<p> </p>
+<h3><strong>Dining Room Responsibilities</strong></h3>
+<ul>
+<li>Manage dining rooms (capacity ±196 guests)</li>
+<li>Welcome guests and manage the flow of events in the dining rooms and common areas</li>
+<li>Customer interaction and guest hosting</li>
+<li>Manage the bar for special evening events</li>
+<li>Manage a team of waiters delivering 5‑star setup standards</li>
+<li>Maintain furniture, equipment, linen and report maintenance issues</li>
+<li>Oversee food &amp; beverage service excellenceManage dining rooms (capacity ±196 guests)</li>
+<li>Welcome guests and manage the flow of events in the dining rooms and common areas</li>
+<li>Customer interaction and guest hosting</li>
+<li>Manage the bar for special evening events</li>
+<li>Manage a team of waiters delivering 5‑star setup standards</li>
+<li>Maintain furniture, equipment, linen and report maintenance issues</li>
+<li>Oversee food &amp; beverage service excellence</li>
+</ul><h3><strong>General Responsibilities</strong></h3>
+<ul>
+<li>Conduct weekly and monthly staff meetings </li>
+<li>Liaise with Front Desk, Housekeeping, Kitchen and Security</li>
+<li>Display initiative in buffet and conference setups</li>
+<li>Enhance quality of decisions and solutions through evaluation against current industry best    practices and client requirements</li>
+<li>Drive creativity and problem solving</li>
+<li>Ensure effective communication across all stakeholders</li>
+<li>Random benchmarking and cost comparison exercises with other suppliers and establishments/corporates</li>
+</ul>
+<p> </p>
+<h3><strong>Hospitality Operations and Event Management</strong></h3>
+<ul>
+<li>End‑to‑end event management with internal partners and vendors</li>
+<li>Manage costs and offer guidance to clients</li>
+<li>Oversee event flow and guest experience</li>
+<li>Manage multimedia in dining rooms and event areas</li>
+<li>Complete month‑end reports (billing, variances, etc.)</li>
+<li>Conduct equipment and smalls inventory control</li>
+<li>Process Ariba orders, invoices, supplier statements and payments</li>
+<li>Benchmark pricing and services</li>
+</ul>
+<p> </p>
+<h3><strong>Financial and Administrative Responsibilities</strong></h3>
+<ul>
+<li>Work with financial officer on budgeting and forecasting</li>
+<li>Track event, staffing costs, stock losses, CAPEX and OPEX</li>
+<li>Manage turnaround time on orders through adherence to Nedbank standards on relevant systems (e.g., Ariba / SAP)</li>
+<li>Submit accurate financial reports and billing documentation</li>
+<li>Ensure compliance with governance, risk and control requirements</li>
+<li>Assist suppliers with outstanding payments and statements recons</li>
+</ul>
+<p> </p>
+<h3><strong>People Management</strong></h3>
+<ul>
+<li>Manage team capacity, performance, overtime and scheduling</li>
+<li>Conduct performance appraisals and provide coaching</li>
+<li>Maintain hygiene rosters, OHS files and compliance</li>
+<li>Support onboarding, recruitment and staff development</li>
+<li>Build a motivated, high‑performing hospitality team</li>
+</ul>
+<p> </p>
+<h3><strong>Health, Safety and Quality</strong></h3>
+<ul>
+<li>Ensure compliance with health, hygiene and safety regulations</li>
+<li>Active participant in OHS committee</li>
+<li>Enforce house rules and ensure client adherence</li>
+<li>Monitor customer feedback (surveys, NPS, daily interactions)</li>
+<li>Identify opportunities for process improvement</li>
+</ul><h3><strong>Essential Qualifications - NQF Level</strong></h3>
+<ul>
+<li>Degree or Diploma in Hospitality or related field</li>
+</ul><h3>Preferred Qualification</h3>
+<ul>
+<li>Tertiary qualification in hospitality management, food &amp; beverage or hotel management</li>
+</ul><h3>Minimum Experience Level</h3>
+<ul>
+<li>Proven food and beverage management experience. At least 5-10 years’ experience in a Hospitality industry management role.</li>
+<li>Working knowledge of MS Office (word, PowerPoint, excel)</li>
+</ul><h3>Technical / Professional Knowledge</h3>
+<ul>
+<li>Event and project management </li>
+<li>Budgeting</li>
+<li>Business administration and management</li>
+<li>Client Service Management</li>
+<li>Consumer behaviour</li>
+<li>Employee training/development</li>
+<li>Operational planning</li>
+<li>Principles of project management</li>
+<li>Governance, Risk and Controls</li>
+<li>Service level agreements</li>
+<li>Strategic planning</li>
+</ul><h3>Behavioural Competencies</h3>
+<ul>
+<li>Driving for Results</li>
+<li>Customer Focus</li>
+<li>Earning Trust</li>
+<li>Building Partnerships</li>
+<li>Guiding Team Success</li>
+<li>Communication</li>
+<li>Ability to spot and resolve problems efficiently</li>
+<li>Mastery in delegating multiple tasks</li>
+<li>Communication and leadership skills</li>
+<li>Up to date with food and beverages trends and best practices</li>
+<li>Ability to manage personnel and meet financial targets.</li>
+<li>Guest-oriented and service-minded</li>
+</ul><p></p>
+
+<p>---------------------------------------------------------------------------------------</p>
+
+<p><em><strong>Please contact the Nedbank Recruiting Team at +27 860 555 566 </strong></em></p>
+",
+  "descriptionText": "Requisition Details and Talent Acquisition Contact REQ ID: 144600 - Michelle Thabethe Location: South Africa Cluster: Group Finance - Corporate Real Estate (OLWAZINI CONFERENCE CENTRE) Closing date: 30 April 2026 Job Family Administration, Operations and Facilities Career Stream Canteen Leadership Pipeline Manage Others Job Purpose The Banqueting Coordinator is responsible for planning, organising and executing events across the Conference Centre and Dining Rooms. The role includes client liaison, team management, event coordination, stock control, financial administration and ensuring a world‑class hospitality experience. Key Requirements Strong leadership; able to manage waitrons, bartenders. Exceptional attention to detail and initiative Hospitality, food & beverage and bartending experience Multimedia/AV knowledge for conference environments Excellent customer service and communication skills Ability to make quick decisions and resolve problems Computer literate; driver’s licence; Matric; hospitality diploma preferred Ability to evenings weekly Conference Centre Responsibilities Manage conference centre operations (capacity ±196 guests) Daily client liaison and management of event requirements Coordinate room layouts, equipment needs and documentation requests Manage a team of waiters plus ad‑hoc staff Ensure precise setup of meal services and conference layouts Oversee and maintain multimedia/AV equipment and furnishings Conduct stock takes of equipment and linen Manage teambuilding logistics and safety requirements Arrange, plan and execute client events end‑to‑end Report maintenance issues Dining Room Responsibilities Manage dining rooms (capacity ±196 guests) Welcome guests and manage the flow of events in the dining rooms and common areas Customer interaction and guest hosting Manage the bar for special evening events Manage a team of waiters delivering 5‑star setup standards Maintain furniture, equipment, linen and report maintenance issues Oversee food & beverage service excellenceManage dining rooms (capacity ±196 guests) Welcome guests and manage the flow of events in the dining rooms and common areas Customer interaction and guest hosting Manage the bar for special evening events Manage a team of waiters delivering 5‑star setup standards Maintain furniture, equipment, linen and report maintenance issues Oversee food & beverage service excellence General Responsibilities Conduct weekly and monthly staff meetings Liaise with Front Desk, Housekeeping, Kitchen and Security Display initiative in buffet and conference setups Enhance quality of decisions and solutions through evaluation against current industry best practices and client requirements Drive creativity and problem solving Ensure effective communication across all stakeholders Random benchmarking and cost comparison exercises with other suppliers and establishments/corporates Hospitality Operations and Event Management End‑to‑end event management with internal partners and vendors Manage costs and offer guidance to clients Oversee event flow and guest experience Manage multimedia in dining rooms and event areas Complete month‑end reports (billing, variances, etc.) Conduct equipment and smalls inventory control Process Ariba orders, invoices, supplier statements and payments Benchmark pricing and services Financial and Administrative Responsibilities Work with financial officer on budgeting and forecasting Track event, staffing costs, stock losses, CAPEX and OPEX Manage turnaround time on orders through adherence to Nedbank standards on relevant systems (e.g., Ariba / SAP) Submit accurate financial reports and billing documentation Ensure compliance with governance, risk and control requirements Assist suppliers with outstanding payments and statements recons People Management Manage team capacity, performance, overtime and scheduling Conduct performance appraisals and provide coaching Maintain hygiene rosters, OHS files and compliance Support onboarding, recruitment and staff development Build a motivated, high‑performing hospitality team Health, Safety and Quality Ensure compliance with health, hygiene and safety regulations Active participant in OHS committee Enforce house rules and ensure client adherence Monitor customer feedback (surveys, NPS, daily interactions) Identify opportunities for process improvement Essential Qualifications - NQF Level Degree or Diploma in Hospitality or related field Preferred Qualification Tertiary qualification in hospitality management, food & beverage or hotel management Minimum Experience Level Proven food and beverage management experience. At least 5-10 years’ experience in a Hospitality industry management role. Working knowledge of MS Office (word, PowerPoint, excel) Technical / Professional Knowledge Event and project management Budgeting Business administration and management Client Service Management Consumer behaviour Employee training/development Operational planning Principles of project management Governance, Risk and Controls Service level agreements Strategic planning Behavioural Competencies Driving for Results Customer Focus Earning Trust Building Partnerships Guiding Team Success Communication Ability to spot and resolve problems efficiently Mastery in delegating multiple tasks Communication and leadership skills Up to date with food and beverages trends and best practices Ability to manage personnel and meet financial targets. Guest-oriented and service-minded --------------------------------------------------------------------------------------- Please contact the Nedbank Recruiting Team at +27 860 555 566",
+  "employmentType": null,
+  "excerpt": "Requisition Details and Talent Acquisition Contact REQ ID: 144600 - Michelle Thabethe Location: South Africa Cluster: Group Finance - Corporate Real Estate (OLWAZINI CONFERENCE CENTRE) Closing date: 30 April 2026 Job Family Administration, Operations and Facilities Career Stream Canteen Leadership Pipeline Manage Others Job Purpose The Banqueting Coordinator is responsible for planning,…",
+  "id": "nedbank:1375204433",
+  "locations": [
+    {
+      "city": "Muldersdrift",
+      "province": "Gauteng",
+      "raw": "Muldersdrift",
+    },
+  ],
+  "postedDate": "2026-07-17",
+  "primaryLocation": "Muldersdrift, Gauteng",
+  "source": "nedbank",
+  "title": "Banquet Co Ordinator (Muldersdrift, ZA)",
+}
+`;
+
+exports[`nedbankAdapter.normalize — snapshots > normalizes 1408728033 1`] = `
+{
+  "applyUrl": "https://jobs.nedbank.co.za/job/Johannesburg-Software-Developer/1408728033/",
+  "brand": "Nedbank",
+  "category": "Software & IT",
+  "country": "ZA",
+  "descriptionHtml": "<p></p>
+<h3><strong>Job Classification</strong></h3>
+<h3>Job Family</h3>
+<p>Information Technology</p>
+<h3>Career Stream</h3>
+<p>Application Development</p>
+<h3>Leadership Pipeline</h3>
+<p>Manage Self: Technical</p>
+<h3>FAIS Affected</h3>
+<h3><strong>Job Purpose</strong></h3>
+<p>To realise the detailed design through programming and configuration and provide guidance and mentoring to other software developers<br />
+ </p>
+<h3><strong>Job Responsibilities</strong></h3>
+<ul>
+	<li>Produce working quality software that meets the design</li>
+	<li>Develop critical and complex technical components in area of accountability</li>
+	<li>Deliver system component designs that are robust and fault tolerant for large complex systems</li>
+	<li>Ensure system component designs are supportable , maintainable and re-usable</li>
+	<li>Deliver software that is observable and scalable</li>
+	<li>Conduct estimate of work effort</li>
+	<li>Trouble shoot and problem solve of software issues and provide guidance to other team members</li>
+	<li>Produce documentation as per organisational standards</li>
+	<li>Continuous improvement of software</li>
+	<li>Provide Maintenance and support of software in environments of accountability</li>
+	<li>Develop unit and system test cases and conduct unit and system testing</li>
+	<li>Create deployment artefacts and stores in source control library</li>
+	<li>Manage the deployment package and the execution thereof</li>
+	<li>Optimise the tool change in collaboration with  the Biz/ Dev / Ops Engineer</li>
+	<li>Update and control the asset knowledge base </li>
+	<li>Ensure integration of own work with other individuals and in team</li>
+	<li>Collaborate with designers, product owners and engineering leads to refine the solution</li>
+	<li>Contribute into the decomposition of the system solution into component parts for development</li>
+	<li>Support the achievement of the  business strategy, objectives and values</li>
+	<li>Stay abreast of developments in field of expertise </li>
+	<li>Ensure personal growth and enable effectiveness in performance of roles and responsibilities</li>
+	<li>Contribute to the Nedbank Culture building initiatives (e.g. staff surveys etc.).</li>
+	<li>Participate and support corporate responsibility initiatives for the achievement of business strategy</li>
+	<li>Seek opportunities to improve business processes, models and systems though agile thinking.</li>
+	<li>Provide mentoring for  multiple software developers</li>
+</ul>
+<h3><strong>Job Responsibilities Continue</strong></h3>
+<h3><strong>People Specification</strong></h3>
+<h3>Essential Qualifications - NQF Level</h3>
+<ul><li>Matric / Grade 12 / National Senior Certificate
+</li></ul><h3>Preferred Qualification</h3>
+<p>Diploma / Certificate  in multiple  languages</p>
+<h3>Essential Certifications</h3>
+<ul></ul><h3>Preferred Certifications</h3>
+<p>Certificate in relevant language where available</p>
+<h3>Minimum Experience Level</h3>
+<p>Min 3 years programming experience</p>
+<h3><strong>Technical / Professional Knowledge</strong></h3>
+<ul><li>IT Data structures
+</li><li>Application systems
+</li><li>Agile Development
+</li><li>System Development Life cycle(SDLC)
+</li></ul><h3>Behavioural Competencies</h3>
+<ul><li>Managing Work
+</li><li>Collaborating
+</li><li>Quality Orientation
+</li><li>Applied Learning
+</li><li>Initiating Action
+</li><li>Technical/Professional Knowledge and Skills
+</li></ul><p></p>
+
+<p>---------------------------------------------------------------------------------------</p>
+
+<p><em><strong>Please contact the Nedbank Recruiting Team at +27 860 555 566 </strong></em></p>
+",
+  "descriptionText": "Job Classification Job Family Information Technology Career Stream Application Development Leadership Pipeline Manage Self: Technical FAIS Affected Job Purpose To realise the detailed design through programming and configuration and provide guidance and mentoring to other software developers Job Responsibilities Produce working quality software that meets the design Develop critical and complex technical components in area of accountability Deliver system component designs that are robust and fault tolerant for large complex systems Ensure system component designs are supportable , maintainable and re-usable Deliver software that is observable and scalable Conduct estimate of work effort Trouble shoot and problem solve of software issues and provide guidance to other team members Produce documentation as per organisational standards Continuous improvement of software Provide Maintenance and support of software in environments of accountability Develop unit and system test cases and conduct unit and system testing Create deployment artefacts and stores in source control library Manage the deployment package and the execution thereof Optimise the tool change in collaboration with the Biz/ Dev / Ops Engineer Update and control the asset knowledge base Ensure integration of own work with other individuals and in team Collaborate with designers, product owners and engineering leads to refine the solution Contribute into the decomposition of the system solution into component parts for development Support the achievement of the business strategy, objectives and values Stay abreast of developments in field of expertise Ensure personal growth and enable effectiveness in performance of roles and responsibilities Contribute to the Nedbank Culture building initiatives (e.g. staff surveys etc.). Participate and support corporate responsibility initiatives for the achievement of business strategy Seek opportunities to improve business processes, models and systems though agile thinking. Provide mentoring for multiple software developers Job Responsibilities Continue People Specification Essential Qualifications - NQF Level Matric / Grade 12 / National Senior Certificate Preferred Qualification Diploma / Certificate in multiple languages Essential Certifications Preferred Certifications Certificate in relevant language where available Minimum Experience Level Min 3 years programming experience Technical / Professional Knowledge IT Data structures Application systems Agile Development System Development Life cycle(SDLC) Behavioural Competencies Managing Work Collaborating Quality Orientation Applied Learning Initiating Action Technical/Professional Knowledge and Skills --------------------------------------------------------------------------------------- Please contact the Nedbank Recruiting Team at +27 860 555 566",
+  "employmentType": null,
+  "excerpt": "Job Classification Job Family Information Technology Career Stream Application Development Leadership Pipeline Manage Self: Technical FAIS Affected Job Purpose To realise the detailed design through programming and configuration and provide guidance and mentoring to other software developers Job Responsibilities Produce working quality software that meets the design Develop critical and complex…",
+  "id": "nedbank:1408728033",
+  "locations": [
+    {
+      "city": "Johannesburg",
+      "province": "Gauteng",
+      "raw": "Johannesburg",
+    },
+  ],
+  "postedDate": null,
+  "primaryLocation": "Johannesburg, Gauteng",
+  "source": "nedbank",
+  "title": "Software Developer (Johannesburg, ZA)",
+}
+`;
+
+exports[`nedbankAdapter.normalize — snapshots > normalizes 1415472733 1`] = `
+{
+  "applyUrl": "https://jobs.nedbank.co.za/job/Mariental-Senior-Teller-Mariental/1415472733/",
+  "brand": "Nedbank",
+  "category": "Branch & Retail",
+  "country": "NA",
+  "descriptionHtml": "<p></p><h3><strong>Job Purpose</strong></h3>
+<p>To create a unique client experience by attending to enquiries and teller related transactions, client queries,banking requirements, the needs of clients and refer cross sell opportunities while mitigating risk and contribute to branch objectives.</p>
+<h3>Leadership Pipeline</h3>
+<p>Manage Self: Technical</p>
+<h3><strong>Job Responsibilities</strong></h3>
+<ul>
+	<li>Authenticate clients and transactions.</li>
+	<li>Prevent fraud, risks and losses.</li>
+	<li>Mitigate risks and meet legislative requirements.</li>
+	<li>Provide client service and meet identified client needs.</li>
+	<li>Issue VISA application letters based on client requests.</li>
+	<li>Comply with risk standards and take corrective action.</li>
+	<li>Minimise losses and ensure corrective action is taken as per procedure and policy.</li>
+	<li>Balance and secure branch stock holding.</li>
+	<li>Contribute to a culture of transformation by participating in Nedbank culture building initiatives,business strategy, and CSI.</li>
+	<li>Stay abreast of developments in field of expertise, ensuring personal and professional growth.</li>
+	<li>Seek opportunities to improve business processes and systems.</li>
+	<li>Act as brand ambassador.</li>
+	<li>Add value to Nedbank by supporting the implementation of new processes, policies and systems.</li>
+	<li>Deliver on identified client needs and requirements.</li>
+	<li>Build and maintain client relationships.</li>
+	<li>Educate and converse with clients by informing them of alternative self-service channels that will be cost effective, time saving and convenient.</li>
+	<li>Create synergetic internal relationships.</li>
+	<li>Identify quality sales leads and enable cross-selling (without advising).</li>
+	<li>Meet client information needs and facilitate the processing of sales.</li>
+	<li>Ensure client service and avoid destruction of aged stock and costs associated with reprinting and issuing.</li>
+	<li>Reach individual and branch usage (touch points) targets.</li>
+	<li>Remain current and stay abreast of Nedbank risk and compliance requirements.</li>
+	<li>Understand and embrace the Nedbank vision and values, leading by example.</li>
+	<li>Ensure knowledge management, continuity, team success and that information is provided in the correct way to stakeholders.</li>
+</ul>
+<h3>Essential Qualifications - NQF Level</h3>
+<ul><li>Matric / Grade 12 / National Senior Certificate
+</li></ul><h3>Preferred Qualification</h3>
+<p>Bachelor's degree or equivalent </p><h3>Preferred Certifications</h3>
+<h3>Minimum Experience Level</h3>
+<p>Six to twelve months' client service experience in the financial industry or banking organisation, OR</p>
+<p>Six to twelve months' bank teller experience</p><h3><strong>Technical / Professional Knowledge</strong></h3>
+<ul><li>Customer service principles
+</li><li>Relevant product knowledge
+</li><li>Branch processes and procedures
+</li><li>Branch service offerings
+</li><li>Corporate Governance &amp; Compliance
+</li><li>Cluster specific operations
+</li></ul><h3>Behavioural Competencies</h3>
+<ul><li>Building Customer Loyalty
+</li><li>Applied Learning
+</li><li>Collaborating
+</li><li>Communication
+</li><li>Managing Work
+</li><li>Stress Tolerance
+</li><li>Quality Orientation
+</li></ul><p> </p>
+<p>---------------------------------------------------------------------------------------</p>
+<p>For any assistance or more info please contact the Nedbank Recruiting Team</p>
+
+
+
+ +264 61 295 2155 / +264 61 295 2036
+Namibia
+
+
+",
+  "descriptionText": "Job Purpose To create a unique client experience by attending to enquiries and teller related transactions, client queries,banking requirements, the needs of clients and refer cross sell opportunities while mitigating risk and contribute to branch objectives. Leadership Pipeline Manage Self: Technical Job Responsibilities Authenticate clients and transactions. Prevent fraud, risks and losses. Mitigate risks and meet legislative requirements. Provide client service and meet identified client needs. Issue VISA application letters based on client requests. Comply with risk standards and take corrective action. Minimise losses and ensure corrective action is taken as per procedure and policy. Balance and secure branch stock holding. Contribute to a culture of transformation by participating in Nedbank culture building initiatives,business strategy, and CSI. Stay abreast of developments in field of expertise, ensuring personal and professional growth. Seek opportunities to improve business processes and systems. Act as brand ambassador. Add value to Nedbank by supporting the implementation of new processes, policies and systems. Deliver on identified client needs and requirements. Build and maintain client relationships. Educate and converse with clients by informing them of alternative self-service channels that will be cost effective, time saving and convenient. Create synergetic internal relationships. Identify quality sales leads and enable cross-selling (without advising). Meet client information needs and facilitate the processing of sales. Ensure client service and avoid destruction of aged stock and costs associated with reprinting and issuing. Reach individual and branch usage (touch points) targets. Remain current and stay abreast of Nedbank risk and compliance requirements. Understand and embrace the Nedbank vision and values, leading by example. Ensure knowledge management, continuity, team success and that information is provided in the correct way to stakeholders. Essential Qualifications - NQF Level Matric / Grade 12 / National Senior Certificate Preferred Qualification Bachelor's degree or equivalent Preferred Certifications Minimum Experience Level Six to twelve months' client service experience in the financial industry or banking organisation, OR Six to twelve months' bank teller experience Technical / Professional Knowledge Customer service principles Relevant product knowledge Branch processes and procedures Branch service offerings Corporate Governance & Compliance Cluster specific operations Behavioural Competencies Building Customer Loyalty Applied Learning Collaborating Communication Managing Work Stress Tolerance Quality Orientation --------------------------------------------------------------------------------------- For any assistance or more info please contact the Nedbank Recruiting Team +264 61 295 2155 / +264 61 295 2036 Namibia",
+  "employmentType": null,
+  "excerpt": "Job Purpose To create a unique client experience by attending to enquiries and teller related transactions, client queries,banking requirements, the needs of clients and refer cross sell opportunities while mitigating risk and contribute to branch objectives. Leadership Pipeline Manage Self: Technical Job Responsibilities Authenticate clients and transactions. Prevent fraud, risks and losses.",
+  "id": "nedbank:1415472733",
+  "locations": [
+    {
+      "city": null,
+      "province": null,
+      "raw": "Mariental",
+    },
+  ],
+  "postedDate": "2026-07-15",
+  "primaryLocation": "Mariental",
+  "source": "nedbank",
+  "title": "Senior Teller: Mariental (Mariental, NA)",
+}
+`;

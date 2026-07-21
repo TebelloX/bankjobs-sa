@@ -91,7 +91,9 @@ export const gotymeAdapter: SourceAdapter<WorkableRawPosting> = {
     // it. An empty or table-unknown value yields 'ZZ', never a silent ZA.
     const isoCode = (detail.location?.countryCode ?? '').trim();
     const country =
-      isoCode !== '' ? isoCode.toUpperCase() : countryCodeFor((detail.location?.country ?? '').trim());
+      isoCode !== ''
+        ? isoCode.toUpperCase()
+        : countryCodeFor((detail.location?.country ?? '').trim());
 
     // normalizeLocation over the city (standardbank pattern exactly): matched SA
     // cities resolve to city/province; everything else keeps the raw fallback.

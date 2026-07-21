@@ -39,6 +39,10 @@ import {
 } from '../src/earcu/client';
 import type { EarcuConfig } from '../src/earcu/client';
 import type { EarcuJobPosting } from '../src/earcu/types';
+import { NEDBANK_SF_CONFIG } from '../src/nedbank';
+import { SUCCESSFACTORS_UA, extractDatePosted, parseFeed } from '../src/successfactors/client';
+import type { SuccessFactorsConfig } from '../src/successfactors/client';
+import type { SfFeedItem } from '../src/successfactors/types';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const fixturesRoot = join(scriptDir, '../../../fixtures');
@@ -471,7 +475,9 @@ async function captureWorkable(cfg: WorkableConfig): Promise<void> {
   const standinText = await standinRes.text();
   const standin = JSON.parse(standinText) as WorkableListResponse;
   writeFileSync(join(fixturesDir, 'standin-list.json'), standinText);
-  console.log(`Wrote standin-list.json (${standin.results.length} postings, total ${standin.total}).`);
+  console.log(
+    `Wrote standin-list.json (${standin.results.length} postings, total ${standin.total}).`,
+  );
 
   // 3) Up to three stand-in details for schema variety.
   const chosen = standin.results.slice(0, 3);
@@ -539,6 +545,112 @@ async function captureWorkable(cfg: WorkableConfig): Promise<void> {
   console.log(`Wrote standin-detail-1..${details.length}.json + manifest.json to ${fixturesDir}.`);
 }
 
+// ---------------------------------------------------------------------------
+// SuccessFactors CSB source (nedbank).
+// ---------------------------------------------------------------------------
+
+/** [city, ISO alpha-2] from a g:location 'City, CC' (mirrors the adapter). */
+function splitSfLocation(raw: string): { city: string; country: string } {
+  const m = /^(.*?),\s*([A-Za-z]{2})$/.exec(raw.trim());
+  if (!m) return { city: raw.trim(), country: 'ZZ' };
+  return { city: (m[1] ?? '').trim(), country: (m[2] ?? '').toUpperCase() };
+}
+
+async function captureSuccessFactors(cfg: SuccessFactorsConfig): Promise<void> {
+  const delayMs = cfg.delayMs ?? 400;
+  const feedPath = cfg.feedPath ?? '/sitemap.xml';
+  const origin = `https://${cfg.host}`;
+  const fixturesDir = join(fixturesRoot, 'nedbank');
+
+  const sfFetch = (url: string): Promise<Response> =>
+    fetch(url, { headers: { 'User-Agent': SUCCESSFACTORS_UA } });
+
+  // 1) The feed — one GET carries every open role. Stored verbatim as the
+  // single load-bearing ground truth.
+  const feedUrl = `${origin}${feedPath}`;
+  const feedRes = await sfFetch(feedUrl);
+  if (feedRes.status !== 200) {
+    console.error(`nedbank feed returned HTTP ${feedRes.status} — feed shape may have drifted.`);
+    console.error(`Tried: GET ${feedUrl}`);
+    process.exit(1);
+  }
+  const feedXml = await feedRes.text();
+  const items = parseFeed(feedXml);
+  if (items.length === 0) {
+    console.error('nedbank feed parsed to zero items — parser or feed shape may have drifted.');
+    process.exit(1);
+  }
+  writeFileSync(join(fixturesDir, 'feed.xml'), feedXml);
+  console.log(`Wrote feed.xml (${items.length} items).`);
+
+  // 2) Three detail pages for variety: a Namibia role (country mapping), a
+  // Western Cape city and a Gauteng city (city→province mapping). Each proves
+  // the datePosted microdata extraction.
+  let na: SfFeedItem | undefined;
+  let wc: SfFeedItem | undefined;
+  let gp: SfFeedItem | undefined;
+  for (const item of items) {
+    if (na && wc && gp) break;
+    const { city, country } = splitSfLocation(item.location);
+    if (country === 'NA') {
+      na ??= item;
+      continue;
+    }
+    const province = city === '' ? null : normalizeLocation(city).province;
+    if (province === 'Western Cape') wc ??= item;
+    else if (province === 'Gauteng') gp ??= item;
+  }
+  const chosen = [na, wc, gp].filter((c): c is SfFeedItem => c !== undefined);
+  if (chosen.length < 3) {
+    console.error('Could not find all three nedbank fixture varieties (NA / WC / Gauteng).');
+    process.exit(1);
+  }
+
+  const notes: string[] = [];
+  for (let i = 0; i < chosen.length; i += 1) {
+    const item = chosen[i];
+    if (!item) continue;
+    await sleep(delayMs);
+    const res = await sfFetch(item.link);
+    if (res.status !== 200) throw new Error(`Detail ${item.link} returned HTTP ${res.status}`);
+    const html = await res.text();
+    writeFileSync(join(fixturesDir, `detail-${i + 1}.html`), html);
+    const posted = extractDatePosted(html);
+    notes.push(`${item.id} — ${item.title} (${item.location}) datePosted=${posted ?? 'none'}`);
+  }
+
+  const manifest = {
+    source: 'nedbank',
+    capturedAt: new Date().toISOString(),
+    ats: 'SAP SuccessFactors Career Site Builder',
+    brand: 'Nedbank',
+    endpoints: {
+      feed: `GET ${feedUrl}`,
+      detail: `GET ${origin}/job/{City-Slug-Title}/{numericId}/`,
+    },
+    totalAtCapture: items.length,
+    files: {
+      'feed.xml': `The full Google-for-Jobs RSS feed (${items.length} items) — the single load-bearing source.`,
+      'detail-1.html': notes[0] ?? '',
+      'detail-2.html': notes[1] ?? '',
+      'detail-3.html': notes[2] ?? '',
+    },
+    notes: [
+      'The feed lives at /sitemap.xml but is an <rss><channel> Google-for-Jobs feed (g: namespace), NOT a URL sitemap; robots.txt allows /search/, /job/ and /sitemap.xml.',
+      'Per item: title, link, guid, g:id (numeric posting id = guid = URL id), g:expiration_date, g:employer, g:job_function, g:location (\"City, CC\"), and a CDATA description of HTML-encoded HTML.',
+      'g:id is the SuccessFactors posting id, NOT the internal REQ ID that appears free-text in the body.',
+      'id = nedbank:{g:id}; country = uppercased \", CC\" suffix of g:location (\"ZZ\" if absent, never a silent ZA).',
+      'The CDATA description is double-encoded (\"&lt;p&gt;\") — decode XML entities once to recover real HTML before sanitizing.',
+      'WARNING: the in-body free-text \"Closing date\" is stale and contradicts g:expiration_date (present in only ~11/77 items, one already in the past) — never parse it; we store no expiry (closure is lastSeen-driven).',
+      'Description boilerplate is NOT stripped: the leading requisition/recruiter heading label varies wildly across postings, so there is no reliable section boundary to excise without brittle HTML surgery.',
+      'postedDate is enriched non-fatally from the detail page datePosted microdata: <meta itemprop=\"datePosted\" content=\"Fri Jul 17 02:00:00 UTC 2026\"> (Java-toString) → YYYY-MM-DD; a miss leaves it null and never drops the job.',
+      'Every response mints a fresh JSESSIONID but no request requires sending one back — stay stateless.',
+    ],
+  };
+  writeFileSync(join(fixturesDir, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
+  console.log(`Wrote detail-1/2/3.html + manifest.json to ${fixturesDir}.`);
+}
+
 interface WorkdayManifestArgs {
   source: string;
   listUrl: string;
@@ -596,9 +708,12 @@ async function main(): Promise<void> {
     case 'gotyme':
       await captureWorkable(GOTYME_WORKABLE_CONFIG);
       return;
+    case 'nedbank':
+      await captureSuccessFactors(NEDBANK_SF_CONFIG);
+      return;
     default:
       console.error(
-        `Unknown --source '${source}' (expected absa | firstrand | standardbank | investec | gotyme).`,
+        `Unknown --source '${source}' (expected absa | firstrand | standardbank | investec | gotyme | nedbank).`,
       );
       process.exit(1);
   }

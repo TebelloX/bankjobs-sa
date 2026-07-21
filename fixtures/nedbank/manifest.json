@@ -1,0 +1,28 @@
+{
+  "source": "nedbank",
+  "capturedAt": "2026-07-21T10:24:25.716Z",
+  "ats": "SAP SuccessFactors Career Site Builder",
+  "brand": "Nedbank",
+  "endpoints": {
+    "feed": "GET https://jobs.nedbank.co.za/sitemap.xml",
+    "detail": "GET https://jobs.nedbank.co.za/job/{City-Slug-Title}/{numericId}/"
+  },
+  "totalAtCapture": 77,
+  "files": {
+    "feed.xml": "The full Google-for-Jobs RSS feed (77 items) — the single load-bearing source.",
+    "detail-1.html": "1415472733 — Senior Teller: Mariental (Mariental, NA) (Mariental, NA) datePosted=2026-07-15",
+    "detail-2.html": "1415795833 — Manager: Credit (Cape Town, ZA) (Cape Town, ZA) datePosted=none",
+    "detail-3.html": "1375204433 — Banquet Co Ordinator (Muldersdrift, ZA) (Muldersdrift, ZA) datePosted=2026-07-17"
+  },
+  "notes": [
+    "The feed lives at /sitemap.xml but is an <rss><channel> Google-for-Jobs feed (g: namespace), NOT a URL sitemap; robots.txt allows /search/, /job/ and /sitemap.xml.",
+    "Per item: title, link, guid, g:id (numeric posting id = guid = URL id), g:expiration_date, g:employer, g:job_function, g:location (\"City, CC\"), and a CDATA description of HTML-encoded HTML.",
+    "g:id is the SuccessFactors posting id, NOT the internal REQ ID that appears free-text in the body.",
+    "id = nedbank:{g:id}; country = uppercased \", CC\" suffix of g:location (\"ZZ\" if absent, never a silent ZA).",
+    "The CDATA description is double-encoded (\"&lt;p&gt;\") — decode XML entities once to recover real HTML before sanitizing.",
+    "WARNING: the in-body free-text \"Closing date\" is stale and contradicts g:expiration_date (present in only ~11/77 items, one already in the past) — never parse it; we store no expiry (closure is lastSeen-driven).",
+    "Description boilerplate is NOT stripped: the leading requisition/recruiter heading label varies wildly across postings, so there is no reliable section boundary to excise without brittle HTML surgery.",
+    "postedDate is enriched non-fatally from the detail page datePosted microdata: <meta itemprop=\"datePosted\" content=\"Fri Jul 17 02:00:00 UTC 2026\"> (Java-toString) → YYYY-MM-DD; a miss leaves it null and never drops the job.",
+    "Every response mints a fresh JSESSIONID but no request requires sending one back — stay stateless."
+  ]
+}

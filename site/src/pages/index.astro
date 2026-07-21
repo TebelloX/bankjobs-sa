@@ -29,6 +29,7 @@ const BANK_DISPLAY_NAMES: Record<string, string> = {
   standardbank: 'Standard Bank',
   investec: 'Investec',
   gotyme: 'GoTyme Bank',
+  nedbank: 'Nedbank',
 };
 function bankName(id: string, fallback: string): string {
   return BANK_DISPLAY_NAMES[id] ?? fallback;
@@ -60,7 +61,6 @@ const liveBanks = meta.sources
 // haven't started building a connection to.
 const comingSoon = [
   ...meta.sources.filter((s) => s.count === 0).map((s) => bankName(s.id, s.name)),
-  'Nedbank',
   'Capitec',
 ];
 

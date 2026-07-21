@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import type { CanonicalJob, SourceId } from '@bankjobs/core';
 import type {
   EarcuRawPosting,
+  SfRawPosting,
   SrListResponse,
   SrPostingDetail,
   SrRawPosting,
@@ -13,7 +14,14 @@ import type {
   WorkdayListResponse,
   WorkdayRawPosting,
 } from '@bankjobs/adapters';
-import { extractCanonicalUrl, extractJobPostingLd } from '@bankjobs/adapters';
+import {
+  extractCanonicalUrl,
+  extractDatePosted,
+  extractJobId,
+  extractJobPostingLd,
+  extractSfCanonicalUrl,
+  parseFeed,
+} from '@bankjobs/adapters';
 import { openIngestDb, repoRoot } from './db';
 import type { JobsDb } from './db';
 import { registry } from './registry';
@@ -135,11 +143,35 @@ function loadWorkableFixtures(): WorkableRawPosting[] {
   return pairs;
 }
 
+/**
+ * SuccessFactors fixtures (nedbank): parse the committed feed.xml into items —
+ * the feed is the single load-bearing source. The few committed detail-*.html
+ * pages enrich postedDate for the items they cover (matched by numeric job id);
+ * every other item carries postedDate null, exactly as a live run does whenever
+ * the non-fatal detail enrichment misses.
+ */
+function loadSuccessFactorsFixtures(): SfRawPosting[] {
+  const dir = join(repoRoot(), 'fixtures', 'nedbank');
+  const items = parseFeed(readFileSync(join(dir, 'feed.xml'), 'utf8'));
+
+  const postedById = new Map<string, string>();
+  for (const file of readdirSync(dir).filter((f) => FIXTURE_DETAIL_HTML_RE.test(f))) {
+    const html = readFileSync(join(dir, file), 'utf8');
+    const url = extractSfCanonicalUrl(html);
+    const id = url ? extractJobId(url) : null;
+    const posted = extractDatePosted(html);
+    if (id && posted) postedById.set(id, posted);
+  }
+
+  return items.map((item) => ({ item, postedDate: postedById.get(item.id) ?? null }));
+}
+
 /** Build raw postings from committed fixtures (offline dev + CI). */
 function loadFixtures(source: SourceId): unknown[] {
   if (source === 'standardbank') return loadSrFixtures();
   if (source === 'investec') return loadEarcuFixtures();
   if (source === 'gotyme') return loadWorkableFixtures();
+  if (source === 'nedbank') return loadSuccessFactorsFixtures();
   return loadWorkdayFixtures(source);
 }
 

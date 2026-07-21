@@ -77,17 +77,32 @@ export {
   WORKABLE_UA,
 } from './workable/client';
 
+export type { SfFeedItem, SfRawPosting } from './successfactors/types';
+
+export type { SuccessFactorsConfig } from './successfactors/client';
+export {
+  parseFeed,
+  extractDatePosted,
+  extractCanonicalUrl as extractSfCanonicalUrl,
+  extractJobId,
+  fetchFeed,
+  fetchAllSuccessFactors,
+  SUCCESSFACTORS_UA,
+} from './successfactors/client';
+
 import { absaAdapter } from './absa';
 import { firstrandAdapter } from './firstrand';
 import { standardbankAdapter } from './standardbank';
 import { investecAdapter } from './investec';
 import { gotymeAdapter } from './gotyme';
+import { nedbankAdapter } from './nedbank';
 
 export { absaAdapter, ABSA_WORKDAY_CONFIG } from './absa';
 export { firstrandAdapter, FIRSTRAND_WORKDAY_CONFIG } from './firstrand';
 export { standardbankAdapter, STANDARDBANK_SR_CONFIG } from './standardbank';
 export { investecAdapter, INVESTEC_EARCU_CONFIG } from './investec';
 export { gotymeAdapter, GOTYME_WORKABLE_CONFIG } from './gotyme';
+export { nedbankAdapter, NEDBANK_SF_CONFIG } from './nedbank';
 
 /** Adapter registry — one entry per live source. */
 export const adapters = {
@@ -96,4 +111,5 @@ export const adapters = {
   standardbank: standardbankAdapter,
   investec: investecAdapter,
   gotyme: gotymeAdapter,
+  nedbank: nedbankAdapter,
 } as const;
