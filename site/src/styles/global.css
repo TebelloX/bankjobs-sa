@@ -123,11 +123,11 @@ a {
   font-size: 20px;
   letter-spacing: 0.01em;
 }
-/* The italic "Bank" renders as a synthesized oblique: only Archivo's normal
-   face is loaded, and a true-italic file isn't worth the page-weight for one
-   display word. */
+/* "bank" is set apart by colour alone — same weight and style as the rest
+   (like .hero-h em, the design's em-as-highlight idiom). */
 .wordmark em {
-  font-style: italic;
+  font-style: normal;
+  color: var(--focus);
 }
 .freshness {
   font-family: var(--mono);
