@@ -1,6 +1,6 @@
 # BankJobs SA — Implementation Plan
 
-**Version:** 0.2 · **Date:** 20 July 2026 · **Companion to:** BankJobs SA PRD v0.2
+**Version:** 0.4 · **Date:** 21 July 2026 · **Companion to:** BankJobs SA PRD v0.2
 
 This plan translates the PRD into a build sequence. It is written for a solo developer working in evenings/weekends; effort estimates are rough and assume familiarity with TypeScript. Each phase ends with a working, deployable system — never a half-built one.
 
@@ -160,9 +160,17 @@ Per adapter:
   - Respect robots.txt and modest request rates; honest User-Agent with contact URL.
   - Budget for a headless-browser fallback (Playwright in Actions) only if plain fetch fails — avoid it if possible (slower, flakier).
   - Entry-level roles are the payoff: verify branch/sales listings normalize into `Branch & Retail` / `Sales` categories correctly.
-- [ ] Confirm ATS platforms for Investec / TymeBank / Discovery (open question, PRD §19) and scope or explicitly defer.
+### Long-tail banks (ATS recon done 21 Jul 2026 — ordered easiest first)
 
-**Exit criteria:** Capitec entry-level roles live and stable for 2 weeks of scheduled runs.
+Live recon (curl probes against each careers site) confirmed every bank's ATS and tested for JSON APIs. None of the five fits the existing Workday/SmartRecruiters clients as a pure config entry; ranked by expected effort:
+
+- [ ] **GoTyme Bank (ex-TymeBank) — cleanest data.** Workable ATS with a public no-auth JSON API: `POST https://apply.workable.com/api/v3/accounts/gotyme-za-south-africa/jobs` (POST-only; GET 404s). Standard, documented adapter target — but the feed had **0 open roles** at recon, so build when postings reappear and verify field completeness against a real record then. Naming: tymebank.co.za 301s to gotyme.co.za — the SA bank rebranded to GoTyme Bank; alias TymeBank ↔ GoTyme Bank ZA and don't confuse with GoTyme Philippines (gotyme.com.ph, separate stack). The Workable slug is not linked from the bank's own site — pin it in adapter config. Legacy tyme-bank.breezy.hr is dead; ignore it.
+- [ ] **Investec — clean per-job data, bespoke listing crawl.** eArcu ATS at careers.investec.co.za (the corporate www.investec.com is Cloudflare-Turnstile-walled; never fetch it). No bulk JSON API, but every job detail page embeds a schema.org `JobPosting` JSON-LD block (title, full description, location + geo, employmentType, req ID). Two-step adapter: GET the search page to mint session cookie + `pagestamp` → call the `posbrowser_gridhandler` AJAX endpoint (returns an HTML fragment) for detail URLs → parse each detail page's JSON-LD. ~5 SA roles at recon. Gotchas: `datePosted` is junk (always renders as "today" — rely on our firstSeen); `validThrough` can lapse while a job is still listed — never use it for closure.
+- [ ] **Discovery Bank — scrapeable HTML, no API.** SAP SuccessFactors Career Site Builder at careers.discovery.co.za, group-wide feed, no JSON API (the RSS feed is robots.txt-disallowed and capped at ~10 items — don't use it). Server-rendered plain HTML (no headless browser) with schema.org microdata and an explicit "Business Unit" field (`customfield1`) whose exact value "Discovery Bank" is the filter key — but server-side filtering doesn't work, so crawl all group roles (~47 across 2 listing pages at recon; only **2** were Discovery Bank) and filter client-side each run. Same ATS class as Nedbank — build alongside the Nedbank SuccessFactors adapter and share the pattern.
+- [ ] **African Bank — hardest source that has data.** "Career Focus" portal (afb.outsourcefocus.co.za): legacy ASP.NET WebForms — ~245KB `__VIEWSTATE`, rotating session cookies, full `__doPostBack` required to even run a search, no JSON/RSS surface. The main africanbank.co.za site 403s plain fetches behind a Cloudflare JS challenge. Needs Playwright-class automation and will be brittle; defer until the Capitec headless pattern exists, then reassess.
+- [x] **Bank Zero — DEFERRED (written deferral).** No careers infrastructure at all: "Join Us" page is a contact email + phone number; no ATS, no listings, no LinkedIn Jobs presence (~34 staff). Acquired by Lesaka Technologies in 2025 — re-check quarterly in case hiring consolidates onto a group-level ATS.
+
+**Exit criteria:** Capitec entry-level roles live and stable for 2 weeks of scheduled runs; each long-tail bank either has a live adapter or a written deferral.
 
 ---
 
@@ -207,6 +215,7 @@ Only if Phases 1–3 are stable and low-maintenance:
 | 8 | Deploy, Search Console, user validation | Phase 1 gate |
 | 9 | SEO landing pages, monitoring polish | Phase 2 |
 | 10 | SARB → Nedbank → Capitec | Hardest last, gated on validation |
+| 11 | Long-tail banks: GoTyme → Investec → Discovery Bank → African Bank (Bank Zero deferred) | Recon done 21 Jul 2026; ordered easiest first |
 
 ---
 
