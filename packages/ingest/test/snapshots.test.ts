@@ -1,7 +1,7 @@
 import { mkdtempSync, readFileSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import type { CanonicalJob } from '@bankjobs/core';
 import { openLocalDb } from '../src/db';
 import { upsertJobs } from '../src/diff';
@@ -31,52 +31,54 @@ function makeJob(overrides: Partial<CanonicalJob>): CanonicalJob {
 
 const dir = mkdtempSync(join(tmpdir(), 'bankjobs-snap-'));
 
-const db = openLocalDb(':memory:');
-upsertJobs(
-  db,
-  'absa',
-  [
-    makeJob({
-      id: 'absa:R-1',
-      title: 'Branch Teller',
-      category: 'Branch & Retail',
-      country: 'ZA',
-      postedDate: '2026-07-05',
-      primaryLocation: 'Johannesburg, Gauteng',
-      locations: [{ city: 'Johannesburg', province: 'Gauteng', raw: 'Johannesburg' }],
-    }),
-    makeJob({
-      id: 'absa:R-2',
-      title: 'Backend Engineer',
-      category: 'Software & IT',
-      country: 'ZA',
-      postedDate: '2026-07-08',
-      primaryLocation: 'Cape Town, Western Cape',
-      locations: [{ city: 'Cape Town', province: 'Western Cape', raw: 'Cape Town' }],
-    }),
-    makeJob({
-      id: 'absa:R-3',
-      title: 'Information Risk Manager',
-      category: 'Risk & Compliance',
-      country: 'SC',
-      postedDate: '2026-07-01',
-      primaryLocation: 'Grand Anse',
-      locations: [{ city: null, province: null, raw: 'Grand Anse' }],
-    }),
-    makeJob({
-      id: 'absa:R-4',
-      title: 'Sales Consultant',
-      category: 'Sales',
-      country: 'ZA',
-      postedDate: null,
-      primaryLocation: 'Durban, KwaZulu-Natal',
-      locations: [{ city: 'Durban', province: 'KwaZulu-Natal', raw: 'Durban' }],
-    }),
-  ],
-  NOW,
-);
-emitSnapshots(db, dir, NOW);
-db.close();
+beforeAll(async () => {
+  const db = openLocalDb(':memory:');
+  await upsertJobs(
+    db,
+    'absa',
+    [
+      makeJob({
+        id: 'absa:R-1',
+        title: 'Branch Teller',
+        category: 'Branch & Retail',
+        country: 'ZA',
+        postedDate: '2026-07-05',
+        primaryLocation: 'Johannesburg, Gauteng',
+        locations: [{ city: 'Johannesburg', province: 'Gauteng', raw: 'Johannesburg' }],
+      }),
+      makeJob({
+        id: 'absa:R-2',
+        title: 'Backend Engineer',
+        category: 'Software & IT',
+        country: 'ZA',
+        postedDate: '2026-07-08',
+        primaryLocation: 'Cape Town, Western Cape',
+        locations: [{ city: 'Cape Town', province: 'Western Cape', raw: 'Cape Town' }],
+      }),
+      makeJob({
+        id: 'absa:R-3',
+        title: 'Information Risk Manager',
+        category: 'Risk & Compliance',
+        country: 'SC',
+        postedDate: '2026-07-01',
+        primaryLocation: 'Grand Anse',
+        locations: [{ city: null, province: null, raw: 'Grand Anse' }],
+      }),
+      makeJob({
+        id: 'absa:R-4',
+        title: 'Sales Consultant',
+        category: 'Sales',
+        country: 'ZA',
+        postedDate: null,
+        primaryLocation: 'Durban, KwaZulu-Natal',
+        locations: [{ city: 'Durban', province: 'KwaZulu-Natal', raw: 'Durban' }],
+      }),
+    ],
+    NOW,
+  );
+  await emitSnapshots(db, dir, NOW);
+  await db.close();
+});
 
 function readJson<T>(...parts: string[]): T {
   return JSON.parse(readFileSync(join(dir, ...parts), 'utf8')) as T;

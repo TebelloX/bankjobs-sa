@@ -1,6 +1,6 @@
 # BankJobs SA — Implementation Plan
 
-**Version:** 0.9 · **Date:** 21 July 2026 · **Companion to:** BankJobs SA PRD v0.2
+**Version:** 0.10 · **Date:** 21 July 2026 · **Companion to:** BankJobs SA PRD v0.2
 
 This plan translates the PRD into a build sequence. It is written for a solo developer working in evenings/weekends; effort estimates are rough and assume familiarity with TypeScript. Each phase ends with a working, deployable system — never a half-built one.
 
@@ -101,11 +101,12 @@ Per adapter:
 
 **Definition of done:** two consecutive local runs against live feeds produce a stable DB with sensible new/closed counts; killing one adapter mid-run doesn't affect the others.
 
-### 2.5 GitHub Actions wiring
+### 2.5 GitHub Actions wiring — DONE 21 Jul 2026
 
-- [ ] `ingest.yml`: cron 3×/day (e.g. 06:00, 12:00, 18:00 SAST), manual dispatch enabled. Secrets: Cloudflare API token, account/DB ids.
-- [ ] Per-source steps so one failure emails you but others complete (Actions notifies on failure by default — confirm notification settings).
-- [ ] `ci.yml`: typecheck + unit/fixture tests on PR.
+- [x] `ingest.yml`: cron 3×/day (06:00, 12:00, 18:00 SAST), manual dispatch with an `only` (single-source override) and `dry_run` input. Only secret required is `CLOUDFLARE_API_TOKEN` — the account and database ids are identifiers, not credentials, so they're inlined in the workflow rather than stored as secrets.
+- [x] Per-source steps (`continue-on-error: true`) so one bank's outage can't block the rest; a final rollup step inspects `steps.*.outcome` and fails the run if any source didn't come back clean, so it goes red for a human to check without needing to open every step's log (Actions' default failure-notification email still fires off that rollup). gotyme stays excluded from the workflow — seeded `enabled=0` because its feed is empty, and running it explicitly would trip the zero-jobs guardrail; add its step back once `sources.enabled` flips to 1.
+- [x] `ci.yml`: `pnpm typecheck` + `pnpm test` on PR and push to main.
+- [x] **Remote D1 write-path decisions:** the D1 REST driver lives behind the same async `JobsDb` seam the local SQLite driver implements, so CI needs no `wrangler` install or auth beyond the three env vars. Lifecycle updates (closures, `missedRuns` bumps) batch via chunked `WHERE id IN (...)`, capped at 80 ids per statement, to respect both Cloudflare's API rate limit and D1's 100-bound-parameter ceiling per statement. Remote writes are per-statement rather than wrapped in an explicit transaction — the diff/upsert flow is idempotent, so a run that dies partway self-heals on the next scheduled trigger instead of needing a rollback. Static snapshots (`/data/*.json`) remain local-only for now; giving the site build a D1-fed data path is deferred to the deploy milestone (2.8).
 
 ### 2.6 Read API (Worker) — BUILT 21 Jul 2026, locally proven; remote D1 spike still gates deploy
 

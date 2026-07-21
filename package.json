@@ -5,6 +5,7 @@
   "engines": {
     "node": ">=24"
   },
+  "packageManager": "pnpm@11.15.1",
   "scripts": {
     "ingest": "pnpm --filter @bankjobs/ingest run ingest",
     "test": "vitest run && pnpm --filter @bankjobs/api run test",

@@ -25,13 +25,15 @@ export const registry = adapters as unknown as Partial<Record<SourceId, AnyAdapt
  * - Explicit request → exactly those, after validating each name is known
  *   (i.e. has an adapter); throws on the first unknown name.
  */
-export function resolveSources(requested: string[] | undefined, db: JobsDb): SourceId[] {
+export async function resolveSources(
+  requested: string[] | undefined,
+  db: JobsDb,
+): Promise<SourceId[]> {
   const known = Object.keys(registry) as SourceId[];
 
   if (requested === undefined) {
-    const enabled = new Set(
-      db.all<{ id: string }>('SELECT id FROM sources WHERE enabled = 1').map((r) => r.id),
-    );
+    const rows = await db.all<{ id: string }>('SELECT id FROM sources WHERE enabled = 1');
+    const enabled = new Set(rows.map((r) => r.id));
     return known.filter((id) => enabled.has(id));
   }
 

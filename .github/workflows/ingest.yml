@@ -1,0 +1,147 @@
+# Scheduled ingestion into Cloudflare D1 (remote, production database).
+#
+# Requirements for the schedule trigger to actually fire:
+#   - scheduled workflows only run off the repo's default branch (main);
+#   - for free GitHub Actions minutes, the repo needs to be public.
+# See the README's "Scheduled ingestion" section for the one-time setup
+# checklist (API token scope, gh secret set, a dry-run dispatch first).
+#
+# Required secret: CLOUDFLARE_API_TOKEN (D1:Edit, scoped to the account
+# below). CLOUDFLARE_ACCOUNT_ID / CLOUDFLARE_D1_DATABASE_ID are identifiers,
+# not credentials, so they're inlined rather than stored as secrets.
+#
+# Each bank runs as its own step with continue-on-error: true, so one
+# source's outage can't block the others from running. The final step rolls
+# up every step's outcome and fails the whole run if any source didn't come
+# back clean, so a human notices in the Actions tab without having to open
+# every step's log.
+name: Ingest
+
+on:
+  schedule:
+    # 04:00 / 10:00 / 16:00 UTC = 06:00 / 12:00 / 18:00 SAST (UTC+2, no DST)
+    - cron: '0 4,10,16 * * *'
+  workflow_dispatch:
+    inputs:
+      only:
+        description: Run just this one source id (blank = all enabled sources)
+        type: string
+        default: ''
+      dry_run:
+        description: Fetch and diff but write nothing
+        type: boolean
+        default: false
+
+concurrency:
+  group: ingest
+  cancel-in-progress: false # never kill a half-applied run
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: fdef463f845c9fd71e57e85f4ac40cae
+      CLOUDFLARE_D1_DATABASE_ID: 1ed5662e-2fab-402b-96d1-bac8175a52a6
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Ingest absa
+        id: absa
+        if: ${{ inputs.only == '' || inputs.only == 'absa' }}
+        continue-on-error: true
+        env:
+          DRY_RUN_FLAG: ${{ inputs.dry_run == true && '--dry-run' || '' }}
+        run: pnpm ingest -- --remote --source=absa $DRY_RUN_FLAG
+
+      - name: Ingest firstrand
+        id: firstrand
+        if: ${{ inputs.only == '' || inputs.only == 'firstrand' }}
+        continue-on-error: true
+        env:
+          DRY_RUN_FLAG: ${{ inputs.dry_run == true && '--dry-run' || '' }}
+        run: pnpm ingest -- --remote --source=firstrand $DRY_RUN_FLAG
+
+      - name: Ingest standardbank
+        id: standardbank
+        if: ${{ inputs.only == '' || inputs.only == 'standardbank' }}
+        continue-on-error: true
+        env:
+          DRY_RUN_FLAG: ${{ inputs.dry_run == true && '--dry-run' || '' }}
+        run: pnpm ingest -- --remote --source=standardbank $DRY_RUN_FLAG
+
+      - name: Ingest investec
+        id: investec
+        if: ${{ inputs.only == '' || inputs.only == 'investec' }}
+        continue-on-error: true
+        env:
+          DRY_RUN_FLAG: ${{ inputs.dry_run == true && '--dry-run' || '' }}
+        run: pnpm ingest -- --remote --source=investec $DRY_RUN_FLAG
+
+      # gotyme is seeded enabled=0 (its feed had zero open roles at build
+      # time) — running it explicitly here would trip the zero-jobs
+      # guardrail. Add a step for it, right here, once db/schema.sql flips
+      # its `enabled` flag to 1.
+
+      - name: Ingest nedbank
+        id: nedbank
+        if: ${{ inputs.only == '' || inputs.only == 'nedbank' }}
+        continue-on-error: true
+        env:
+          DRY_RUN_FLAG: ${{ inputs.dry_run == true && '--dry-run' || '' }}
+        run: pnpm ingest -- --remote --source=nedbank $DRY_RUN_FLAG
+
+      - name: Ingest discovery
+        id: discovery
+        if: ${{ inputs.only == '' || inputs.only == 'discovery' }}
+        continue-on-error: true
+        env:
+          DRY_RUN_FLAG: ${{ inputs.dry_run == true && '--dry-run' || '' }}
+        run: pnpm ingest -- --remote --source=discovery $DRY_RUN_FLAG
+
+      - name: Ingest capitec
+        id: capitec
+        if: ${{ inputs.only == '' || inputs.only == 'capitec' }}
+        continue-on-error: true
+        env:
+          DRY_RUN_FLAG: ${{ inputs.dry_run == true && '--dry-run' || '' }}
+        run: pnpm ingest -- --remote --source=capitec $DRY_RUN_FLAG
+
+      - name: Ingest sarb
+        id: sarb
+        if: ${{ inputs.only == '' || inputs.only == 'sarb' }}
+        continue-on-error: true
+        env:
+          DRY_RUN_FLAG: ${{ inputs.dry_run == true && '--dry-run' || '' }}
+        run: pnpm ingest -- --remote --source=sarb $DRY_RUN_FLAG
+
+      # A step "failure" below includes guardrail warnings (the ingest CLI
+      # exits 1 on those too, not just on crashes) — that's intentional: the
+      # run goes red so a human looks, while continue-on-error above already
+      # let every other source run to completion regardless.
+      - name: Fail if any source failed
+        if: ${{ !cancelled() }}
+        env:
+          STEPS_JSON: ${{ toJSON(steps) }}
+          ANY_FAILURE: ${{ contains(steps.*.outcome, 'failure') }}
+        run: |
+          echo "Per-source outcomes:"
+          echo "$STEPS_JSON" | jq -r 'to_entries[] | select(.value.outcome) | "\(.key): \(.value.outcome)"'
+
+          if [ "$ANY_FAILURE" = "true" ]; then
+            echo ""
+            echo "One or more sources did not come back clean — see outcomes above."
+            exit 1
+          fi
+
+          echo "All sources completed cleanly."

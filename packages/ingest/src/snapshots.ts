@@ -46,14 +46,14 @@ function categorySlugFor(category: string): string {
  *   {dir}/public/data/category/{slug}.json per-category lean lists (all 10 slugs)
  *   {dir}/src/data/jobs-full.json         full records incl. descriptionHtml (SSG input)
  */
-export function emitSnapshots(db: JobsDb, snapshotDir: string, now: string): void {
-  const jobs = db.all<JobRow>(
+export async function emitSnapshots(db: JobsDb, snapshotDir: string, now: string): Promise<void> {
+  const jobs = await db.all<JobRow>(
     `SELECT * FROM jobs WHERE status = 'open'
        ORDER BY (posted_date IS NULL), posted_date DESC, id`,
   );
 
   // First (primary) location per job, in insertion order, plus every location.
-  const locRows = db.all<LocRow>(
+  const locRows = await db.all<LocRow>(
     'SELECT job_id, city, province FROM job_locations ORDER BY job_id, rowid',
   );
   const firstLoc = new Map<string, { city: string | null; province: string | null }>();
@@ -107,16 +107,16 @@ export function emitSnapshots(db: JobsDb, snapshotDir: string, now: string): voi
   const openBySource = new Map<string, number>();
   for (const j of jobs) openBySource.set(j.source, (openBySource.get(j.source) ?? 0) + 1);
 
-  const sources = db
-    .all<{ id: string; name: string; last_success_at: string | null }>(
+  const sources = (
+    await db.all<{ id: string; name: string; last_success_at: string | null }>(
       'SELECT id, name, last_success_at FROM sources ORDER BY id',
     )
-    .map((s) => ({
-      id: s.id,
-      name: s.name,
-      count: openBySource.get(s.id) ?? 0,
-      lastSuccessAt: s.last_success_at,
-    }));
+  ).map((s) => ({
+    id: s.id,
+    name: s.name,
+    count: openBySource.get(s.id) ?? 0,
+    lastSuccessAt: s.last_success_at,
+  }));
 
   const categories: Record<string, number> = {};
   for (const slug of slugs) categories[slug] = 0;
@@ -127,7 +127,7 @@ export function emitSnapshots(db: JobsDb, snapshotDir: string, now: string): voi
   }
 
   const provinces: Record<string, number> = {};
-  const provinceRows = db.all<{ province: string; count: number }>(
+  const provinceRows = await db.all<{ province: string; count: number }>(
     `SELECT jl.province AS province, COUNT(DISTINCT j.id) AS count
        FROM job_locations jl JOIN jobs j ON j.id = jl.job_id
        WHERE j.status = 'open' AND j.country = 'ZA' AND jl.province IS NOT NULL
