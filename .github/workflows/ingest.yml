@@ -21,6 +21,10 @@ on:
   schedule:
     # 04:00 / 10:00 / 16:00 UTC = 06:00 / 12:00 / 18:00 SAST (UTC+2, no DST)
     - cron: '0 4,10,16 * * *'
+    # TEMPORARY (21 Jul 2026): one-off slots to observe a scheduled trigger
+    # live — 19:00/19:15 SAST. REVERT after the observation run.
+    - cron: '0 17 * * *'
+    - cron: '15 17 * * *'
   workflow_dispatch:
     inputs:
       only:
