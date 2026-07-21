@@ -43,6 +43,24 @@ describe('edge caching', () => {
     expect((await call('/api/jobs?brand=Absa')).headers.get('X-Cache')).toBe('HIT');
   });
 
+  it('cacheKey is deploy-scoped: version ids partition entries', async () => {
+    const { cacheKey } = await import('../src/cache');
+    const req = new Request('https://api.example/api/jobs?q=teller');
+    const v1 = cacheKey(req, 'deploy-1').url;
+    const v2 = cacheKey(req, 'deploy-2').url;
+    const bare = cacheKey(req).url;
+    expect(v1).not.toBe(v2);
+    expect(v1).toContain('__v=deploy-1');
+    // No version binding (test pool, old runtimes) → key format unchanged.
+    expect(bare).not.toContain('__v');
+    // A caller-supplied __v is an unknown param and must be dropped, not honoured.
+    const spoofed = cacheKey(
+      new Request('https://api.example/api/jobs?q=teller&__v=evil'),
+      'deploy-1',
+    ).url;
+    expect(spoofed).toBe(v1);
+  });
+
   it('/api/meta is cacheable', async () => {
     expect((await call('/api/meta')).headers.get('X-Cache')).toBe('MISS');
     expect((await call('/api/meta')).headers.get('X-Cache')).toBe('HIT');

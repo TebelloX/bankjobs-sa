@@ -20,7 +20,7 @@ const CACHE_PARAMS = [
   'offset',
 ];
 
-export function cacheKey(request: Request): Request {
+export function cacheKey(request: Request, versionId?: string): Request {
   const url = new URL(request.url);
   const src = url.searchParams;
   const kept: [string, string][] = [];
@@ -29,6 +29,14 @@ export function cacheKey(request: Request): Request {
     if (v !== null && v !== '') kept.push([k, v]);
   }
   kept.sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
-  url.search = new URLSearchParams(kept).toString();
+  const params = new URLSearchParams(kept);
+  // Deploy-scoped keys: a Worker deploy does NOT purge caches.default, so
+  // without this a bug fix keeps serving each PoP's stale entry for up to
+  // s-maxage (observed live: a search fix stayed invisible in Johannesburg
+  // for ~15 min). Folding the deploy's version id into the key orphans every
+  // old entry the moment a new version rolls out. `__v` can't collide with a
+  // caller param — unknown params were already dropped above.
+  if (versionId) params.set('__v', versionId);
+  url.search = params.toString();
   return new Request(url.toString(), { method: 'GET' });
 }

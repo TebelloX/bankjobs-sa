@@ -26,7 +26,7 @@ export default {
       return errorJson(405, 'method not allowed', { Allow: 'GET' });
     }
 
-    const key = cacheKey(request);
+    const key = cacheKey(request, env.VERSION?.id);
     const cache = caches.default;
 
     // Cache HIT is served BEFORE the limiter spends a token — cached traffic is

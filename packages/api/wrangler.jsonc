@@ -13,6 +13,10 @@
   // attaching this, the API token needs Zone → Workers Routes → Edit for the
   // zone (account-level Workers Scripts:Edit alone may not cover domains).
   "routes": [{ "pattern": "api.mybankjobs.co.za", "custom_domain": true }],
+  // Deploy id for cache.ts's deploy-scoped cache keys: a deploy doesn't purge
+  // caches.default, so keys are salted with the version id to orphan stale
+  // entries the moment a fix rolls out.
+  "version_metadata": { "binding": "VERSION" },
   "d1_databases": [
     {
       "binding": "DB",
