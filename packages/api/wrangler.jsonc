@@ -4,6 +4,10 @@
   // Pinned within the runtime bundled by @cloudflare/vitest-pool-workers@0.8.71
   // (miniflare 4.20250906.x). Bump on deploy if a newer feature is needed.
   "compatibility_date": "2025-09-01",
+  // Serve on the account's workers.dev subdomain (bankjobs-api.tebello-namo.
+  // workers.dev) — explicit so deploys don't warn about the fallback. A custom
+  // domain/route would be added alongside this, not instead of it.
+  "workers_dev": true,
   "d1_databases": [
     {
       "binding": "DB",
