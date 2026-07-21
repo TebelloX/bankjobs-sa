@@ -38,6 +38,57 @@ function categorySlugFor(category: string): string {
 }
 
 /**
+ * Rows per page when reading the two unbounded tables. Over the D1 REST API the
+ * entire result set comes back in one JSON response, and each `jobs` row carries
+ * tens of KB of `description_html` (the ~556 open rows total several MB) — a
+ * single unbounded SELECT overflows D1's response-size ceiling. We page by rowid
+ * instead (a keyset cursor on the output ORDER BY is fiddly; rowid is monotonic
+ * and unique) and re-sort/group in JS so every file stays byte-identical to the
+ * old single-query output. `job_locations` rows are tiny, hence the larger page.
+ * Exported so the chunking test can't silently drift from these values.
+ */
+export const SNAPSHOT_JOB_CHUNK = 200;
+export const SNAPSHOT_LOCATION_CHUNK = 2000;
+
+/**
+ * Read an entire table in rowid-ordered pages, following the last row's rowid as
+ * the cursor. `sql` must select a `rowid` column, filter on `rowid > ?`, and end
+ * with a literal `LIMIT chunkSize`.
+ */
+async function readAllByRowid<T extends { rowid: number }>(
+  db: JobsDb,
+  sql: string,
+  chunkSize: number,
+): Promise<T[]> {
+  const rows: T[] = [];
+  let cursor = 0;
+  for (;;) {
+    const page = await db.all<T>(sql, [cursor]);
+    rows.push(...page);
+    if (page.length < chunkSize) break;
+    cursor = page[page.length - 1]!.rowid;
+  }
+  return rows;
+}
+
+/**
+ * The exact order the single-query version produced in SQL:
+ *   ORDER BY (posted_date IS NULL), posted_date DESC, id
+ * Reapplied in JS after the rowid-paged read so jobs.json / the category files /
+ * jobs-full.json come out byte-identical. `id` is the primary key (unique), so
+ * this is a total order.
+ */
+function compareOutputOrder(a: JobRow, b: JobRow): number {
+  const aNull = a.posted_date === null ? 1 : 0;
+  const bNull = b.posted_date === null ? 1 : 0;
+  if (aNull !== bNull) return aNull - bNull;
+  if (a.posted_date !== b.posted_date) {
+    return (a.posted_date ?? '') < (b.posted_date ?? '') ? 1 : -1;
+  }
+  return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+}
+
+/**
  * Write the static data snapshots the site is built against. This is the ONLY
  * contract between ingest and site — field names are load-bearing.
  *
@@ -47,14 +98,28 @@ function categorySlugFor(category: string): string {
  *   {dir}/src/data/jobs-full.json         full records incl. descriptionHtml (SSG input)
  */
 export async function emitSnapshots(db: JobsDb, snapshotDir: string, now: string): Promise<void> {
-  const jobs = await db.all<JobRow>(
-    `SELECT * FROM jobs WHERE status = 'open'
-       ORDER BY (posted_date IS NULL), posted_date DESC, id`,
-  );
+  // Read the open jobs in rowid-ordered pages (see readAllByRowid / the chunk
+  // constants): the full description_html makes one unbounded SELECT overflow
+  // the D1 REST response. Sorting happens in JS so the output stays byte-for-
+  // byte identical to the old single-query form.
+  const jobs = (
+    await readAllByRowid<JobRow & { rowid: number }>(
+      db,
+      `SELECT *, rowid FROM jobs WHERE status = 'open' AND rowid > ?
+         ORDER BY rowid LIMIT ${SNAPSHOT_JOB_CHUNK}`,
+      SNAPSHOT_JOB_CHUNK,
+    )
+  ).sort(compareOutputOrder);
 
   // First (primary) location per job, in insertion order, plus every location.
-  const locRows = await db.all<LocRow>(
-    'SELECT job_id, city, province FROM job_locations ORDER BY job_id, rowid',
+  // Also paged by rowid (this table is unbounded too); the per-job grouping
+  // below is insensitive to how jobs interleave, so global rowid order yields
+  // the same firstLoc/allLocs as the old `ORDER BY job_id, rowid`.
+  const locRows = await readAllByRowid<LocRow & { rowid: number }>(
+    db,
+    `SELECT job_id, city, province, rowid FROM job_locations WHERE rowid > ?
+       ORDER BY rowid LIMIT ${SNAPSHOT_LOCATION_CHUNK}`,
+    SNAPSHOT_LOCATION_CHUNK,
   );
   const firstLoc = new Map<string, { city: string | null; province: string | null }>();
   const allLocs = new Map<string, { city: string | null; province: string | null }[]>();

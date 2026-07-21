@@ -1,12 +1,36 @@
-// Single seam for the search data source. Today the site is fully static and
-// filters a fetched JSON snapshot in the browser. When the Worker API lands
-// (deferred milestone), flip PUBLIC_SEARCH_MODE to 'api' and point
-// SEARCH_DATA_URL / buildSearchUrl at it — nothing else in the UI changes.
+// Single seam for the search data source. In 'static' mode the site ships a
+// build-time JSON snapshot and filters it in the browser; in 'api' mode the
+// search island queries the deployed Cloudflare Worker (bm25 FTS server-side).
+// The mode is chosen at BUILD time from PUBLIC_* env vars and inlined into the
+// client bundle by Astro/Vite — this module is the single place that plumbing
+// lives, so flipping modes needs no other change in the UI.
 
 export type SearchMode = 'static' | 'api';
 
-/** 'static' = fetch the snapshot and filter client-side (current + local dev). */
-export const PUBLIC_SEARCH_MODE: SearchMode = 'static';
+/**
+ * 'static' = fetch the snapshot and filter client-side (default: local dev and
+ * CI builds without a Worker). 'api' = query the Worker. Chosen at build time
+ * from PUBLIC_SEARCH_MODE; anything other than 'api' (including unset) is
+ * 'static', so a plain `pnpm build` stays static.
+ */
+export const PUBLIC_SEARCH_MODE: SearchMode =
+  import.meta.env.PUBLIC_SEARCH_MODE === 'api' ? 'api' : 'static';
+
+/**
+ * Worker origin for 'api' mode (e.g. https://bankjobs-api.example.workers.dev),
+ * no trailing slash. First-party infra only — never a third-party origin.
+ */
+export const PUBLIC_API_BASE: string = import.meta.env.PUBLIC_API_BASE ?? '';
+
+// An 'api' build with no base URL would ship a search box that can never reach
+// the Worker. Fail the build loudly at module evaluation rather than shipping
+// broken search: search.astro imports PUBLIC_SEARCH_MODE in its frontmatter, so
+// this runs during `astro build`, not in the visitor's browser.
+if (PUBLIC_SEARCH_MODE === 'api' && PUBLIC_API_BASE === '') {
+  throw new Error(
+    "PUBLIC_SEARCH_MODE='api' requires PUBLIC_API_BASE to be set to the Worker origin (no trailing slash).",
+  );
+}
 
 /** Same-origin snapshot of open jobs (lean rows). Never a third-party URL. */
 export const SEARCH_DATA_URL = '/data/jobs.json';
@@ -28,10 +52,45 @@ export interface SearchRow {
 }
 
 /**
- * In 'api' mode this would return the Worker query URL for a given search;
- * in 'static' mode the whole snapshot is fetched once and filtered locally,
- * so the query is ignored here.
+ * A row from the Worker `GET /api/jobs` response: the lean row plus the two
+ * extra fields the API attaches to search results.
  */
-export function buildSearchUrl(_query: string): string {
-  return SEARCH_DATA_URL;
+export interface ApiJobRow extends SearchRow {
+  excerpt: string;
+  applyUrl: string;
+}
+
+/** Shape of the Worker `GET /api/jobs` response. */
+export interface ApiJobsResponse {
+  total: number;
+  limit: number;
+  offset: number;
+  jobs: ApiJobRow[];
+}
+
+/** UI state the search island maps onto Worker `/api/jobs` params in 'api' mode. */
+export interface SearchQuery {
+  /** Free-text query; '' lists everything in scope (the API falls back to a listing). */
+  q: string;
+  /** ISO alpha-2 to restrict to one country ('ZA' = SA-only); omit for all countries. */
+  country?: string;
+  /** Page size (the API caps this at 50). */
+  limit: number;
+  /** Row offset for paging. */
+  offset: number;
+}
+
+/**
+ * Build the Worker query URL for a search. 'static' mode never calls this — it
+ * fetches SEARCH_DATA_URL once and filters locally, so the query is irrelevant
+ * there; 'api' mode maps the UI state (query, country scope, paging) onto the
+ * `/api/jobs` params.
+ */
+export function buildSearchUrl(params: SearchQuery): string {
+  const url = new URL(`${PUBLIC_API_BASE}/api/jobs`);
+  if (params.q) url.searchParams.set('q', params.q);
+  if (params.country) url.searchParams.set('country', params.country);
+  url.searchParams.set('limit', String(params.limit));
+  url.searchParams.set('offset', String(params.offset));
+  return url.toString();
 }

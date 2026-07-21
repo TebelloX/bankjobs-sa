@@ -145,3 +145,65 @@ jobs:
           fi
 
           echo "All sources completed cleanly."
+
+  # Rebuilds and redeploys the site from whatever D1 holds right now.
+  #
+  # CRITICAL: this must run even when the ingest job above FAILED.
+  # `needs: ingest` + `if: !cancelled()` (rather than the implicit
+  # "needs succeeded" default) is what makes that happen. D1 always holds
+  # the best current data — a failed source's rows are simply left as they
+  # were, never wiped (see the closure policy in the README) — so one bank
+  # having a bad run must not stop the other seven from reaching the site.
+  # `!cancelled()` still lets an actual workflow cancellation skip this job,
+  # unlike a bare `always()` would.
+  publish-site:
+    needs: ingest
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: fdef463f845c9fd71e57e85f4ac40cae
+      CLOUDFLARE_D1_DATABASE_ID: 1ed5662e-2fab-402b-96d1-bac8175a52a6
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # Regenerates site/public/data/*.json + site/src/data/jobs-full.json
+      # straight from production D1 — the same static-snapshot shape the
+      # `--fixtures` path produces for CI, just sourced from prod instead of
+      # committed fixtures.
+      - name: Generate site data snapshots from D1
+        run: pnpm ingest -- --snapshot-only --remote
+
+      # Search wires up to the Worker only once its workers.dev URL is known.
+      # `vars.PUBLIC_API_BASE` is a repository variable (a public URL, not a
+      # secret) left empty until the first `wrangler deploy` reveals it —
+      # while it's empty, the build falls back to static-search mode by
+      # simply omitting both PUBLIC_* env vars.
+      - name: Build site
+        env:
+          PUBLIC_API_BASE: ${{ vars.PUBLIC_API_BASE }}
+        run: |
+          if [ -n "$PUBLIC_API_BASE" ]; then
+            PUBLIC_SEARCH_MODE=api PUBLIC_API_BASE="$PUBLIC_API_BASE" pnpm build
+          else
+            pnpm build
+          fi
+
+      # wrangler lives in packages/api's devDependencies; `--filter ... exec`
+      # runs the command with that package's directory as cwd, so the dist
+      # path is relative from there (packages/api -> ../../site/dist).
+      # --commit-dirty=true: the snapshot step above writes gitignored files
+      # into the workspace, which would otherwise make wrangler refuse to
+      # deploy from a "dirty" git state.
+      - name: Deploy to Cloudflare Pages
+        run: pnpm --filter @bankjobs/api exec wrangler pages deploy ../../site/dist --project-name=bankjobs-sa --commit-dirty=true

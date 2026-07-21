@@ -13,7 +13,7 @@ Product docs live in [`docs/`](docs/) (PRD + implementation plan).
 | `packages/core`     | Canonical `Job` type, HTML sanitizer, location normalizer, category classifier               |
 | `packages/adapters` | Per-source adapters (shared Workday client; Absa live)                                       |
 | `packages/ingest`   | Ingestion orchestrator: fetch → normalize → diff → upsert → snapshots                        |
-| `packages/api`      | Cloudflare Worker read API (deferred)                                                        |
+| `packages/api`      | Cloudflare Worker read API (`bankjobs-api`), FTS5 search on D1                               |
 | `site`              | Astro static site                                                                            |
 | `db`                | SQLite/D1 schema + migrations                                                                |
 | `fixtures`          | Committed real API responses per source — adapter tests run against these, never the network |
@@ -62,6 +62,51 @@ export CLOUDFLARE_ACCOUNT_ID=...
 export CLOUDFLARE_D1_DATABASE_ID=...
 pnpm ingest -- --remote --dry-run
 ```
+
+## Production topology & deploys
+
+- **API** — the Cloudflare Worker in `packages/api` (`bankjobs-api`) serves `/api/*` off the
+  production D1 database, on its free `workers.dev` URL.
+- **Site** — the Astro site builds to Cloudflare Pages project `bankjobs-sa`, also on its free
+  `pages.dev` domain. It rebuilds three times a day right after each scheduled ingest run
+  (`ingest.yml`'s `publish-site` job, `needs: ingest` + `if: !cancelled()` — it runs even when a
+  source failed that cycle, because D1 always holds the best data available and one bank's
+  outage must never stop the rest of the site from refreshing) and again on every push to `main`
+  (`deploy.yml`'s `site` job), so code changes go live immediately rather than waiting for the
+  next cron tick. Both paths regenerate `site/public/data/*.json` and `site/src/data/jobs-full.json`
+  straight from prod via `pnpm ingest -- --snapshot-only --remote` before building — the site
+  never ships stale or fixture data.
+- **Search** — static browse pages always read the pre-built JSON snapshots. The search box calls
+  the Worker instead only when the build was given `PUBLIC_SEARCH_MODE=api` and
+  `PUBLIC_API_BASE=<worker url>`; both are sourced from the repository variable
+  `vars.PUBLIC_API_BASE`, and the build falls back to static-search mode (omitting both) whenever
+  that variable is empty — see the one-time setup below for when it gets set.
+- **Worker deploys** — [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)'s `worker`
+  job deploys `packages/api` on `workflow_dispatch` with `worker: true`, or automatically on push
+  to `main` when `packages/api/**` or `db/schema.sql` changed (a `git diff` against the pre-push
+  commit stands in for a per-job paths filter — no third-party action needed).
+
+One-time deploy setup, additional to the scheduled-ingestion steps above:
+
+1. Widen the existing `CLOUDFLARE_API_TOKEN` in the Cloudflare dashboard to also grant
+   **Workers Scripts:Edit** and **Cloudflare Pages:Edit** (keep `D1:Edit`). Until this is done,
+   both deploy jobs fail with an auth error — ingest.yml is unaffected, since it only ever
+   touches D1.
+2. Create the Pages project once, for reference (also happens implicitly on first
+   `wrangler pages deploy` if it doesn't exist yet):
+   ```sh
+   wrangler pages project create bankjobs-sa --production-branch=main
+   ```
+3. Trigger a Worker deploy (`workflow_dispatch` on `deploy.yml` with `worker: true`), note the
+   `*.workers.dev` URL it prints, then point the site's search at it:
+   ```sh
+   gh variable set PUBLIC_API_BASE --body "https://<actual-worker-subdomain>.workers.dev"
+   ```
+   The next site build (scheduled or on push) picks it up automatically.
+
+`pages.dev` / `workers.dev` free domains are the deliberate launch setup per the
+[implementation plan](docs/BankJobs-SA-Implementation-Plan.md) §2.8 — a custom domain is a
+Phase 4 decision, not a launch blocker.
 
 ## Operating principles
 

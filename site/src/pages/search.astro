@@ -2,11 +2,19 @@
 import Base from '../layouts/Base.astro';
 import { CATEGORY_SLUGS } from '@bankjobs/core';
 import type { Category } from '@bankjobs/core';
+import { PUBLIC_SEARCH_MODE } from '../lib/searchClient';
 
 const categories = Object.entries(CATEGORY_SLUGS) as Array<[Category, string]>;
 
 const description =
   "Search every official South African bank vacancy by title, bank, category or location. Apply on the bank's own site.";
+
+// Reading PUBLIC_SEARCH_MODE here also evaluates searchClient's config guard at
+// BUILD time — an 'api' build with no PUBLIC_API_BASE fails loudly now, not in a
+// visitor's browser. Static mode keeps its original loading line; api mode waits
+// on a network round-trip, so it reads "Searching…".
+const loadingLabel =
+  PUBLIC_SEARCH_MODE === 'api' ? 'Searching vacancies…' : 'Loading vacancies…';
 ---
 
 <Base title="Search vacancies — BankJobs SA" description={description}>
@@ -30,7 +38,7 @@ const description =
     </div>
   </div>
 
-  <p id="results-count" class="results-count" aria-live="polite" role="status">Loading vacancies…</p>
+  <p id="results-count" class="results-count" aria-live="polite" role="status">{loadingLabel}</p>
 
   <ul id="search-results" class="joblist" aria-label="Search results"></ul>
 
@@ -51,8 +59,8 @@ const description =
   </noscript>
 
   <script>
-    import { SEARCH_DATA_URL } from '../lib/searchClient';
-    import type { SearchRow } from '../lib/searchClient';
+    import { PUBLIC_SEARCH_MODE, SEARCH_DATA_URL, buildSearchUrl } from '../lib/searchClient';
+    import type { ApiJobsResponse, SearchRow } from '../lib/searchClient';
 
     const input = document.getElementById('search-input') as HTMLInputElement | null;
     const intl = document.getElementById('include-intl') as HTMLInputElement | null;
@@ -83,93 +91,48 @@ const description =
         return `${d} ${MONTHS[m - 1]}`;
       }
 
-      let rows: SearchRow[] = [];
-      let loaded = false;
+      // Build one ledger <li> for a job row with DOM APIs only — never innerHTML
+      // with data. Shared by both modes so the markup stays identical to
+      // JobRow.astro regardless of data source: cell (title + source) | when.
+      function createJobRow(r: SearchRow): HTMLLIElement {
+        const li = document.createElement('li');
+        li.className = 'job-row';
 
-      // Long result sets render in statement-sized batches of 50: a first page
-      // of 50 rows, then a "show more" button that reveals another 50 each
-      // click. `shown` is the current cap; a fresh search resets it.
-      const PAGE_SIZE = 50;
-      let shown = PAGE_SIZE;
+        const cell = document.createElement('span');
+        cell.className = 'job-cell';
 
-      function render(reset = true): void {
-        if (reset) shown = PAGE_SIZE;
+        const a = document.createElement('a');
+        a.className = 'job-title';
+        a.href = `/jobs/${r.slug}/`;
+        a.textContent = r.title;
 
-        const q = input!.value.trim().toLowerCase();
-        const includeIntl = !!(intl && intl.checked);
-        const pool = rows.filter((r) => includeIntl || r.country === 'ZA');
-        const matched = q
-          ? pool.filter((r) => {
-              const hay =
-                `${r.title} ${r.brand} ${r.source} ${r.category} ${r.primaryLocation ?? ''}`.toLowerCase();
-              return hay.includes(q);
-            })
-          : pool;
+        const src = document.createElement('span');
+        src.className = 'src';
+        const parts = [r.brand, r.category];
+        if (r.primaryLocation) parts.push(r.primaryLocation);
+        src.textContent = parts.join(' · ');
 
-        const visible = matched.slice(0, shown);
+        cell.appendChild(a);
+        cell.appendChild(src);
+        li.appendChild(cell);
 
-        // Rebuild the list with DOM APIs only — never innerHTML with data.
-        // Ledger-row markup, matching JobRow.astro: cell (title + source) | when.
-        while (list!.firstChild) list!.removeChild(list!.firstChild);
-        for (const r of visible) {
-          const li = document.createElement('li');
-          li.className = 'job-row';
-
-          const cell = document.createElement('span');
-          cell.className = 'job-cell';
-
-          const a = document.createElement('a');
-          a.className = 'job-title';
-          a.href = `/jobs/${r.slug}/`;
-          a.textContent = r.title;
-
-          const src = document.createElement('span');
-          src.className = 'src';
-          const parts = [r.brand, r.category];
-          if (r.primaryLocation) parts.push(r.primaryLocation);
-          src.textContent = parts.join(' · ');
-
-          cell.appendChild(a);
-          cell.appendChild(src);
-          li.appendChild(cell);
-
-          if (r.postedDate) {
-            const when = document.createElement('span');
-            when.className = 'when';
-            when.textContent = `posted ${fmtDate(r.postedDate)}`;
-            li.appendChild(when);
-          }
-
-          list!.appendChild(li);
+        if (r.postedDate) {
+          const when = document.createElement('span');
+          when.className = 'when';
+          when.textContent = `posted ${fmtDate(r.postedDate)}`;
+          li.appendChild(when);
         }
-
-        // Reveal control: a ledger-styled "show more" button when the match
-        // set exceeds the current cap.
-        while (more!.firstChild) more!.removeChild(more!.firstChild);
-        if (loaded && matched.length > shown) {
-          const remaining = matched.length - shown;
-          const btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = 'show-more';
-          btn.textContent = `Show ${PAGE_SIZE} more (${remaining} remaining)`;
-          btn.addEventListener('click', () => {
-            shown += PAGE_SIZE;
-            render(false);
-          });
-          more!.appendChild(btn);
-        }
-
-        // The count line always states the TOTAL match set; "— showing N" is
-        // appended only while the list is capped below that total.
-        if (!loaded) {
-          count!.textContent = 'Loading vacancies…';
-        } else if (matched.length > shown) {
-          count!.textContent = `${matched.length} of ${pool.length} vacancies — showing ${visible.length}`;
-        } else {
-          count!.textContent = `${matched.length} of ${pool.length} vacancies`;
-        }
+        return li;
       }
 
+      // Long result sets render in statement-sized batches of 50: a first page
+      // of 50 rows, then a "show more" button that reveals another 50 each click.
+      const PAGE_SIZE = 50;
+
+      // Prefill from a shared ?q link (both modes).
+      input.value = new URLSearchParams(location.search).get('q') ?? '';
+
+      // Keep the address bar shareable: reflect the query into ?q (both modes).
       function updateUrl(): void {
         const url = new URL(location.href);
         if (input!.value) url.searchParams.set('q', input!.value);
@@ -177,31 +140,163 @@ const description =
         history.replaceState(null, '', url);
       }
 
-      // Prefill from a shared ?q link.
-      input.value = new URLSearchParams(location.search).get('q') ?? '';
+      // The "include international roles" toggle drives the country scope the
+      // same way in both modes: unchecked = SA only (country ZA), checked = all.
+      function scopeCountry(): string | undefined {
+        return intl && intl.checked ? undefined : 'ZA';
+      }
 
-      let timer: ReturnType<typeof setTimeout> | undefined;
-      input.addEventListener('input', () => {
-        if (timer) clearTimeout(timer);
-        timer = setTimeout(() => {
-          updateUrl();
-          render();
-        }, 150);
-      });
-      if (intl) intl.addEventListener('change', () => render());
+      if (PUBLIC_SEARCH_MODE === 'api') {
+        // ---- api mode: bm25 FTS + paging done server-side by the Worker -----
+        let rows: SearchRow[] = []; // accumulated across "show more" pages
+        let total = 0;
+        let loaded = false;
+        // Debounced typing can put several requests on the wire at once; only
+        // the latest one is allowed to touch the DOM.
+        let reqId = 0;
 
-      fetch(SEARCH_DATA_URL)
-        .then((r) => r.json())
-        .then((data: SearchRow[]) => {
-          rows = data;
-          loaded = true;
-          render();
-        })
-        .catch(() => {
-          count.textContent = 'Could not load vacancies. Please refresh the page.';
+        function render(): void {
+          while (list!.firstChild) list!.removeChild(list!.firstChild);
+          for (const r of rows) list!.appendChild(createJobRow(r));
+
+          while (more!.firstChild) more!.removeChild(more!.firstChild);
+          if (loaded && rows.length < total) {
+            const remaining = total - rows.length;
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'show-more';
+            btn.textContent = `Show ${PAGE_SIZE} more (${remaining} remaining)`;
+            btn.addEventListener('click', () => search(false));
+            more!.appendChild(btn);
+          }
+
+          // The count states the TOTAL match set; "— showing N" is appended
+          // only while the rendered page is capped below that total. (The API
+          // returns matches for the query, so there is no static-mode "of pool"
+          // denominator here.)
+          if (!loaded) count!.textContent = 'Searching vacancies…';
+          else if (rows.length < total)
+            count!.textContent = `${total} vacancies — showing ${rows.length}`;
+          else count!.textContent = `${total} vacancies`;
+        }
+
+        // reset=true starts a fresh search (offset 0, replaces rows);
+        // reset=false appends the next page for "show more".
+        async function search(reset: boolean): Promise<void> {
+          const offset = reset ? 0 : rows.length;
+          const url = buildSearchUrl({
+            q: input!.value.trim(),
+            country: scopeCountry(),
+            limit: PAGE_SIZE,
+            offset,
+          });
+          const myReq = ++reqId;
+          try {
+            const res = await fetch(url);
+            if (myReq !== reqId) return; // superseded by a newer search
+            if (res.status === 429) {
+              count!.textContent = 'Too many searches — please wait a moment and try again.';
+              return;
+            }
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = (await res.json()) as ApiJobsResponse;
+            if (myReq !== reqId) return;
+            rows = reset ? data.jobs : rows.concat(data.jobs);
+            total = data.total;
+            loaded = true;
+            render();
+          } catch {
+            if (myReq !== reqId) return;
+            count!.textContent = 'Could not load vacancies. Please try again.';
+          }
+        }
+
+        let timer: ReturnType<typeof setTimeout> | undefined;
+        input.addEventListener('input', () => {
+          if (timer) clearTimeout(timer);
+          timer = setTimeout(() => {
+            updateUrl();
+            search(true);
+          }, 150);
         });
+        if (intl) intl.addEventListener('change', () => search(true));
 
-      render();
+        search(true);
+      } else {
+        // ---- static mode: fetch the snapshot once, filter client-side -------
+        let rows: SearchRow[] = [];
+        let loaded = false;
+        let shown = PAGE_SIZE; // current cap; a fresh search resets it.
+
+        function render(reset = true): void {
+          if (reset) shown = PAGE_SIZE;
+
+          const q = input!.value.trim().toLowerCase();
+          const includeIntl = !!(intl && intl.checked);
+          const pool = rows.filter((r) => includeIntl || r.country === 'ZA');
+          const matched = q
+            ? pool.filter((r) => {
+                const hay =
+                  `${r.title} ${r.brand} ${r.source} ${r.category} ${r.primaryLocation ?? ''}`.toLowerCase();
+                return hay.includes(q);
+              })
+            : pool;
+
+          const visible = matched.slice(0, shown);
+
+          while (list!.firstChild) list!.removeChild(list!.firstChild);
+          for (const r of visible) list!.appendChild(createJobRow(r));
+
+          // Reveal control: a ledger-styled "show more" button when the match
+          // set exceeds the current cap.
+          while (more!.firstChild) more!.removeChild(more!.firstChild);
+          if (loaded && matched.length > shown) {
+            const remaining = matched.length - shown;
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'show-more';
+            btn.textContent = `Show ${PAGE_SIZE} more (${remaining} remaining)`;
+            btn.addEventListener('click', () => {
+              shown += PAGE_SIZE;
+              render(false);
+            });
+            more!.appendChild(btn);
+          }
+
+          // The count line always states the TOTAL match set; "— showing N" is
+          // appended only while the list is capped below that total.
+          if (!loaded) {
+            count!.textContent = 'Loading vacancies…';
+          } else if (matched.length > shown) {
+            count!.textContent = `${matched.length} of ${pool.length} vacancies — showing ${visible.length}`;
+          } else {
+            count!.textContent = `${matched.length} of ${pool.length} vacancies`;
+          }
+        }
+
+        let timer: ReturnType<typeof setTimeout> | undefined;
+        input.addEventListener('input', () => {
+          if (timer) clearTimeout(timer);
+          timer = setTimeout(() => {
+            updateUrl();
+            render();
+          }, 150);
+        });
+        if (intl) intl.addEventListener('change', () => render());
+
+        fetch(SEARCH_DATA_URL)
+          .then((r) => r.json())
+          .then((data: SearchRow[]) => {
+            rows = data;
+            loaded = true;
+            render();
+          })
+          .catch(() => {
+            count!.textContent = 'Could not load vacancies. Please refresh the page.';
+          });
+
+        render();
+      }
     }
   </script>
 </Base>

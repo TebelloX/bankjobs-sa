@@ -1,0 +1,129 @@
+# Push-to-main deploy for the site and (conditionally) the Worker API.
+#
+# Same env shape as ingest.yml: CLOUDFLARE_API_TOKEN secret + the account/D1
+# ids inlined (identifiers, not credentials). That token currently has only
+# D1:Edit — the jobs in this workflow additionally need Workers Scripts:Edit
+# (worker job) and Cloudflare Pages:Edit (site job) on the same token. Until
+# it's widened in the Cloudflare dashboard, both deploy steps below will fail
+# with an auth error; ingest.yml is unaffected since it only touches D1.
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      worker:
+        description: Also deploy the Worker API
+        type: boolean
+        default: false
+
+concurrency:
+  group: deploy
+  cancel-in-progress: true
+
+jobs:
+  # Deploys packages/api to Cloudflare Workers. On a manual dispatch, the
+  # `worker` input decides. On push, there's no per-job `paths:` filter in
+  # GitHub Actions, and this repo avoids third-party actions (no
+  # dorny/paths-filter) — so a `git diff` against the push's pre-change SHA
+  # stands in for one. The job always runs; the gate step below just decides
+  # whether the later steps do anything.
+  worker:
+    name: Deploy Worker API
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: fdef463f845c9fd71e57e85f4ac40cae
+      CLOUDFLARE_D1_DATABASE_ID: 1ed5662e-2fab-402b-96d1-bac8175a52a6
+    steps:
+      # fetch-depth: 0 — the gate step diffs against the pre-push SHA, which
+      # a shallow clone wouldn't have as a local object.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Decide whether the Worker needs a deploy
+        id: gate
+        env:
+          IS_DISPATCH: ${{ github.event_name == 'workflow_dispatch' }}
+          WANT_WORKER: ${{ inputs.worker == true }}
+          BEFORE_SHA: ${{ github.event.before }}
+          CURRENT_SHA: ${{ github.sha }}
+        run: |
+          if [ "$IS_DISPATCH" = "true" ]; then
+            echo "Manual dispatch, worker input = $WANT_WORKER."
+            echo "deploy=$WANT_WORKER" >> "$GITHUB_OUTPUT"
+          elif [ -z "$BEFORE_SHA" ] || [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
+            echo "No previous commit to diff against — deploying to be safe."
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+          elif git diff --quiet "$BEFORE_SHA" "$CURRENT_SHA" -- packages/api db/schema.sql; then
+            echo "No Worker-relevant paths changed since $BEFORE_SHA."
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Worker-relevant paths changed since $BEFORE_SHA."
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: pnpm/action-setup@v4
+        if: ${{ steps.gate.outputs.deploy == 'true' }}
+
+      - uses: actions/setup-node@v4
+        if: ${{ steps.gate.outputs.deploy == 'true' }}
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+        if: ${{ steps.gate.outputs.deploy == 'true' }}
+
+      - name: Deploy Worker
+        if: ${{ steps.gate.outputs.deploy == 'true' }}
+        run: cd packages/api && pnpm exec wrangler deploy
+
+  # Every push to main rebuilds and redeploys the site — not just after the
+  # next ingest.yml cron cycle — so site/content changes go live right away.
+  # The data snapshot step still re-pulls from prod D1 every time, so this
+  # can never publish stale or fixture data, only ever the current DB state.
+  site:
+    name: Deploy site
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: fdef463f845c9fd71e57e85f4ac40cae
+      CLOUDFLARE_D1_DATABASE_ID: 1ed5662e-2fab-402b-96d1-bac8175a52a6
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Generate site data snapshots from D1
+        run: pnpm ingest -- --snapshot-only --remote
+
+      # Same vars-gated PUBLIC_* pattern as ingest.yml's publish-site job:
+      # static-search mode until `vars.PUBLIC_API_BASE` is set (repository
+      # variable, not a secret — it's just the Worker's public URL).
+      - name: Build site
+        env:
+          PUBLIC_API_BASE: ${{ vars.PUBLIC_API_BASE }}
+        run: |
+          if [ -n "$PUBLIC_API_BASE" ]; then
+            PUBLIC_SEARCH_MODE=api PUBLIC_API_BASE="$PUBLIC_API_BASE" pnpm build
+          else
+            pnpm build
+          fi
+
+      # --commit-dirty=true: the snapshot step above writes gitignored files
+      # into the workspace, which would otherwise make wrangler refuse to
+      # deploy from a "dirty" git state.
+      - name: Deploy to Cloudflare Pages
+        run: pnpm --filter @bankjobs/api exec wrangler pages deploy ../../site/dist --project-name=bankjobs-sa --commit-dirty=true

@@ -5,7 +5,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import type { CanonicalJob } from '@bankjobs/core';
 import { openLocalDb } from '../src/db';
 import { upsertJobs } from '../src/diff';
-import { emitSnapshots } from '../src/snapshots';
+import { SNAPSHOT_JOB_CHUNK, SNAPSHOT_LOCATION_CHUNK, emitSnapshots } from '../src/snapshots';
 
 const NOW = '2026-07-10T00:00:00.000Z';
 
@@ -172,5 +172,77 @@ describe('emitSnapshots', () => {
     expect(softwareIt.map((r) => r.id)).toEqual(['absa:R-2']);
     const other = readJson<LeanRow[]>('public', 'data', 'category', 'other.json');
     expect(other).toEqual([]);
+  });
+});
+
+describe('emitSnapshots rowid paging', () => {
+  const bigDir = mkdtempSync(join(tmpdir(), 'bankjobs-snap-big-'));
+  // Enough jobs to span three job pages, each with five distinct locations so
+  // the location total (2250) also crosses the location page boundary. rowid
+  // order (insertion order) deliberately differs from the output order below.
+  const specs = Array.from({ length: SNAPSHOT_JOB_CHUNK * 2 + 50 }, (_, i) => ({
+    id: `absa:R-${String(i).padStart(4, '0')}`,
+    postedDate: i % 7 === 0 ? null : `2026-07-${String((i % 28) + 1).padStart(2, '0')}`,
+  }));
+  const LOCS_PER_JOB = 5;
+
+  beforeAll(async () => {
+    const db = openLocalDb(':memory:');
+    await upsertJobs(
+      db,
+      'absa',
+      specs.map((s) =>
+        makeJob({
+          id: s.id,
+          postedDate: s.postedDate,
+          locations: Array.from({ length: LOCS_PER_JOB }, (_, k) => ({
+            city: `${s.id}-c${k}`,
+            province: 'Gauteng',
+            raw: `${s.id}-c${k}`,
+          })),
+        }),
+      ),
+      NOW,
+    );
+    await emitSnapshots(db, bigDir, NOW);
+    await db.close();
+  });
+
+  it('exceeds one page in both tables (so the paging is actually exercised)', () => {
+    expect(specs.length).toBeGreaterThan(SNAPSHOT_JOB_CHUNK);
+    expect(specs.length * LOCS_PER_JOB).toBeGreaterThan(SNAPSHOT_LOCATION_CHUNK);
+  });
+
+  it('emits every open job in the exact single-query order across page boundaries', () => {
+    const rows = JSON.parse(readFileSync(join(bigDir, 'public', 'data', 'jobs.json'), 'utf8')) as {
+      id: string;
+    }[];
+
+    // Reproduce the contract independently: (postedDate null last), postedDate
+    // desc, id asc. If the rowid re-sort were dropped, this would fail.
+    const expected = [...specs]
+      .sort((a, b) => {
+        const an = a.postedDate === null ? 1 : 0;
+        const bn = b.postedDate === null ? 1 : 0;
+        if (an !== bn) return an - bn;
+        if (a.postedDate !== b.postedDate) {
+          return (a.postedDate ?? '') < (b.postedDate ?? '') ? 1 : -1;
+        }
+        return a.id < b.id ? -1 : 1;
+      })
+      .map((s) => s.id);
+
+    expect(rows.map((r) => r.id)).toEqual(expected);
+  });
+
+  it('accumulates every location across the location page boundary', () => {
+    const full = JSON.parse(
+      readFileSync(join(bigDir, 'src', 'data', 'jobs-full.json'), 'utf8'),
+    ) as { id: string; locations: unknown[] }[];
+
+    expect(full.length).toBe(specs.length);
+    expect(full.every((j) => j.locations.length === LOCS_PER_JOB)).toBe(true);
+    const totalLocs = full.reduce((n, j) => n + j.locations.length, 0);
+    expect(totalLocs).toBeGreaterThan(SNAPSHOT_LOCATION_CHUNK);
   });
 });

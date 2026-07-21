@@ -1,6 +1,6 @@
 # BankJobs SA — Implementation Plan
 
-**Version:** 0.10 · **Date:** 21 July 2026 · **Companion to:** BankJobs SA PRD v0.2
+**Version:** 0.11 · **Date:** 21 July 2026 · **Companion to:** BankJobs SA PRD v0.2
 
 This plan translates the PRD into a build sequence. It is written for a solo developer working in evenings/weekends; effort estimates are rough and assume familiarity with TypeScript. Each phase ends with a working, deployable system — never a half-built one.
 
@@ -129,7 +129,9 @@ Per adapter:
 
 ### 2.8 Deploy & validate
 
-- [ ] Cloudflare Pages project (site) + Worker (api) + D1 (prod DB). Free `pages.dev` domain is fine at launch.
+- [x] **Cloudflare Pages project (site) + Worker (api) + D1 (prod DB) — DONE 21 Jul 2026.** `bankjobs` D1 created and wired (see §2.6); Pages project `bankjobs-sa` (production branch `main`) and Worker `bankjobs-api` deploy from `.github/workflows/deploy.yml` (push to `main`, plus `workflow_dispatch` with a `worker` input) and from `ingest.yml`'s `publish-site` job after every scheduled ingest. Both free `pages.dev`/`workers.dev` domains, as planned — no custom domain at launch. Deploy jobs are auth-blocked until the `CLOUDFLARE_API_TOKEN` is widened past its current `D1:Edit`-only scope with `Workers Scripts:Edit` + `Cloudflare Pages:Edit` (README documents the one-time steps); that token edit and the resulting first live deploy are still outstanding.
+- [x] **Site data path from D1 — DONE 21 Jul 2026.** `pnpm ingest -- --snapshot-only --remote` regenerates `site/public/data/*.json` + `site/src/data/jobs-full.json` directly from production D1 before every build, in both deploy workflows — closing the gap noted in §2.5 (snapshots were local-only until this milestone).
+- [x] **Search → Worker wiring, env-gated — DONE 21 Jul 2026.** Site build accepts `PUBLIC_SEARCH_MODE=api` + `PUBLIC_API_BASE=<worker url>`, sourced from repository variable `vars.PUBLIC_API_BASE`; empty until the first Worker deploy reveals its URL, and the build falls back to static-search mode by omitting both vars until then.
 - [ ] Smoke test: full pipeline from Actions → D1 → site within one scheduled cycle.
 - [ ] Submit sitemap to Google Search Console; verify JobPosting markup with the Rich Results test.
 - [ ] Recruit ~20 real job seekers; run the **validation gate** (PRD §4): ≥10 would use it again over checking bank portals directly.
