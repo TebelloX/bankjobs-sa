@@ -35,6 +35,14 @@ describe('edge caching', () => {
     expect(hit.headers.get('X-Cache')).toBe('HIT');
   });
 
+  it('keys on brand: different brands do not collide', async () => {
+    // If `brand` were missing from CACHE_PARAMS both would normalize to
+    // `/api/jobs` and the second would be a (wrong-result) HIT.
+    expect((await call('/api/jobs?brand=Absa')).headers.get('X-Cache')).toBe('MISS');
+    expect((await call('/api/jobs?brand=Capitec')).headers.get('X-Cache')).toBe('MISS');
+    expect((await call('/api/jobs?brand=Absa')).headers.get('X-Cache')).toBe('HIT');
+  });
+
   it('/api/meta is cacheable', async () => {
     expect((await call('/api/meta')).headers.get('X-Cache')).toBe('MISS');
     expect((await call('/api/meta')).headers.get('X-Cache')).toBe('HIT');

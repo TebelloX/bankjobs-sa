@@ -6,7 +6,19 @@ export const CACHE_CONTROL = 'public, max-age=300, s-maxage=900';
 // Only these params affect a response. The cache key is built from them,
 // sorted and with unknown/empty params dropped, so `?b=2&a=1` and `?a=1&b=2&x=9`
 // hit the same cache entry.
-const CACHE_PARAMS = ['q', 'category', 'province', 'city', 'source', 'country', 'limit', 'offset'];
+// `brand` MUST be here: it changes the result set, so omitting it would let
+// ?brand=Absa and ?brand=Capitec collide on one cache entry and serve wrong rows.
+const CACHE_PARAMS = [
+  'q',
+  'brand',
+  'category',
+  'province',
+  'city',
+  'source',
+  'country',
+  'limit',
+  'offset',
+];
 
 export function cacheKey(request: Request): Request {
   const url = new URL(request.url);

@@ -244,11 +244,94 @@ export const SEED_JOBS: SeedJob[] = [
   },
 ];
 
-/** Insert SEED_JOBS (and their locations) via the D1 API; triggers index FTS. */
-export async function seedSampleJobs(db: D1Database): Promise<void> {
+// Bank-name-search fixtures, layered ON TOP of SEED_JOBS by seedBrandFixtures.
+// Engineered to reproduce the pre-fix bug: decoy rows whose DESCRIPTION mentions
+// a bank name so a raw FTS AND would surface them, plus the real brand rows they
+// must not be confused with. Distinct ids so they never clash with SEED_JOBS.
+export const BRAND_FIXTURE_JOBS: SeedJob[] = [
+  {
+    id: 'standardbank:R-201',
+    source: 'standardbank',
+    brand: 'Standard Bank',
+    title: 'Retail Teller',
+    category: 'Branch & Retail',
+    employmentType: 'Full time',
+    descriptionHtml: '<p>Serve customers as a branch teller.</p>',
+    descriptionText: 'Serve customers as a branch teller processing daily transactions.',
+    excerpt: 'Serve customers as a branch teller.',
+    primaryLocation: 'Johannesburg, Gauteng',
+    rawLocation: 'Johannesburg',
+    country: 'ZA',
+    applyUrl: 'https://standardbank.example/apply/R-201',
+    postedDate: '2026-07-09',
+    status: 'open',
+    locations: [{ city: 'Johannesburg', province: 'Gauteng' }],
+  },
+  {
+    // DECOY: description contains both "standard" and "bank" — a raw FTS MATCH of
+    // "standard bank" surfaced this SARB row pre-fix; the brand clause excludes it.
+    id: 'sarb:1737',
+    source: 'sarb',
+    brand: 'SARB',
+    title: 'Settlements Analyst',
+    category: 'Finance & Accounting',
+    employmentType: 'Full time',
+    descriptionHtml: '<p>Maintain the standard settlement framework for the reserve bank.</p>',
+    descriptionText: 'Maintain the standard settlement framework for the reserve bank.',
+    excerpt: 'Maintain the standard settlement framework.',
+    primaryLocation: 'Pretoria, Gauteng',
+    rawLocation: 'Pretoria Head Office',
+    country: 'ZA',
+    applyUrl: 'https://sarb.example/apply/1737',
+    postedDate: '2026-07-09',
+    status: 'open',
+    locations: [{ city: 'Pretoria', province: 'Gauteng' }],
+  },
+  {
+    // DECOY: "product discovery" + "banking" — a raw FTS MATCH of "discovery"
+    // surfaced this Investec row pre-fix; the brand clause excludes it.
+    id: 'investec:R-51',
+    source: 'investec',
+    brand: 'Investec',
+    title: 'Product Manager',
+    category: 'Software & IT',
+    employmentType: 'Full time',
+    descriptionHtml: '<p>Lead product discovery for our digital banking platform.</p>',
+    descriptionText: 'Lead product discovery for our digital banking platform.',
+    excerpt: 'Lead product discovery for our digital banking platform.',
+    primaryLocation: 'Sandton, Gauteng',
+    rawLocation: 'Sandton',
+    country: 'ZA',
+    applyUrl: 'https://investec.example/apply/R-51',
+    postedDate: '2026-07-09',
+    status: 'open',
+    locations: [{ city: 'Sandton', province: 'Gauteng' }],
+  },
+  {
+    id: 'discovery:R-1',
+    source: 'discovery',
+    brand: 'Discovery Bank',
+    title: 'Banking Consultant',
+    category: 'Customer Service',
+    employmentType: 'Full time',
+    descriptionHtml: '<p>Help clients manage their Discovery Bank accounts.</p>',
+    descriptionText: 'Help clients manage their Discovery Bank accounts.',
+    excerpt: 'Help clients manage their accounts.',
+    primaryLocation: 'Sandton, Gauteng',
+    rawLocation: 'Sandton',
+    country: 'ZA',
+    applyUrl: 'https://discovery.example/apply/R-1',
+    postedDate: '2026-07-09',
+    status: 'open',
+    locations: [{ city: 'Sandton', province: 'Gauteng' }],
+  },
+];
+
+/** Insert a set of jobs (and their locations) via the D1 API; triggers index FTS. */
+async function insertJobs(db: D1Database, jobs: SeedJob[]): Promise<void> {
   const now = '2026-07-10T00:00:00.000Z';
   const stmts: D1PreparedStatement[] = [];
-  for (const j of SEED_JOBS) {
+  for (const j of jobs) {
     stmts.push(
       db
         .prepare(
@@ -290,6 +373,16 @@ export async function seedSampleJobs(db: D1Database): Promise<void> {
     }
   }
   await db.batch(stmts);
+}
+
+/** Insert SEED_JOBS (and their locations) via the D1 API; triggers index FTS. */
+export async function seedSampleJobs(db: D1Database): Promise<void> {
+  await insertJobs(db, SEED_JOBS);
+}
+
+/** Layer the bank-name-search fixtures on top of an already-seeded schema. */
+export async function seedBrandFixtures(db: D1Database): Promise<void> {
+  await insertJobs(db, BRAND_FIXTURE_JOBS);
 }
 
 /** Convenience for suites that just want a fully-seeded schema. */

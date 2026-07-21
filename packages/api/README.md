@@ -12,7 +12,11 @@ All responses are JSON with `Access-Control-Allow-Origin: *`. Every query filter
 - `GET /api/jobs` — query params:
   - `q` — full-text search over title + description (FTS5 MATCH, bm25 ordering). Sanitized: user
     input can never reach MATCH raw (operators/quotes/`*` are neutralized); empty-after-sanitize
-    falls back to an unfiltered listing.
+    falls back to an unfiltered listing. **Bank-name queries** are interpreted specially — see below.
+  - `brand` — canonical brand, case-insensitive exact match (`Absa`, `Standard Bank`, `FNB`,
+    `Discovery Bank`, `RMB`, `WesBank`, `FirstRand`, `Investec`, `Nedbank`, `Capitec`, `SARB`,
+    `GoTyme Bank`). Composes with every other filter; an unknown value yields an empty set (like
+    `source`).
   - `category` — the category **name** (`Software & IT`) **or** its slug (`software-it`).
   - `province`, `city` — normalized location filters (a job matches if any of its locations match).
   - `source` — source id (`absa`, `firstrand`, …).
@@ -20,6 +24,19 @@ All responses are JSON with `Access-Control-Allow-Origin: *`. Every query filter
   - `limit` (default 20, hard cap 50), `offset` (default 0, cap 10000).
   - Returns `{ total, limit, offset, jobs: [...] }`. Row fields mirror the snapshot lean row
     (`site/src/lib/searchClient.ts` `SearchRow`) plus `excerpt` + `applyUrl`.
+
+  **Bank-name queries.** The FTS index covers only title + description_text — **not** brand — so a
+  raw MATCH of `Standard Bank` (`"standard"* "bank"*`, implicit AND) leaks every job whose
+  description merely mentions both words (SARB/Capitec/Absa noise). To restore the old client-side
+  behavior, `/api/jobs` detects a bank name in `q` (`src/brands.ts`): the **longest** brand alias
+  appearing as a contiguous run of words (leftmost wins ties, at most one) constrains `j.brand` to
+  that brand, and only the **leftover** words drive FTS. So `q=Standard Bank` returns Standard Bank
+  rows only; `q=standard bank teller` returns Standard Bank rows matching "teller"; `q=discovery`
+  and `q=Discovery Bank` return Discovery Bank only. Matching is on normalized lowercase tokens, so
+  case, spacing, joins (`standardbank`) and punctuation (`standard-bank`) all resolve the same. The
+  generic words `bank`, `standard`, `first`, `reserve` are deliberately **not** aliases (they would
+  hijack real text searches). A `q` with no alias behaves as a plain FTS search.
+
 - `GET /api/jobs/:id` — full record incl. `descriptionHtml`. Accepts the canonical id (`absa:R-1`)
   or its URL slug (`absa-r-1`). 404 JSON for unknown/non-open.
 - `GET /api/meta` — totals, per-source counts + `lastSuccessAt`, SA-only category/province rollups.

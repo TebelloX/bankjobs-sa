@@ -1,6 +1,7 @@
 import { CATEGORY_SLUGS, SOURCES, jobSlug } from '@bankjobs/core/job';
 import type { Category } from '@bankjobs/core/job';
 import type { Env } from './types';
+import { detectBrand, resolveBrandParam } from './brands';
 import { type Reader, reader } from './db';
 import { sanitizeFtsQuery } from './fts';
 import { errorJson, json } from './http';
@@ -98,7 +99,13 @@ export async function handleJobsList(url: URL, env: Env): Promise<Response> {
     if (categoryName === null) return json({ total: 0, limit, offset, jobs: [] });
   }
 
-  const match = sanitizeFtsQuery(p.get('q') ?? '');
+  // Bank-name interpretation: a q like "Standard Bank" constrains j.brand (the
+  // old client-side behavior) instead of leaking every description that mentions
+  // standard+bank. Only the leftover words drive FTS; an alias with no remainder
+  // falls through to the plain listing path (match === '') with the brand clause.
+  const qRaw = p.get('q') ?? '';
+  const detected = detectBrand(qRaw);
+  const match = sanitizeFtsQuery(detected ? detected.remainder : qRaw);
 
   const clauses = ["j.status = 'open'"];
   const binds: unknown[] = [];
@@ -112,6 +119,19 @@ export async function handleJobsList(url: URL, env: Env): Promise<Response> {
     binds.push(match);
     order = 'bm25(jobs_fts), j.id';
   }
+
+  // Brand constraint from the detected bank name in q and/or the explicit
+  // `brand` param (case-insensitive; an unknown value binds as-is and matches
+  // nothing, like `source`). Both compose as AND; identical values collapse.
+  const brands = new Set<string>();
+  if (detected) brands.add(detected.brand);
+  const brandParam = p.get('brand');
+  if (brandParam) brands.add(resolveBrandParam(brandParam));
+  for (const b of brands) {
+    clauses.push('j.brand = ?');
+    binds.push(b);
+  }
+
   if (categoryName !== null) {
     clauses.push('j.category = ?');
     binds.push(categoryName);
