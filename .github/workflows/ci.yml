@@ -25,6 +25,13 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # The site's typecheck imports the generated data snapshots
+      # (site/src/data/jobs-full.json + site/public/data/*.json), which are
+      # gitignored — produce them from the committed fixtures first. Offline,
+      # fast, and doubles as an end-to-end pipeline smoke test.
+      - name: Generate site data snapshots from fixtures
+        run: pnpm ingest -- --fixtures
+
       - run: pnpm typecheck
 
       - run: pnpm test
