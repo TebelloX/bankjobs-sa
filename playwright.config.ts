@@ -7,7 +7,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
   use: {
-    baseURL: 'http://localhost:4321',
+    baseURL: 'http://localhost:4322',
     trace: 'on-first-retry',
   },
   projects: [
@@ -18,9 +18,12 @@ export default defineConfig({
   ],
   webServer: {
     // Tests run against the production build — the deployed site is static,
-    // so the dev server is not representative.
-    command: 'pnpm build && pnpm preview',
-    url: 'http://localhost:4321',
+    // so the dev server is not representative. Port 4322, NOT astro's default
+    // 4321: with reuseExistingServer, 4321 would silently reuse a running
+    // `pnpm dev` server, whose dev-toolbar <h1>s break strict locators (bitten
+    // by this — tests flaked whenever a dev server happened to be up).
+    command: 'pnpm build && pnpm --filter @bankjobs/site exec astro preview --port 4322',
+    url: 'http://localhost:4322',
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },

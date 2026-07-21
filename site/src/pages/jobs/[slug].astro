@@ -50,7 +50,12 @@ const jsonLd: Record<string, unknown> = {
   jobLocation: { '@type': 'Place', address },
   directApply: false,
 };
-if (job.postedDate) jsonLd.datePosted = job.postedDate;
+// datePosted is required for Google's job rich results. Sources that publish
+// no usable date (Investec's is templated junk; the odd Nedbank enrichment
+// miss) fall back to firstSeen — accurate to within ~8h at 3 crawls/day, and
+// our honest best knowledge of when the posting appeared. The VISIBLE posted
+// date elsewhere in the UI stays real-data-only; this is markup-only.
+jsonLd.datePosted = job.postedDate ?? job.firstSeen.slice(0, 10);
 if (mappedEmployment) jsonLd.employmentType = mappedEmployment;
 
 const jsonLdString = JSON.stringify(jsonLd);
