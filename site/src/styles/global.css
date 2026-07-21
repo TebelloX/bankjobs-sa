@@ -1,4 +1,4 @@
-/* BankJobs SA — one stylesheet. Self-hosted fonts (fontsource), no third-party
+/* myBankjobs — one stylesheet. Self-hosted fonts (fontsource), no third-party
    requests. Design system ported from docs/bankjobs-sa-landing.html:
    a pale ledger / bank-statement look, Archivo for display, IBM Plex Mono for
    meta. The rubber-stamp red is a signature accent — homepage statement card
@@ -123,8 +123,11 @@ a {
   font-size: 20px;
   letter-spacing: 0.01em;
 }
-.wordmark span {
-  color: var(--stamp);
+/* The italic "Bank" renders as a synthesized oblique: only Archivo's normal
+   face is loaded, and a true-italic file isn't worth the page-weight for one
+   display word. */
+.wordmark em {
+  font-style: italic;
 }
 .freshness {
   font-family: var(--mono);

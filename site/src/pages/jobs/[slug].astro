@@ -56,7 +56,7 @@ if (mappedEmployment) jsonLd.employmentType = mappedEmployment;
 const jsonLdString = JSON.stringify(jsonLd);
 ---
 
-<Base title={`${job.title} — ${job.brand} | BankJobs SA`} description={job.excerpt} narrow>
+<Base title={`${job.title} — ${job.brand} | myBankjobs`} description={job.excerpt} narrow>
   <a class="backlink" href="/">← All vacancies</a>
 
   {isInternational && <p class="badge">International — {countryName(job.country)}</p>}
