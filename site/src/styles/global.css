@@ -884,6 +884,14 @@ a.pager-link:hover {
 
 /* ---- responsive: single breakpoint like the mockup ---- */
 @media (max-width: 860px) {
+  /* Header bar: centre-align (baseline gaps awkwardly at small sizes) and
+     drop .bar's own padding — the element also carries .wrap, so reverting to
+     wrap's `0 20px` is exactly ".bar contributes no padding" (side padding
+     stays, vertical goes). display/justify/gap carry over from the base rule. */
+  .bar {
+    align-items: center;
+    padding: 0 20px;
+  }
   .hero {
     padding: 40px 0 36px;
   }
