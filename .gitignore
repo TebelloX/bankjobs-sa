@@ -15,3 +15,7 @@ coverage/
 # Playwright
 test-results/
 playwright-report/
+
+# Finder/iCloud sync-conflict duplicates ("name 2.ext") — never commit these
+* 2.*
+* 2
