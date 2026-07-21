@@ -572,6 +572,17 @@ a.bank-line:hover .name {
   text-decoration-color: var(--ink);
 }
 
+/* cross-link rows on the province / combo landing pages — .quick link rows set
+   off from the ledger above by a single rule */
+.crosslinks {
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+}
+.crosslinks .quick:first-child {
+  margin-top: 0;
+}
+
 /* ---- pager (paginated ledger lists) ---- */
 .pager {
   display: grid;

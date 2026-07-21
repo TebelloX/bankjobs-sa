@@ -1,6 +1,6 @@
 # BankJobs SA — Implementation Plan
 
-**Version:** 0.11 · **Date:** 21 July 2026 · **Companion to:** BankJobs SA PRD v0.2
+**Version:** 0.12 · **Date:** 22 July 2026 · **Companion to:** BankJobs SA PRD v0.2
 
 This plan translates the PRD into a build sequence. It is written for a solo developer working in evenings/weekends; effort estimates are rough and assume familiarity with TypeScript. Each phase ends with a working, deployable system — never a half-built one.
 
@@ -144,7 +144,7 @@ Per adapter:
 
 **Goal:** discoverability and durability. **Effort:** 2–3 weekends.
 
-- [ ] Category and location landing pages (e.g. `/jobs/software-development/gauteng`) — statically generated, the main SEO surface.
+- [x] **Category and location landing pages — DONE 22 Jul 2026 (v0.12).** Two statically-generated SEO surfaces built on the existing pale-ledger markup: province pages at `/vacancies/[province]` (e.g. `/vacancies/gauteng`) and category×province combos at `/browse/[category]/[province]` (e.g. `/browse/software-it/gauteng`). **URL-scheme decision:** reuse the established prefixes (`/vacancies` = all-SA ledger, `/browse/[category]` = per-category) rather than opening a new `/jobs/…` tree — the named `[province]` param sits beside each sibling `[...page].astro` rest route without colliding, because province slugs are never numeric (verified in the build: `/vacancies/2` and `/vacancies/gauteng` both generate, likewise `/browse/software-it/2` and `/browse/software-it/gauteng`). **Non-empty-only generation** — a page exists only for a province, or a (category, province) pair, with ≥1 open SA job, so there are no thin pages and the sitemap lists only real ledgers (9 province + 42 combo pages this snapshot; +51 pages, 604→655). Province ledgers are a single list (no pagination) capped at 200 rows with a refine-by-category nudge; Gauteng (208) is the only page that hits the cap today. **Internal-link discovery rows** (orphan pages don't rank): `/vacancies/` page 1 and every `/browse/[category]/` page 1 gained a compact "by province" `.quick` row, and each landing page cross-links its sibling provinces/categories and its parent ledgers. Province slug helper lives in `site/src/lib/provinces.ts` (mirrors core's `CATEGORY_SLUGS` idiom, since `packages/` is off-limits).
 - [ ] Search Console monitoring; fix any structured-data warnings.
 - [ ] Harden caching: verify browse path never touches the Worker; measure D1 read counts against the 5M/day limit.
 - [ ] Monitoring polish: a tiny `/status` page rendering `ingestion_runs` (per-source last success, counts, warnings).

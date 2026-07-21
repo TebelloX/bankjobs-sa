@@ -1,0 +1,126 @@
+---
+import type { GetStaticPaths } from 'astro';
+import Base from '../../layouts/Base.astro';
+import JobRow from '../../components/JobRow.astro';
+import { CATEGORY_SLUGS, PROVINCES } from '@bankjobs/core';
+import type { Category, Province } from '@bankjobs/core';
+import { saJobs } from '../../lib/data';
+import { PROVINCE_SLUGS } from '../../lib/provinces';
+
+// One landing page per province that has at least one open SA job. Provinces
+// with zero jobs are NOT generated — no thin pages, and the sitemap only ever
+// lists real ledgers. The sibling [...page].astro owns numeric pagination
+// (/vacancies/2, /vacancies/3 …); a named [province] param and a [...page]
+// rest param never emit the same URL — province slugs are never numeric — so
+// both routes build side by side. The job's province is locations[0].province,
+// which is exactly what the lean-row `province` field carries.
+export const getStaticPaths = (() => {
+  const withJobs = new Set(
+    saJobs()
+      .map((j) => j.locations[0]?.province)
+      .filter((p): p is Province => Boolean(p)),
+  );
+  return PROVINCES.filter((name) => withJobs.has(name)).map((name) => ({
+    params: { province: PROVINCE_SLUGS[name] },
+    props: { name },
+  }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  name: Province;
+}
+
+const { name } = Astro.props;
+const slug = PROVINCE_SLUGS[name];
+
+// The province ledger, newest first (saJobs() is already postedDate desc).
+const jobs = saJobs().filter((j) => j.locations[0]?.province === name);
+const total = jobs.length;
+const noun = total === 1 ? 'role' : 'roles';
+
+// "N banks" counts distinct sources — FirstRand's sub-brands count as one bank,
+// the same model the homepage coverage ledger uses.
+const bankCount = new Set(jobs.map((j) => j.source)).size;
+const bankNoun = bankCount === 1 ? 'bank' : 'banks';
+
+// Province volumes are modest, so a single ledger with no pagination. Cap at
+// 200 rows and nudge to the per-category combo links when a province runs long.
+const MAX_ROWS = 200;
+const capped = total > MAX_ROWS;
+const rows = capped ? jobs.slice(0, MAX_ROWS) : jobs;
+
+// Cross-links (discovery — orphan pages don't rank). Categories present WITHIN
+// this province link to the combo pages; the other provinces link to their own
+// pages. Both lists follow the canonical core ordering.
+const catsHere = (Object.entries(CATEGORY_SLUGS) as Array<[Category, string]>)
+  .filter(([, cslug]) => jobs.some((j) => j.categorySlug === cslug))
+  .map(([cname, cslug]) => ({ name: cname, slug: cslug }));
+
+const provincesWithJobs = new Set(
+  saJobs()
+    .map((j) => j.locations[0]?.province)
+    .filter((p): p is Province => Boolean(p)),
+);
+const otherProvinces = PROVINCES.filter((p) => p !== name && provincesWithJobs.has(p)).map((p) => ({
+  name: p,
+  slug: PROVINCE_SLUGS[p],
+}));
+
+const title = `${total} bank vacancies in ${name} — myBankjobs`;
+const description = `${total} open bank ${noun} at ${bankCount} ${bankNoun} hiring in ${name} — official listings straight from the banks' own career systems, updated a few times a day.`;
+---
+
+<Base title={title} description={description}>
+  <a class="backlink" href="/vacancies/">← All vacancies</a>
+  <p class="eyebrow">Vacancies by province</p>
+  <h1>Bank vacancies in {name} <span class="mono">({total})</span></h1>
+  <p class="lede">
+    {total} open {noun} at {bankCount} {bankNoun} — updated three times a day.
+  </p>
+
+  <ul class="joblist">
+    {
+      rows.map((job) => (
+        <JobRow
+          slug={job.slug}
+          title={job.title}
+          brand={job.brand}
+          category={job.category}
+          primaryLocation={job.primaryLocation}
+          postedDate={job.postedDate}
+        />
+      ))
+    }
+  </ul>
+
+  {
+    capped && (
+      <p class="banks-note">
+        Showing the {MAX_ROWS} most recent of {total}. Refine by category below to see the rest.
+      </p>
+    )
+  }
+
+  <nav class="crosslinks" aria-label="Related listings">
+    {
+      catsHere.length > 0 && (
+        <p class="quick">
+          {name} by category:
+          {catsHere.map((c) => (
+            <a href={`/browse/${c.slug}/${slug}/`}>{c.name}</a>
+          ))}
+        </p>
+      )
+    }
+    {
+      otherProvinces.length > 0 && (
+        <p class="quick">
+          Other provinces:
+          {otherProvinces.map((p) => (
+            <a href={`/vacancies/${p.slug}/`}>{p.name}</a>
+          ))}
+        </p>
+      )
+    }
+  </nav>
+</Base>

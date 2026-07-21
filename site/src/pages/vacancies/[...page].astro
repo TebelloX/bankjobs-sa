@@ -3,8 +3,11 @@ import type { GetStaticPaths, Page } from 'astro';
 import Base from '../../layouts/Base.astro';
 import JobRow from '../../components/JobRow.astro';
 import Pager from '../../components/Pager.astro';
+import { PROVINCES } from '@bankjobs/core';
+import type { Province } from '@bankjobs/core';
 import { saJobs, meta } from '../../lib/data';
 import type { FullJob } from '../../lib/data';
+import { PROVINCE_SLUGS } from '../../lib/provinces';
 
 // One statement page of 20 rows per page. saJobs() is already sorted
 // postedDate desc (nulls last). `[...page]` gives page 1 the bare
@@ -29,6 +32,16 @@ const title = `${heading} — myBankjobs`;
 const baseDesc =
   "Every open vacancy at South African banks — official listings straight from the banks' own career systems, updated a few times a day.";
 const description = isFirst ? baseDesc : `${baseDesc} — page ${page.currentPage}`;
+
+// Page 1 only: a compact "by province" link row to the province landing pages
+// (discovery — those pages need inbound links to rank). Only provinces with an
+// open SA job get a page, so only those are listed.
+const provinceLinks = isFirst
+  ? PROVINCES.filter((p) => saJobs().some((j) => j.locations[0]?.province === p)).map((p) => ({
+      name: p as Province,
+      slug: PROVINCE_SLUGS[p],
+    }))
+  : [];
 ---
 
 <Base title={title} description={description}>
@@ -56,6 +69,17 @@ const description = isFirst ? baseDesc : `${baseDesc} — page ${page.currentPag
   }
 
   <Pager page={page} />
+
+  {
+    provinceLinks.length > 0 && (
+      <p class="quick">
+        By province:
+        {provinceLinks.map((p) => (
+          <a href={`/vacancies/${p.slug}/`}>{p.name}</a>
+        ))}
+      </p>
+    )
+  }
 
   {
     isFirst && meta.totalInternational > 0 && (
