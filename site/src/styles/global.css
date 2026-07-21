@@ -895,6 +895,9 @@ a.pager-link:hover {
   .hero {
     padding: 40px 0 36px;
   }
+  .section {
+    padding: 30px 0;
+  }
   .hero-grid {
     grid-template-columns: 1fr;
     gap: 36px;
