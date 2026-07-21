@@ -77,6 +77,25 @@ export {
   WORKABLE_UA,
 } from './workable/client';
 
+export type {
+  OracleWorkLocation,
+  OracleListRequisition,
+  OracleListContainer,
+  OracleListResponse,
+  OracleRequisitionDetail,
+  OracleDetailResponse,
+  OracleRawPosting,
+} from './oracle/types';
+
+export type { OracleConfig } from './oracle/client';
+export {
+  fetchOracleJobList,
+  fetchOracleJobDetail,
+  fetchAllOracle,
+  oracleJobUrl,
+  ORACLE_UA,
+} from './oracle/client';
+
 export type { SfFeedItem, SfRawPosting, SfSitemapPosting } from './successfactors/types';
 
 export type { SuccessFactorsConfig } from './successfactors/client';
@@ -102,6 +121,7 @@ import { gotymeAdapter } from './gotyme';
 import { nedbankAdapter } from './nedbank';
 import { discoveryAdapter } from './discovery';
 import { capitecAdapter } from './capitec';
+import { sarbAdapter } from './sarb';
 
 export { absaAdapter, ABSA_WORKDAY_CONFIG } from './absa';
 export { firstrandAdapter, FIRSTRAND_WORKDAY_CONFIG } from './firstrand';
@@ -111,6 +131,7 @@ export { gotymeAdapter, GOTYME_WORKABLE_CONFIG } from './gotyme';
 export { nedbankAdapter, NEDBANK_SF_CONFIG } from './nedbank';
 export { discoveryAdapter, DISCOVERY_SF_CONFIG } from './discovery';
 export { capitecAdapter, CAPITEC_SF_CONFIG } from './capitec';
+export { sarbAdapter, SARB_ORACLE_CONFIG } from './sarb';
 
 /** Adapter registry — one entry per live source. */
 export const adapters = {
@@ -122,4 +143,5 @@ export const adapters = {
   nedbank: nedbankAdapter,
   discovery: discoveryAdapter,
   capitec: capitecAdapter,
+  sarb: sarbAdapter,
 } as const;

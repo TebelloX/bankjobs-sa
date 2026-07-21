@@ -27,7 +27,10 @@ INSERT INTO sources (id, name, enabled) VALUES
   ('discovery', 'Discovery Bank', 1),
   -- Capitec's careers site is single-brand (every posting is Capitec) on the
   -- same SuccessFactors CSB sitemap path as Discovery; ~50 roles, no filter.
-  ('capitec', 'Capitec', 1);
+  ('capitec', 'Capitec', 1),
+  -- The SA Reserve Bank on Oracle Recruiting Cloud (Fusion HCM CE); a single
+  -- Pretoria site, ~24 roles. Enabled.
+  ('sarb', 'SARB', 1);
 
 CREATE TABLE jobs (
   id               TEXT PRIMARY KEY,

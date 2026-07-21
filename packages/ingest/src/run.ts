@@ -3,6 +3,9 @@ import { join } from 'node:path';
 import type { CanonicalJob, SourceId } from '@bankjobs/core';
 import type {
   EarcuRawPosting,
+  OracleDetailResponse,
+  OracleListResponse,
+  OracleRawPosting,
   SfRawPosting,
   SfSitemapPosting,
   SrListResponse,
@@ -210,6 +213,31 @@ function loadCapitecFixtures(): SfSitemapPosting[] {
   return postings;
 }
 
+/**
+ * Oracle Recruiting Cloud fixtures (sarb): list-page1.json is the verbatim list
+ * response (container at items[0]); each detail-*.json is a verbatim detail
+ * response (record at items[0]). Pair each detail with its list summary by Id
+ * (the detail is a superset, so it doubles as its own fallback list item). The
+ * adapter's normalize reads only the detail, so a missing list summary is inert.
+ */
+function loadOracleFixtures(): OracleRawPosting[] {
+  const dir = join(repoRoot(), 'fixtures', 'sarb');
+  const listResp = JSON.parse(
+    readFileSync(join(dir, 'list-page1.json'), 'utf8'),
+  ) as OracleListResponse;
+  const listItems = listResp.items[0]?.requisitionList ?? [];
+
+  const pairs: OracleRawPosting[] = [];
+  for (const file of fixtureDetailFiles(dir)) {
+    const detailResp = JSON.parse(readFileSync(join(dir, file), 'utf8')) as OracleDetailResponse;
+    const detail = detailResp.items[0];
+    if (detail === undefined) continue;
+    const listItem = listItems.find((p) => p.Id === detail.Id) ?? detail;
+    pairs.push({ listItem, detail });
+  }
+  return pairs;
+}
+
 /** Build raw postings from committed fixtures (offline dev + CI). */
 function loadFixtures(source: SourceId): unknown[] {
   if (source === 'standardbank') return loadSrFixtures();
@@ -218,6 +246,7 @@ function loadFixtures(source: SourceId): unknown[] {
   if (source === 'nedbank') return loadSuccessFactorsFixtures();
   if (source === 'discovery') return loadDiscoveryFixtures();
   if (source === 'capitec') return loadCapitecFixtures();
+  if (source === 'sarb') return loadOracleFixtures();
   return loadWorkdayFixtures(source);
 }
 

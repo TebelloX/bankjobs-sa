@@ -1,0 +1,30 @@
+{
+  "source": "sarb",
+  "capturedAt": "2026-07-21T12:59:49.571Z",
+  "ats": "Oracle Recruiting Cloud (Fusion HCM Candidate Experience), REST 11.13.18.05",
+  "brand": "SARB",
+  "site": "slug 'SARB' aliases internal siteNumber CX_1002 — byte-identical requisition sets",
+  "endpoints": {
+    "list": "GET https://fa-evra-saasfaprod1.fa.ocs.oraclecloud.com/hcmRestApi/resources/latest/recruitingCEJobRequisitions?onlyData=true&expand=requisitionList.workLocation&finder=findReqs;siteNumber=CX_1002,limit=N,offset=N,sortBy=POSTING_DATES_DESC",
+    "detail": "GET https://fa-evra-saasfaprod1.fa.ocs.oraclecloud.com/hcmRestApi/resources/latest/recruitingCEJobRequisitionDetails?expand=all&onlyData=true&finder=ById;Id=\"{Id}\",siteNumber=CX_1002",
+    "jobPage": "https://fa-evra-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/SARB/job/{Id}"
+  },
+  "totalAtCapture": 24,
+  "files": {
+    "list-page1.json": "Full list (24 requisitions, expand=requisitionList.workLocation).",
+    "detail-1.json": "1643 — (1643) Senior Network Specialist - (F5 & CISCO FTD) - BSTD [Information Technology] (South Africa; workLocation Pretoria, ZA) JobSchedule=Full time — generic bare-\"South Africa\"/IT",
+    "detail-2.json": "1739 — (1739) Senior Analyst- Licensing and Authorisation [Analyst - Policy and Regulation] (Pretoria, South Africa; workLocation Pretoria, ZA) JobSchedule=Full time — Policy & Regulation analyst",
+    "detail-3.json": "1750 — (1750) Personal Assistant [Administration] (Pretoria, South Africa; workLocation Pretoria, ZA) JobSchedule=Full time — Administration"
+  },
+  "notes": [
+    "Public CE REST API, no auth, honest UA gets 200; response Content-Type is application/vnd.oracle.adf.resourcecollection+json (still JSON — never gate on the MIME type).",
+    "CRITICAL: omit expand=requisitionList.workLocation and the list still returns 200 with facets but NO requisitionList key at all (absent, not empty) — the client asserts the key and throws, never treating it as zero jobs.",
+    "HEAD requests 501 — this is a GET-only API. Offset paging is verified gapless; limit up to 200 is honored. Paginate by TotalJobsCount with a SAFETY_CAP.",
+    "ID discipline: Id (e.g. \"1736\") is the human req number used in all public URLs and is the adapter key (sarb:1736); the huge internal RequisitionId surrogate is ignored. Keep the finder Id QUOTED (Oracle convention; other ORC tenants reject the unquoted form).",
+    "Titles echo the req number as a leading \"(1736) \" prefix; the adapter strips it only when the parenthesised number equals the Id (interior parens like \"(3 Year Contract)\" are kept).",
+    "Location: SARB runs one physical site (Pretoria Head Office), so every workLocation[] carries Pretoria even for a role advertised nationwide. The requisition PrimaryLocation is the candidate-facing signal — \"City, Country\" (located) vs a bare country (\"South Africa\", nationwide → locationless, country ZA, no invented city).",
+    "ExternalPostedStartDate is the real full ISO posted timestamp (date part is canonical, matches the list PostedDate). ExternalPostedEndDate (expiry) exists but is IGNORED — closure is lastSeen-driven, no expiry stored.",
+    "applyUrl = the stable public job page /sites/SARB/job/{Id}; that page is a JS shell (OpenGraph tags only, no JSON-LD), so the REST API is the sole data path.",
+    "NEVER fetch www.resbank.co.za — an F5-style WAF blocks non-browser traffic; it is irrelevant to the adapter."
+  ]
+}

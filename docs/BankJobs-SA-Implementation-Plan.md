@@ -1,6 +1,6 @@
 # BankJobs SA — Implementation Plan
 
-**Version:** 0.6 · **Date:** 21 July 2026 · **Companion to:** BankJobs SA PRD v0.2
+**Version:** 0.7 · **Date:** 21 July 2026 · **Companion to:** BankJobs SA PRD v0.2
 
 This plan translates the PRD into a build sequence. It is written for a solo developer working in evenings/weekends; effort estimates are rough and assume familiarity with TypeScript. Each phase ends with a working, deployable system — never a half-built one.
 
@@ -153,7 +153,7 @@ Per adapter:
 
 **Goal:** SARB, Nedbank, then Capitec — the mission milestone. **Effort:** 4–8 weekends (Capitec is the unknown).
 
-- [ ] **SARB (Oracle Cloud Recruiting REST):** same adapter pattern; expect fiddlier pagination/auth-less quirks. Fixture-test as usual.
+- [x] **SARB (Oracle Cloud Recruiting REST): DONE 21 Jul 2026.** Clean auth-less JSON API on `fa-evra-saasfaprod1.fa.ocs.oraclecloud.com` (siteNumber CX_1002, alias `SARB`); reusable oracle client built. The one real trap, guarded and tested: omitting `expand=requisitionList.workLocation` yields a 200 with the requisition list silently ABSENT — the client throws a descriptive error rather than reporting zero jobs. `Id` (human req number) is the key; `RequisitionId` surrogate ignored; titles arrive prefixed `"(1736) …"` and the echo is stripped only when it equals the req id. 25 roles live, all ZA (Pretoria head office). Never fetch www.resbank.co.za (WAF).
 - [x] **Nedbank (SuccessFactors): DONE 21 Jul 2026 (bbb7bb4).** No JSON API, but the tenant's `/sitemap.xml` is a mislabeled, uncapped Google-for-Jobs RSS feed — all reqs in one GET, no cheerio needed. postedDate enriched non-fatally from detail-page microdata (absent on some pages by design tolerance). 77 jobs live (74 SA + 3 Namibia).
 - [x] **Capitec: DONE 21 Jul 2026 — and it wasn't Graylink.** Recon found careers.capitecbank.co.za is SAP SuccessFactors CSB: server-rendered, robots-allowed real URL sitemap + detail-page microdata, no JSON API needed, **no headless browser needed**. Reuses the shared SuccessFactors sitemap strategy (parser made tolerant of Capitec's two microdata shape variants; Discovery's output unchanged). 51 roles live, all SA. **Mission caveat: the channel currently lists ZERO frontline branch roles** (no Bank Better Champion / Service Consultant) — inventory is corporate/HQ plus graduate/internship pipelines; branch/teller recruitment likely runs through a separate high-volume channel (detail pages link out to SHL Talent Central assessments). A `'bank better champion' → Branch & Retail` rule is pre-seeded so frontline roles categorize correctly the moment they appear. Monitor the mix across scheduled runs before concluding the mission payoff needs another channel. Never fetch www.capitecbank.co.za (Cloudflare-challenged); the careers subdomain is unprotected.
 ### Long-tail banks (ATS recon done 21 Jul 2026 — ordered easiest first)

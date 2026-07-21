@@ -42,6 +42,10 @@ import type { EarcuJobPosting } from '../src/earcu/types';
 import { NEDBANK_SF_CONFIG } from '../src/nedbank';
 import { DISCOVERY_SF_CONFIG } from '../src/discovery';
 import { CAPITEC_SF_CONFIG } from '../src/capitec';
+import { SARB_ORACLE_CONFIG } from '../src/sarb';
+import { ORACLE_UA } from '../src/oracle/client';
+import type { OracleConfig } from '../src/oracle/client';
+import type { OracleListResponse, OracleDetailResponse } from '../src/oracle/types';
 import {
   SUCCESSFACTORS_UA,
   extractDatePosted,
@@ -940,6 +944,140 @@ async function captureCapitecSitemap(cfg: SuccessFactorsConfig): Promise<void> {
   console.log(`Wrote detail-1..${chosen.length}.html + manifest.json to ${fixturesDir}.`);
 }
 
+// ---------------------------------------------------------------------------
+// Oracle Recruiting Cloud (Fusion HCM Candidate Experience) source (sarb).
+// A JSON list+detail API: one list page carries the whole (small) inventory,
+// each detail is a per-req GET. Capture three fixtures for variety — the generic
+// bare-"South Africa"/IT role (locationless case), a Policy & Regulation analyst
+// (the per-source Risk & Compliance rule) and an Administration role (the
+// per-source Operations & Admin rule).
+// ---------------------------------------------------------------------------
+
+async function captureOracle(cfg: OracleConfig): Promise<void> {
+  const delayMs = cfg.delayMs ?? 400;
+  const fixturesDir = join(fixturesRoot, 'sarb');
+  const restBase = `https://${cfg.host}/hcmRestApi/resources/latest`;
+
+  const orFetch = (url: string): Promise<Response> =>
+    fetch(url, { headers: { 'User-Agent': ORACLE_UA, Accept: 'application/json' } });
+
+  const listUrl =
+    `${restBase}/recruitingCEJobRequisitions?onlyData=true` +
+    `&expand=requisitionList.workLocation` +
+    `&finder=findReqs;siteNumber=${cfg.siteNumber},limit=200,offset=0,sortBy=POSTING_DATES_DESC`;
+  const detailUrl = (id: string): string =>
+    `${restBase}/recruitingCEJobRequisitionDetails?expand=all&onlyData=true` +
+    `&finder=ById;Id="${id}",siteNumber=${cfg.siteNumber}`;
+
+  // 1) The list — one GET carries the whole inventory. Stored verbatim.
+  const listRes = await orFetch(listUrl);
+  if (listRes.status !== 200) {
+    console.error(`sarb list endpoint returned HTTP ${listRes.status} — shape may have drifted.`);
+    console.error(`Tried: GET ${listUrl}`);
+    process.exit(1);
+  }
+  const listText = await listRes.text();
+  const list = JSON.parse(listText) as OracleListResponse;
+  const container = list.items[0];
+  const requisitions = container?.requisitionList;
+  if (!requisitions) {
+    console.error(
+      "sarb list carried no 'requisitionList' key — the expand param was dropped or the shape drifted.",
+    );
+    process.exit(1);
+  }
+  writeFileSync(join(fixturesDir, 'list-page1.json'), listText);
+  console.log(
+    `Wrote list-page1.json (${requisitions.length} requisitions, total ${container?.TotalJobsCount ?? '?'}).`,
+  );
+
+  // 2) Scan requisitions, fetching each detail, until the three varieties are
+  // found. A bare-country PrimaryLocation (no comma) marks the locationless role.
+  async function fetchDetail(
+    id: string,
+  ): Promise<{ detail: OracleDetailResponse['items'][number]; text: string }> {
+    await sleep(delayMs);
+    const res = await orFetch(detailUrl(id));
+    if (res.status !== 200) throw new Error(`Detail request for ${id} returned HTTP ${res.status}`);
+    const text = await res.text();
+    const parsed = JSON.parse(text) as OracleDetailResponse;
+    const detail = parsed.items[0];
+    if (!detail) throw new Error(`Detail ${id} had no items[0]`);
+    return { detail, text };
+  }
+
+  let genericSa: { detail: OracleDetailResponse['items'][number]; text: string } | undefined;
+  let policy: { detail: OracleDetailResponse['items'][number]; text: string } | undefined;
+  let admin: { detail: OracleDetailResponse['items'][number]; text: string } | undefined;
+  for (const req of requisitions) {
+    if (genericSa && policy && admin) break;
+    const captured = await fetchDetail(req.Id);
+    const d = captured.detail;
+    const bareCountry =
+      (d.PrimaryLocation ?? '').trim() !== '' && !(d.PrimaryLocation ?? '').includes(',');
+    const category = d.Category ?? '';
+    const title = d.Title ?? '';
+    if (bareCountry) genericSa ??= captured;
+    else if (/policy|regulation/i.test(category)) policy ??= captured;
+    // The admin slot targets the Personal Assistant specifically — it is the one
+    // role that exercises the per-source Operations & Admin rule (other admin
+    // titles carry Administrator/Coordinator, matched by the global rules).
+    else if (/personal assistant/i.test(title)) admin ??= captured;
+  }
+
+  const chosen = [genericSa, policy, admin].filter(
+    (c): c is { detail: OracleDetailResponse['items'][number]; text: string } => c !== undefined,
+  );
+  if (chosen.length < 3) {
+    console.error(
+      `Could not find all three sarb fixture varieties (generic-SA=${Boolean(genericSa)} ` +
+        `policy=${Boolean(policy)} admin=${Boolean(admin)}).`,
+    );
+    process.exit(1);
+  }
+
+  const tags = ['generic bare-"South Africa"/IT', 'Policy & Regulation analyst', 'Administration'];
+  const files: Record<string, string> = {
+    'list-page1.json': `Full list (${requisitions.length} requisitions, expand=requisitionList.workLocation).`,
+  };
+  chosen.forEach((c, i) => {
+    writeFileSync(join(fixturesDir, `detail-${i + 1}.json`), c.text);
+    const d = c.detail;
+    const wl = d.workLocation?.[0];
+    files[`detail-${i + 1}.json`] =
+      `${d.Id} — ${d.Title} [${d.Category}] (${d.PrimaryLocation}; workLocation ` +
+      `${wl?.TownOrCity ?? 'none'}, ${wl?.Country ?? '?'}) JobSchedule=${d.JobSchedule ?? 'null'} — ${tags[i]}`;
+  });
+
+  const manifest = {
+    source: 'sarb',
+    capturedAt: new Date().toISOString(),
+    ats: 'Oracle Recruiting Cloud (Fusion HCM Candidate Experience), REST 11.13.18.05',
+    brand: 'SARB',
+    site: `slug 'SARB' aliases internal siteNumber ${cfg.siteNumber} — byte-identical requisition sets`,
+    endpoints: {
+      list: `GET ${restBase}/recruitingCEJobRequisitions?onlyData=true&expand=requisitionList.workLocation&finder=findReqs;siteNumber=${cfg.siteNumber},limit=N,offset=N,sortBy=POSTING_DATES_DESC`,
+      detail: `GET ${restBase}/recruitingCEJobRequisitionDetails?expand=all&onlyData=true&finder=ById;Id="{Id}",siteNumber=${cfg.siteNumber}`,
+      jobPage: `https://${cfg.host}/hcmUI/CandidateExperience/en/sites/${cfg.uiSite}/job/{Id}`,
+    },
+    totalAtCapture: container?.TotalJobsCount ?? requisitions.length,
+    files,
+    notes: [
+      'Public CE REST API, no auth, honest UA gets 200; response Content-Type is application/vnd.oracle.adf.resourcecollection+json (still JSON — never gate on the MIME type).',
+      'CRITICAL: omit expand=requisitionList.workLocation and the list still returns 200 with facets but NO requisitionList key at all (absent, not empty) — the client asserts the key and throws, never treating it as zero jobs.',
+      'HEAD requests 501 — this is a GET-only API. Offset paging is verified gapless; limit up to 200 is honored. Paginate by TotalJobsCount with a SAFETY_CAP.',
+      'ID discipline: Id (e.g. "1736") is the human req number used in all public URLs and is the adapter key (sarb:1736); the huge internal RequisitionId surrogate is ignored. Keep the finder Id QUOTED (Oracle convention; other ORC tenants reject the unquoted form).',
+      'Titles echo the req number as a leading "(1736) " prefix; the adapter strips it only when the parenthesised number equals the Id (interior parens like "(3 Year Contract)" are kept).',
+      'Location: SARB runs one physical site (Pretoria Head Office), so every workLocation[] carries Pretoria even for a role advertised nationwide. The requisition PrimaryLocation is the candidate-facing signal — "City, Country" (located) vs a bare country ("South Africa", nationwide → locationless, country ZA, no invented city).',
+      'ExternalPostedStartDate is the real full ISO posted timestamp (date part is canonical, matches the list PostedDate). ExternalPostedEndDate (expiry) exists but is IGNORED — closure is lastSeen-driven, no expiry stored.',
+      'applyUrl = the stable public job page /sites/SARB/job/{Id}; that page is a JS shell (OpenGraph tags only, no JSON-LD), so the REST API is the sole data path.',
+      'NEVER fetch www.resbank.co.za — an F5-style WAF blocks non-browser traffic; it is irrelevant to the adapter.',
+    ],
+  };
+  writeFileSync(join(fixturesDir, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
+  console.log(`Wrote detail-1/2/3.json + manifest.json to ${fixturesDir}.`);
+}
+
 interface WorkdayManifestArgs {
   source: string;
   listUrl: string;
@@ -1011,9 +1149,12 @@ async function main(): Promise<void> {
     case 'capitec':
       await captureCapitecSitemap(CAPITEC_SF_CONFIG);
       return;
+    case 'sarb':
+      await captureOracle(SARB_ORACLE_CONFIG);
+      return;
     default:
       console.error(
-        `Unknown --source '${source}' (expected absa | firstrand | standardbank | investec | gotyme | nedbank | discovery | capitec).`,
+        `Unknown --source '${source}' (expected absa | firstrand | standardbank | investec | gotyme | nedbank | discovery | capitec | sarb).`,
       );
       process.exit(1);
   }

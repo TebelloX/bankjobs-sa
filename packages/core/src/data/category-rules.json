@@ -95,6 +95,10 @@
     "gotyme": [],
     "nedbank": [],
     "discovery": [],
-    "capitec": [{ "category": "Branch & Retail", "keywords": ["bank better champion"] }]
+    "capitec": [{ "category": "Branch & Retail", "keywords": ["bank better champion"] }],
+    "sarb": [
+      { "category": "Risk & Compliance", "keywords": ["policy", "regulation"] },
+      { "category": "Operations & Admin", "keywords": ["personal assistant"] }
+    ]
   }
 }
