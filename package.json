@@ -7,7 +7,7 @@
   },
   "scripts": {
     "ingest": "pnpm --filter @bankjobs/ingest run ingest",
-    "test": "vitest run",
+    "test": "vitest run && pnpm --filter @bankjobs/api run test",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "typecheck": "pnpm -r run typecheck",

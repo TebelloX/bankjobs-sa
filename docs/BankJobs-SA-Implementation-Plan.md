@@ -1,6 +1,6 @@
 # BankJobs SA — Implementation Plan
 
-**Version:** 0.7 · **Date:** 21 July 2026 · **Companion to:** BankJobs SA PRD v0.2
+**Version:** 0.8 · **Date:** 21 July 2026 · **Companion to:** BankJobs SA PRD v0.2
 
 This plan translates the PRD into a build sequence. It is written for a solo developer working in evenings/weekends; effort estimates are rough and assume familiarity with TypeScript. Each phase ends with a working, deployable system — never a half-built one.
 
@@ -107,12 +107,15 @@ Per adapter:
 - [ ] Per-source steps so one failure emails you but others complete (Actions notifies on failure by default — confirm notification settings).
 - [ ] `ci.yml`: typecheck + unit/fixture tests on PR.
 
-### 2.6 Read API (Worker)
+### 2.6 Read API (Worker) — BUILT 21 Jul 2026, locally proven; remote D1 spike still gates deploy
 
-- [ ] `GET /api/jobs` — filters: `q` (FTS), `category`, `location`, `source`, pagination. Reads D1 via Sessions API (nearest replica).
-- [ ] `GET /api/jobs/:id`, `GET /api/meta`.
-- [ ] Edge caching: Cache API keyed on normalized query string; TTL ~15 min (data changes 3×/day, so this is safe).
-- [ ] Simple per-IP rate limit (e.g. token bucket in cache) to protect free-tier quota.
+- [x] `GET /api/jobs` — `q` (FTS5 MATCH, bm25-ranked, input sanitized to quoted prefix tokens so operators/quotes can't inject or 500), `category` (name or slug), `province`, `city`, `source`, `country`, capped pagination. Reads via D1 Sessions API (`withSession('first-unconstrained')` — supported by miniflare, exercised in tests).
+- [x] `GET /api/jobs/:id` (open jobs only, full description), `GET /api/meta` (mirrors snapshot meta aggregates).
+- [x] Edge caching: Cache API on a normalized URL (sorted/whitelisted params), `max-age=300, s-maxage=900`; cache HITs served before the rate limiter spends a token.
+- [x] Per-IP token bucket (in-memory per-isolate — documented caveat; adequate free-tier protection), 429 + Retry-After.
+- [x] FTS5+triggers spike, LOCAL: `packages/api/test/d1-fts-spike.test.ts` proves the virtual table, all three triggers (incl. lifecycle-only updates NOT churning the index), and bm25 ranking against real workerd D1.
+- [ ] **FTS5+triggers spike, REMOTE — required before first deploy**: run `packages/api/scripts/spike-remote-d1.sql` per the README once wrangler is authenticated and the prod DB exists. If managed D1 rejects FTS5/triggers, the documented fallback is explicit `jobs_fts` maintenance in ingest's diff step (not built).
+- [ ] Deploy-time: fill `database_id` in `wrangler.jsonc`, decide the route/domain, `wrangler deploy`.
 
 ### 2.7 Astro frontend
 

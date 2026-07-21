@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // Worker runtime globals (Request/Response/caches/D1*/crypto), NOT node.
+    // `@cloudflare/vitest-pool-workers` declares the `cloudflare:test` module.
+    "types": ["@cloudflare/workers-types", "@cloudflare/vitest-pool-workers"]
+  },
+  "include": ["src", "test"]
+}

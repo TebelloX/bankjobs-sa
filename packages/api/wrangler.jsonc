@@ -1,0 +1,17 @@
+{
+  "name": "bankjobs-api",
+  "main": "src/index.ts",
+  // Pinned within the runtime bundled by @cloudflare/vitest-pool-workers@0.8.71
+  // (miniflare 4.20250906.x). Bump on deploy if a newer feature is needed.
+  "compatibility_date": "2025-09-01",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "bankjobs",
+      // DEPLOY-TIME FILL: replace with the real id from `wrangler d1 create bankjobs`.
+      // Ignored locally — miniflare/vitest simulate D1 regardless of this value.
+      "database_id": "REPLACE_WITH_D1_DATABASE_ID",
+    },
+  ],
+  // route / custom domain intentionally unset — a deploy decision.
+}
