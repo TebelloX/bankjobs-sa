@@ -1,0 +1,218 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`capitecAdapter.normalize — snapshots > normalizes 1387530633 1`] = `
+{
+  "applyUrl": "https://careers.capitecbank.co.za/job/Stellenbosch-Analytics-Engineer-II/1387530633/",
+  "brand": "Capitec",
+  "category": "Software & IT",
+  "country": "ZA",
+  "descriptionHtml": "<h3><strong>Purpose of the role:</strong></h3>
+<p>The role bridges the gap between Data Engineers and Data Analysts by transforming complex data into accessible, reliable and performant data models and insights that support organisational decision‑making. The Analytics Engineer collaborates with stakeholders to understand analytical needs and partners with Data Architects and Data Modellers to design scalable data models aligned with enterprise data strategy. The role is responsible for designing and building efficient, reproducible data assets. This includes data models, data marts, semantic layers and working environments, as well as scalable transformations and pipelines. These assets enable Analytical Engineers and Data Analysts to deliver insights and reports quickly, consistently and with minimal friction.     </p><h3><strong>What you’ll do</strong></h3>
+<p>Design, build and maintain production‑ready data models that transform raw data into usable datasets Develop scalable data transformations with strong validation, testing and quality controls Create and optimise semantic layers and aggregation logic that support reporting and analysis Maintain and troubleshoot live data models, resolving incidents and improving performance Lead and influence design decisions, balancing quality, speed and long‑term sustainability Support and guide less experienced engineers through reviews, documentation and practical coaching</p><h3><strong>Minimum Experience</strong></h3>
+<ul>
+<li>At least 5 years’ experience in analytics engineering or a closely related data role</li>
+<li>Honours degree in an analytics/engineering  or STEM  or  related field, PLUS at least 5yrs relevant experience  OR</li>
+<li>Bachelor degree in an analytics or STEM  or  related field, PLUS at least 8yrs relevant experience </li>
+<li>Proven experience delivering and supporting production data models and pipelines</li>
+<li>Strong data modelling capability and confidence designing business‑ready datasets</li>
+<li>Advanced SQL skills and experience using Python for data transformation or automation</li>
+<li>Experience building, testing and deploying data transformations using structured release practices</li>
+<li>Experience working on cloud data platforms and workflow orchestration tools such as Airflow or Prefect</li>
+<li>A solid understanding of data quality, governance and documentation</li>
+<li>Experience influencing technical decisions and working closely with stakeholders<br /><br /></li>
+</ul><h3><strong>Qualifications (Minimum)</strong></h3>
+<ul><li>Bachelor's Degree in Analytical/Data/Technical or Other
+</li></ul><h3><strong>Qualifications (Ideal or Preferred)</strong></h3>
+<ul><li>Honours Degree in Analytical/Data/Technical or Engineering - Other
+</li></ul><h3><strong>Knowledge</strong></h3>
+<p>Advanced grasp of:</p>
+<ul>
+<li>Data modelling best practices.</li>
+<li>Data governance and quality assurance.</li>
+<li>Cloud data platforms and orchestration tools (e.g., Airflow, Prefect).</li>
+<li>Understanding of software engineering principles (e.g., CI/CD, testing).</li>
+</ul><h3><strong>Skills</strong></h3>
+<ul><li>Analytical Skills
+</li><li>Communications Skills
+</li><li>Planning, organising and coordination skills
+</li><li>Problem solving skills
+</li><li>Reporting Skills
+</li></ul><h3><strong>Conditions of Employment</strong></h3>
+<ul><li>Clear criminal and credit record
+</li></ul>
+        ",
+  "descriptionText": "Purpose of the role: The role bridges the gap between Data Engineers and Data Analysts by transforming complex data into accessible, reliable and performant data models and insights that support organisational decision‑making. The Analytics Engineer collaborates with stakeholders to understand analytical needs and partners with Data Architects and Data Modellers to design scalable data models aligned with enterprise data strategy. The role is responsible for designing and building efficient, reproducible data assets. This includes data models, data marts, semantic layers and working environments, as well as scalable transformations and pipelines. These assets enable Analytical Engineers and Data Analysts to deliver insights and reports quickly, consistently and with minimal friction. What you’ll do Design, build and maintain production‑ready data models that transform raw data into usable datasets Develop scalable data transformations with strong validation, testing and quality controls Create and optimise semantic layers and aggregation logic that support reporting and analysis Maintain and troubleshoot live data models, resolving incidents and improving performance Lead and influence design decisions, balancing quality, speed and long‑term sustainability Support and guide less experienced engineers through reviews, documentation and practical coaching Minimum Experience At least 5 years’ experience in analytics engineering or a closely related data role Honours degree in an analytics/engineering or STEM or related field, PLUS at least 5yrs relevant experience OR Bachelor degree in an analytics or STEM or related field, PLUS at least 8yrs relevant experience Proven experience delivering and supporting production data models and pipelines Strong data modelling capability and confidence designing business‑ready datasets Advanced SQL skills and experience using Python for data transformation or automation Experience building, testing and deploying data transformations using structured release practices Experience working on cloud data platforms and workflow orchestration tools such as Airflow or Prefect A solid understanding of data quality, governance and documentation Experience influencing technical decisions and working closely with stakeholders Qualifications (Minimum) Bachelor's Degree in Analytical/Data/Technical or Other Qualifications (Ideal or Preferred) Honours Degree in Analytical/Data/Technical or Engineering - Other Knowledge Advanced grasp of: Data modelling best practices. Data governance and quality assurance. Cloud data platforms and orchestration tools (e.g., Airflow, Prefect). Understanding of software engineering principles (e.g., CI/CD, testing). Skills Analytical Skills Communications Skills Planning, organising and coordination skills Problem solving skills Reporting Skills Conditions of Employment Clear criminal and credit record",
+  "employmentType": null,
+  "excerpt": "Purpose of the role: The role bridges the gap between Data Engineers and Data Analysts by transforming complex data into accessible, reliable and performant data models and insights that support organisational decision‑making. The Analytics Engineer collaborates with stakeholders to understand analytical needs and partners with Data Architects and Data Modellers to design scalable data models…",
+  "id": "capitec:1387530633",
+  "locations": [
+    {
+      "city": "Stellenbosch",
+      "province": "Western Cape",
+      "raw": "Stellenbosch",
+    },
+  ],
+  "postedDate": "2026-07-16",
+  "primaryLocation": "Stellenbosch, Western Cape",
+  "source": "capitec",
+  "title": "Analytics Engineer II",
+}
+`;
+
+exports[`capitecAdapter.normalize — snapshots > normalizes 1406793133 1`] = `
+{
+  "applyUrl": "https://careers.capitecbank.co.za/job/Acquisition-Banker-%28Pipeline%29/1406793133/",
+  "brand": "Capitec",
+  "category": "Sales",
+  "country": "ZA",
+  "descriptionHtml": "<p><strong>Apply by</strong>:  </p>
+
+<p><strong>We're on the lookout for energetic, self-motivated individuals who share our passion for service in the banking industry. To be part of the journey, follow the steps below:</strong></p>
+
+<p>1. To see what life at Capitec is all about and complete a short assessment, please <strong>click here!</strong></p>
+
+<p>2.  Once you have completed the above finalize your application by clicking apply below.</p>
+<h3><strong>Purpose Statement</strong></h3>
+<p>To provide a central based, Business Banking sales and service function that will retain and grow business clients and achieve financial sales and service objectives by following up on sales leads through various digital communication channels. </p>
+<h3><strong>Experience</strong></h3>
+<p><strong>Minimum:</strong></p>
+<ul>
+<li>3 years previous experience in a retail and or business banking environment, </li>
+<li>3 years previous experience  within a sales environment . </li>
+</ul>
+<p><strong>Ideal:</strong></p>
+<ul>
+<li>Previous experience within a Business banking environment </li>
+<li>Features, benefits and value propositions of the respective company product/service offerings. </li>
+<li>A good knowledge of administration processes and procedures pertaining to Business Banking transactions</li>
+</ul><h3><strong>Qualifications (Minimum)</strong></h3>
+<ul><li>A relevant tertiary qualification in Finance or Commerce
+</li></ul><h3><strong>Qualifications (Ideal or Preferred)</strong></h3>
+<ul><li>Bachelor's Degree in Law
+</li></ul><h3><strong>Knowledge</strong></h3>
+<p><strong>Minimum:</strong></p>
+<ul>
+<li>Client  relationship management (CRM) principles and techniques</li>
+<li>Standardized business banking transactional products and other core products relevant to small enterprises</li>
+<li>Business banking product offerings</li>
+<li>Multiple legal entities (companies, close corporations, sole proprietorships, etc.) in the business banking market and from a financial services perspective</li>
+<li>Companies and Intellectual Properties Registration Act (CPIC) for correct documentation/mandate preparation purposes</li>
+<li>Knowledge of competitors offerings</li>
+<li>Knowledge of standardized business banking transactional products and other core products relevant to small enterprises</li>
+<li>Knowledge of the Financial Advisory and Intermediary Services Act (FAIS), the Financial Intelligence Centre Act (FICA) and related anti-money laundering legislation and the National Credit Act (NCA)</li>
+<li>Compliance with the Banking Code of Practice, Credit Risk Manual, Securities Manual and Bank Policies and Procedures</li>
+</ul><h3><strong>Skills</strong></h3>
+<ul><li>Analytical Skills
+</li><li>Communications Skills
+</li><li>Computer Literacy (MS Word, MS Excel, MS Outlook)
+</li><li>Problem solving skills
+</li><li>Planning, organising and coordination skills
+</li></ul><h3><strong>Conditions of Employment</strong></h3>
+<ul><li>Clear criminal and credit record
+</li></ul><p><em>Capitec is committed to diversity and, where feasible, all appointments will support the achievement of our employment equity goals.</em></p>
+        ",
+  "descriptionText": "Apply by : We're on the lookout for energetic, self-motivated individuals who share our passion for service in the banking industry. To be part of the journey, follow the steps below: 1. To see what life at Capitec is all about and complete a short assessment, please click here! 2. Once you have completed the above finalize your application by clicking apply below. Purpose Statement To provide a central based, Business Banking sales and service function that will retain and grow business clients and achieve financial sales and service objectives by following up on sales leads through various digital communication channels. Experience Minimum: 3 years previous experience in a retail and or business banking environment, 3 years previous experience within a sales environment . Ideal: Previous experience within a Business banking environment Features, benefits and value propositions of the respective company product/service offerings. A good knowledge of administration processes and procedures pertaining to Business Banking transactions Qualifications (Minimum) A relevant tertiary qualification in Finance or Commerce Qualifications (Ideal or Preferred) Bachelor's Degree in Law Knowledge Minimum: Client relationship management (CRM) principles and techniques Standardized business banking transactional products and other core products relevant to small enterprises Business banking product offerings Multiple legal entities (companies, close corporations, sole proprietorships, etc.) in the business banking market and from a financial services perspective Companies and Intellectual Properties Registration Act (CPIC) for correct documentation/mandate preparation purposes Knowledge of competitors offerings Knowledge of standardized business banking transactional products and other core products relevant to small enterprises Knowledge of the Financial Advisory and Intermediary Services Act (FAIS), the Financial Intelligence Centre Act (FICA) and related anti-money laundering legislation and the National Credit Act (NCA) Compliance with the Banking Code of Practice, Credit Risk Manual, Securities Manual and Bank Policies and Procedures Skills Analytical Skills Communications Skills Computer Literacy (MS Word, MS Excel, MS Outlook) Problem solving skills Planning, organising and coordination skills Conditions of Employment Clear criminal and credit record Capitec is committed to diversity and, where feasible, all appointments will support the achievement of our employment equity goals.",
+  "employmentType": null,
+  "excerpt": "Apply by : We're on the lookout for energetic, self-motivated individuals who share our passion for service in the banking industry. To be part of the journey, follow the steps below: 1. To see what life at Capitec is all about and complete a short assessment, please click here! 2. Once you have completed the above finalize your application by clicking apply below.",
+  "id": "capitec:1406793133",
+  "locations": [],
+  "postedDate": "2026-07-21",
+  "primaryLocation": null,
+  "source": "capitec",
+  "title": "Acquisition Banker (Pipeline)",
+}
+`;
+
+exports[`capitecAdapter.normalize — snapshots > normalizes 1414947533 1`] = `
+{
+  "applyUrl": "https://careers.capitecbank.co.za/job/East-London-Business-Banker-%28East-London%29-EC/1414947533/",
+  "brand": "Capitec",
+  "category": "Sales",
+  "country": "ZA",
+  "descriptionHtml": "<p><strong>Apply by</strong>:  </p>
+
+<p><strong>We're on the lookout for energetic, self-motivated individuals who share our passion for service in the banking industry. To be part of the journey, follow the steps below:</strong></p>
+
+<p>1. To see what life at Capitec is all about and complete a short assessment, please <strong>click here!</strong></p>
+
+<p>2.  Once you have completed the above finalize your application by clicking apply below</p>
+<h3><strong>Purpose Statement</strong></h3>
+<ul>
+	<li>To provide a business centre-based Business Banking sales and service function that will retain and grow a portfolio of business clients by identifying and implementing value adding and specialised business banking financial products solutions from a range of standard and/or customized offerings.</li>
+</ul>
+<h3><strong>Experience</strong></h3>
+<p><strong>Minimum:</strong></p>
+
+<ul>
+	<li>Banking experience of at least 3 years</li>
+	<li>Experience of managing a portfolio of business customers with a service and financial analysis focus.</li>
+	<li>Experience in preparing and motivating Credit applications </li>
+	<li>Cost control and sales management </li>
+</ul>
+
+<p><strong>Ideal:</strong></p>
+
+<ul>
+	<li>1+ yr spent in the Business Banking environment preparing and motivating credit application</li>
+</ul>
+<h3><strong>Qualifications (Minimum)</strong></h3>
+<ul><li>Diploma in Commerce or Finance
+</li></ul><h3><strong>Qualifications (Ideal or Preferred)</strong></h3>
+<ul><li>FAIS accredited as Key Individual and approved by FSCA
+</li></ul><h3><strong>Knowledge</strong></h3>
+<p><strong>Minimum:</strong></p>
+
+<ul>
+	<li>Customer relationship management (CRM) principles and techniques</li>
+	<li>How to interpret financial statements, balance sheets and basic financial ratios</li>
+	<li>Standardized business banking transactional products and other core products relevant to small enterprises</li>
+	<li>Business banking product offerings</li>
+	<li>Understanding of collateral and balance sheets</li>
+	<li>Multiple legal entities (companies, close corporations, sole proprietorships, etc.) in the business banking market and the legislative restrictions &amp; requirements governing these from a financial services perspective</li>
+	<li>Companies and Intellectual Properties Registration Act (CPIC) for correct documentation/mandate preparation purposes</li>
+	<li>Knowledge of competitors offerings</li>
+	<li>Regulations, Acts and Codes related to the banking environment.</li>
+	<li>Financial Advisory and Intermediary Services Act (FAIS), the Financial Intelligence Centre Act (FICA) </li>
+</ul>
+
+<p><strong>Ideal:</strong></p>
+
+<ul>
+	<li>Features, benefits and value propositions of the respective company product/service offerings. </li>
+	<li>Current taxation laws as they apply to customers. </li>
+	<li>A good knowledge of administration processes and procedures pertaining to Business Banking transactions</li>
+</ul>
+<h3><strong>Skills</strong></h3>
+<ul><li>Interpersonal &amp; Relationship management Skills
+</li><li>Analytical Skills
+</li><li>Negotiation skills
+</li><li>Problem solving skills
+</li><li>Computer Literacy (MS Word, MS Excel, MS Outlook)
+</li><li>Commercial Thinking Skills
+</li><li>Strategic Thinking Skills
+</li><li>Communications Skills
+</li><li>Influencing Skills
+</li><li>Attention to Detail
+</li><li>Decision making skills
+</li></ul><h3><strong>Conditions of Employment</strong></h3>
+<ul><li>Clear criminal and credit record
+</li><li>Willingness to work flexible hours (including Saturdays and Public Holidays)
+</li></ul><p><em>Capitec is committed to diversity and, where feasible, all appointments will support the achievement of our employment equity goals.</em></p>
+        ",
+  "descriptionText": "Apply by : We're on the lookout for energetic, self-motivated individuals who share our passion for service in the banking industry. To be part of the journey, follow the steps below: 1. To see what life at Capitec is all about and complete a short assessment, please click here! 2. Once you have completed the above finalize your application by clicking apply below Purpose Statement To provide a business centre-based Business Banking sales and service function that will retain and grow a portfolio of business clients by identifying and implementing value adding and specialised business banking financial products solutions from a range of standard and/or customized offerings. Experience Minimum: Banking experience of at least 3 years Experience of managing a portfolio of business customers with a service and financial analysis focus. Experience in preparing and motivating Credit applications Cost control and sales management Ideal: 1+ yr spent in the Business Banking environment preparing and motivating credit application Qualifications (Minimum) Diploma in Commerce or Finance Qualifications (Ideal or Preferred) FAIS accredited as Key Individual and approved by FSCA Knowledge Minimum: Customer relationship management (CRM) principles and techniques How to interpret financial statements, balance sheets and basic financial ratios Standardized business banking transactional products and other core products relevant to small enterprises Business banking product offerings Understanding of collateral and balance sheets Multiple legal entities (companies, close corporations, sole proprietorships, etc.) in the business banking market and the legislative restrictions & requirements governing these from a financial services perspective Companies and Intellectual Properties Registration Act (CPIC) for correct documentation/mandate preparation purposes Knowledge of competitors offerings Regulations, Acts and Codes related to the banking environment. Financial Advisory and Intermediary Services Act (FAIS), the Financial Intelligence Centre Act (FICA) Ideal: Features, benefits and value propositions of the respective company product/service offerings. Current taxation laws as they apply to customers. A good knowledge of administration processes and procedures pertaining to Business Banking transactions Skills Interpersonal & Relationship management Skills Analytical Skills Negotiation skills Problem solving skills Computer Literacy (MS Word, MS Excel, MS Outlook) Commercial Thinking Skills Strategic Thinking Skills Communications Skills Influencing Skills Attention to Detail Decision making skills Conditions of Employment Clear criminal and credit record Willingness to work flexible hours (including Saturdays and Public Holidays) Capitec is committed to diversity and, where feasible, all appointments will support the achievement of our employment equity goals.",
+  "employmentType": null,
+  "excerpt": "Apply by : We're on the lookout for energetic, self-motivated individuals who share our passion for service in the banking industry. To be part of the journey, follow the steps below: 1. To see what life at Capitec is all about and complete a short assessment, please click here! 2. Once you have completed the above finalize your application by clicking apply below Purpose Statement To provide a…",
+  "id": "capitec:1414947533",
+  "locations": [
+    {
+      "city": "East London",
+      "province": "Eastern Cape",
+      "raw": "East London",
+    },
+  ],
+  "postedDate": "2026-07-14",
+  "primaryLocation": "East London, Eastern Cape",
+  "source": "capitec",
+  "title": "Business Banker (East London)",
+}
+`;

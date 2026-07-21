@@ -299,6 +299,56 @@ function spanText(html: string, attr: string, value: string): string {
 }
 
 /**
+ * Inner text of the first NON-meta element carrying `itemprop="{name}"`
+ * (e.g. `<h1 itemprop="title">…</h1>`), flattened to plain text and XML-decoded,
+ * or '' when absent. Some CSB tenants (Capitec) expose the title as schema.org
+ * ELEMENT microdata rather than a labelled `data-careersite-propertyid` span;
+ * the tag name is captured and closed with a backreference so an element with a
+ * simple text body is read whole.
+ */
+function itempropElementText(html: string, name: string): string {
+  const re = new RegExp(
+    `<([a-z0-9]+)\\b[^>]*\\bitemprop=["']${name}["'][^>]*>([\\s\\S]*?)</\\1>`,
+    'i',
+  );
+  const m = re.exec(html);
+  if (!m) return '';
+  return decodeXmlEntities((m[2] ?? '').replace(/<[^>]*>/g, ' '))
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * Resolve the posting's city + country from the address microdata, tolerating
+ * both CSB shapes. Preferred: the structured `addressLocality`/`addressCountry`
+ * meta (Discovery). When those are absent, fall back to a single `streetAddress`
+ * meta of the form `"City, CC"` (or a bare `"CC"` for a nationwide/pipeline role
+ * with no city) — Capitec's most common shape. Either way the country is the
+ * trailing ISO alpha-2 token; a bare country degrades to an empty city, so a
+ * locationless role never has a city invented for it.
+ */
+function resolveAddress(html: string): { locality: string; country: string } {
+  const locality = metaContent(html, 'addressLocality');
+  const country = metaContent(html, 'addressCountry');
+  if (locality !== null || country !== null) {
+    return { locality: locality ?? '', country: country ?? '' };
+  }
+
+  const street = metaContent(html, 'streetAddress') ?? '';
+  const parts = street
+    .split(',')
+    .map((s) => s.trim())
+    .filter((s) => s !== '');
+  if (parts.length === 0) return { locality: '', country: '' };
+  const last = parts[parts.length - 1] ?? '';
+  // A trailing 2-letter token is the ISO country ("City, ZA" or bare "ZA").
+  if (/^[A-Za-z]{2}$/.test(last)) {
+    return { locality: parts.slice(0, -1).join(', '), country: last };
+  }
+  return { locality: parts.join(', '), country: '' };
+}
+
+/**
  * Parse a `<urlset>` sitemap into its `<loc>` job-detail URLs. Tolerant and
  * dependency-free (same spirit as {@link parseFeed}); only `<loc>`s that look
  * like a `/job/…/{numericId}/` detail page are kept, so a stray non-job entry
@@ -318,17 +368,30 @@ export function parseSitemap(xml: string): string[] {
 /**
  * Parse one job detail page into a structured {@link SfSitemapPosting}. jobId
  * (from the URL) and title are CRITICAL — a page missing either returns null so
- * the caller can skip + count it. Address/date come from schema.org microdata
- * (`itemprop`); title/businessUnit/function come from the labelled CSB fields
- * (`data-careersite-propertyid`) — businessUnit is ONLY exposed there, and the
- * others read the same span the microdata would.
+ * the caller can skip + count it. Two CSB detail-page shapes are tolerated:
+ *
+ *  - Group-wide tenant (Discovery): title/businessUnit/function are labelled CSB
+ *    fields (`data-careersite-propertyid`) — businessUnit is ONLY exposed there;
+ *    address is the structured `addressLocality`/`addressCountry` microdata.
+ *  - Single-brand tenant (Capitec): the title is schema.org ELEMENT microdata
+ *    (`<h1 itemprop="title">`), there is NO business-unit/function labelled span
+ *    (both resolve to '', so the adapter keeps every posting), and the address
+ *    is usually a single `streetAddress` ("City, ZA" or a bare "ZA").
+ *
+ * The two shapes are probed in that order, so a group tenant's output is
+ * unchanged. Date always rides the schema.org datePosted microdata.
  */
 export function parseSitemapDetail(html: string, url: string): SfSitemapPosting | null {
   const jobId = extractJobId(url);
   if (jobId === null) return null;
 
-  const title = spanText(html, 'data-careersite-propertyid', 'title');
+  // Title is critical: prefer the labelled CSB span; fall back to element
+  // microdata for a tenant that carries no labelled fields.
+  let title = spanText(html, 'data-careersite-propertyid', 'title');
+  if (title === '') title = itempropElementText(html, 'title');
   if (title === '') return null;
+
+  const { locality, country } = resolveAddress(html);
 
   return {
     jobId,
@@ -338,8 +401,8 @@ export function parseSitemapDetail(html: string, url: string): SfSitemapPosting 
     jobFunction: spanText(html, 'data-careersite-propertyid', 'department'),
     // Real HTML on the page (not the feed's double-encoded CDATA) — sanitize as-is.
     description: spanInnerByAttr(html, 'itemprop', 'description') ?? '',
-    locality: metaContent(html, 'addressLocality') ?? '',
-    country: metaContent(html, 'addressCountry') ?? '',
+    locality,
+    country,
     // Same Java-toString datePosted microdata the feed path enriches from.
     postedDate: extractDatePosted(html),
   };

@@ -101,6 +101,7 @@ import { investecAdapter } from './investec';
 import { gotymeAdapter } from './gotyme';
 import { nedbankAdapter } from './nedbank';
 import { discoveryAdapter } from './discovery';
+import { capitecAdapter } from './capitec';
 
 export { absaAdapter, ABSA_WORKDAY_CONFIG } from './absa';
 export { firstrandAdapter, FIRSTRAND_WORKDAY_CONFIG } from './firstrand';
@@ -109,6 +110,7 @@ export { investecAdapter, INVESTEC_EARCU_CONFIG } from './investec';
 export { gotymeAdapter, GOTYME_WORKABLE_CONFIG } from './gotyme';
 export { nedbankAdapter, NEDBANK_SF_CONFIG } from './nedbank';
 export { discoveryAdapter, DISCOVERY_SF_CONFIG } from './discovery';
+export { capitecAdapter, CAPITEC_SF_CONFIG } from './capitec';
 
 /** Adapter registry — one entry per live source. */
 export const adapters = {
@@ -119,4 +121,5 @@ export const adapters = {
   gotyme: gotymeAdapter,
   nedbank: nedbankAdapter,
   discovery: discoveryAdapter,
+  capitec: capitecAdapter,
 } as const;

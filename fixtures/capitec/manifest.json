@@ -1,0 +1,29 @@
+{
+  "source": "capitec",
+  "capturedAt": "2026-07-21T11:42:15.003Z",
+  "ats": "SAP SuccessFactors Career Site Builder (single-brand)",
+  "brand": "Capitec",
+  "endpoints": {
+    "sitemap": "GET https://careers.capitecbank.co.za/sitemap.xml",
+    "detail": "GET https://careers.capitecbank.co.za/job/{City-Slug-Title}/{numericId}/"
+  },
+  "totalAtCapture": 51,
+  "files": {
+    "sitemap.xml": "The full URL sitemap (51 job URLs) — the enumeration source.",
+    "detail-1.html": "1387530633 — Analytics Engineer II (Stellenbosch, ZA) [streetAddress] datePosted=2026-07-16 — streetAddress corporate/IT",
+    "detail-2.html": "1414947533 — Business Banker (East London) (East London, ZA) [structured] datePosted=2026-07-14 — structured-address Sales banker",
+    "detail-3.html": "1406793133 — Acquisition Banker (Pipeline) (no city, ZA) [streetAddress] datePosted=2026-07-21 — bare-\"ZA\" pipeline banker",
+    "detail-4.html": "1405951133 — Capitec Internship Programme 2027 (Stellenbosch, ZA) [streetAddress] datePosted=2026-07-17 — graduate/internship programme"
+  },
+  "notes": [
+    "careers.capitecbank.co.za is a SINGLE-BRAND CSB site (every posting is Capitec — no business-unit filter); /sitemap.xml here is a REAL <urlset> of job detail URLs, like Discovery and NOT the Google-for-Jobs RSS Nedbank serves at that path.",
+    "Detail pages are LOAD-BEARING: unlike Discovery, the title is schema.org ELEMENT microdata (<h1 itemprop=\"title\">…</h1>), NOT a labelled data-careersite-propertyid span, and there are NO business-unit/function labelled spans (single brand), so both resolve to empty.",
+    "Address microdata has two shapes: a single <meta itemprop=\"streetAddress\" content=\"City, ZA\"> (most roles; a bare \"ZA\" for nationwide/pipeline roles with no city), OR structured addressLocality/addressRegion/addressCountry (some roles, e.g. branch/business-banker). The shared client parser tolerates both; country is the ISO alpha-2 code directly.",
+    "datePosted microdata is Java-toString (\"Tue Jul 14 00:00:00 UTC 2026\") → YYYY-MM-DD; validThrough (~19-day window) exists but is IGNORED (closure is lastSeen-driven; no expiry stored).",
+    "robots.txt disallows /talentcommunity/, /services/, /preapply/, /applybutton/, /emailsubscribe/, etc.; /sitemap.xml, /job/, /search/, /viewalljobs/ are allowed. The apply flow under /talentcommunity/ and the analytics beacon /services/t/l are NEVER fetched.",
+    "applyUrl = the public /job/ detail page: the real apply route is robots-disallowed and session-bound.",
+    "NEVER fetch www.capitecbank.co.za — the marketing site is Cloudflare-challenge protected (403). Only the careers subdomain is used, and it is unprotected.",
+    "Server-templated listing pages exist (/search/?startrow=N, 25/page) but are NOT used: overrunning startrow yields a garbage \"Results 76–10 of 10\" page that reprints page 1 — the sitemap supersedes them.",
+    "Every response mints a fresh JSESSIONID but no request requires sending one back — stay stateless."
+  ]
+}

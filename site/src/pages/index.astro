@@ -31,6 +31,7 @@ const BANK_DISPLAY_NAMES: Record<string, string> = {
   gotyme: 'GoTyme Bank',
   nedbank: 'Nedbank',
   discovery: 'Discovery Bank',
+  capitec: 'Capitec',
 };
 function bankName(id: string, fallback: string): string {
   return BANK_DISPLAY_NAMES[id] ?? fallback;
@@ -58,12 +59,12 @@ const liveBanks = meta.sources
   }))
   .sort((a, b) => b.count - a.count);
 
-// Muted "coming soon" rows: any source with nothing live yet, plus the banks we
-// haven't started building a connection to.
-const comingSoon = [
-  ...meta.sources.filter((s) => s.count === 0).map((s) => bankName(s.id, s.name)),
-  'Capitec',
-];
+// Muted "coming soon" rows: any source with nothing live yet (e.g. GoTyme, whose
+// adapter is ready but whose feed is empty). Every bank we've built a connection
+// to is now a live source, so there are no hardcoded placeholders left.
+const comingSoon = meta.sources
+  .filter((s) => s.count === 0)
+  .map((s) => bankName(s.id, s.name));
 
 // Source line for a statement row: 'Absa · Category[ · City]'.
 function stSource(brand: string, category: string, city: string | null): string {

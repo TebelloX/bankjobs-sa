@@ -41,6 +41,7 @@ import type { EarcuConfig } from '../src/earcu/client';
 import type { EarcuJobPosting } from '../src/earcu/types';
 import { NEDBANK_SF_CONFIG } from '../src/nedbank';
 import { DISCOVERY_SF_CONFIG } from '../src/discovery';
+import { CAPITEC_SF_CONFIG } from '../src/capitec';
 import {
   SUCCESSFACTORS_UA,
   extractDatePosted,
@@ -792,6 +793,153 @@ async function captureSuccessFactorsSitemap(cfg: SuccessFactorsConfig): Promise<
   console.log(`Wrote detail-1..${chosen.length}.html + manifest.json to ${fixturesDir}.`);
 }
 
+// ---------------------------------------------------------------------------
+// SuccessFactors CSB, SITEMAP path (capitec). SINGLE-BRAND site: crawl every job
+// the sitemap enumerates (no business-unit split) and capture four detail pages
+// spanning the two address shapes and the notable role types — a streetAddress-
+// located corporate/IT role, a structured-address Sales banker (city→province),
+// a bare-"ZA" locationless pipeline banker, and a graduate/internship programme.
+// ---------------------------------------------------------------------------
+
+interface CapCaptured {
+  url: string;
+  html: string;
+  posting: SfSitemapPosting;
+  structured: boolean;
+}
+
+async function captureCapitecSitemap(cfg: SuccessFactorsConfig): Promise<void> {
+  const delayMs = cfg.delayMs ?? 400;
+  const sitemapPath = cfg.sitemapPath ?? '/sitemap.xml';
+  const origin = `https://${cfg.host}`;
+  const fixturesDir = join(fixturesRoot, 'capitec');
+
+  const sfFetch = (url: string): Promise<Response> =>
+    fetch(url, { headers: { 'User-Agent': SUCCESSFACTORS_UA } });
+
+  // 1) The URL sitemap — one GET enumerates every open role. Stored verbatim.
+  const sitemapUrl = `${origin}${sitemapPath}`;
+  const sitemapRes = await sfFetch(sitemapUrl);
+  if (sitemapRes.status !== 200) {
+    console.error(`capitec sitemap returned HTTP ${sitemapRes.status} — shape may have drifted.`);
+    console.error(`Tried: GET ${sitemapUrl}`);
+    process.exit(1);
+  }
+  const sitemapXml = await sitemapRes.text();
+  const urls = parseSitemap(sitemapXml);
+  if (urls.length === 0) {
+    console.error('capitec sitemap parsed to zero job URLs — parser or shape may have drifted.');
+    process.exit(1);
+  }
+  writeFileSync(join(fixturesDir, 'sitemap.xml'), sitemapXml);
+  console.log(`Wrote sitemap.xml (${urls.length} job URLs).`);
+
+  // 2) Crawl detail pages until the four fixture varieties are found.
+  let streetCorporate: CapCaptured | undefined;
+  let structuredBanker: CapCaptured | undefined;
+  let pipelineBare: CapCaptured | undefined;
+  let graduate: CapCaptured | undefined;
+  let skipped = 0;
+
+  for (const url of urls) {
+    if (streetCorporate && structuredBanker && pipelineBare && graduate) break;
+    await sleep(delayMs);
+    const res = await sfFetch(url);
+    if (res.status !== 200) {
+      skipped += 1;
+      console.warn(`  skip ${url} — HTTP ${res.status}`);
+      continue;
+    }
+    const html = await res.text();
+    const posting = parseSitemapDetail(html, url);
+    if (posting === null) {
+      skipped += 1;
+      console.warn(`  skip ${url} — missing critical field (jobId/title)`);
+      continue;
+    }
+    // The structured-address shape carries an addressLocality meta; the common
+    // shape carries only a streetAddress.
+    const structured = /itemprop=["']addressLocality["']/i.test(html);
+    const captured: CapCaptured = { url, html, posting, structured };
+    const title = posting.title;
+    const isBanker = /banker/i.test(title);
+    const isGraduate = /(graduate|internship)\s+programme/i.test(title);
+    const locationless = posting.locality.trim() === '';
+
+    if (isGraduate) {
+      graduate ??= captured;
+    } else if (locationless && isBanker) {
+      pipelineBare ??= captured;
+    } else if (structured && isBanker) {
+      structuredBanker ??= captured;
+    } else if (
+      !isBanker &&
+      !locationless &&
+      !structured &&
+      /\b(data|software|engineer|developer)\b/i.test(title)
+    ) {
+      // A representative corporate tech role (Capitec's inventory skews this way).
+      streetCorporate ??= captured;
+    }
+  }
+
+  const chosen = [streetCorporate, structuredBanker, pipelineBare, graduate].filter(
+    (c): c is CapCaptured => c !== undefined,
+  );
+  if (chosen.length < 4) {
+    console.error(
+      `Could not find all four capitec fixture varieties on the sitemap (got ${chosen.length}: ` +
+        `streetCorporate=${Boolean(streetCorporate)} structuredBanker=${Boolean(structuredBanker)} ` +
+        `pipelineBare=${Boolean(pipelineBare)} graduate=${Boolean(graduate)}).`,
+    );
+    process.exit(1);
+  }
+  console.log(`Selected 4 fixtures (${skipped} pages skipped while scanning).`);
+
+  const files: Record<string, string> = {
+    'sitemap.xml': `The full URL sitemap (${urls.length} job URLs) — the enumeration source.`,
+  };
+  const tags = [
+    'streetAddress corporate/IT',
+    'structured-address Sales banker',
+    'bare-"ZA" pipeline banker',
+    'graduate/internship programme',
+  ];
+  chosen.forEach((c, i) => {
+    writeFileSync(join(fixturesDir, `detail-${i + 1}.html`), c.html);
+    const p = c.posting;
+    files[`detail-${i + 1}.html`] =
+      `${p.jobId} — ${p.title} (${p.locality || 'no city'}, ${p.country}) ` +
+      `[${c.structured ? 'structured' : 'streetAddress'}] datePosted=${p.postedDate ?? 'none'} — ${tags[i]}`;
+  });
+
+  const manifest = {
+    source: 'capitec',
+    capturedAt: new Date().toISOString(),
+    ats: 'SAP SuccessFactors Career Site Builder (single-brand)',
+    brand: 'Capitec',
+    endpoints: {
+      sitemap: `GET ${sitemapUrl}`,
+      detail: `GET ${origin}/job/{City-Slug-Title}/{numericId}/`,
+    },
+    totalAtCapture: urls.length,
+    files,
+    notes: [
+      'careers.capitecbank.co.za is a SINGLE-BRAND CSB site (every posting is Capitec — no business-unit filter); /sitemap.xml here is a REAL <urlset> of job detail URLs, like Discovery and NOT the Google-for-Jobs RSS Nedbank serves at that path.',
+      'Detail pages are LOAD-BEARING: unlike Discovery, the title is schema.org ELEMENT microdata (<h1 itemprop="title">…</h1>), NOT a labelled data-careersite-propertyid span, and there are NO business-unit/function labelled spans (single brand), so both resolve to empty.',
+      'Address microdata has two shapes: a single <meta itemprop="streetAddress" content="City, ZA"> (most roles; a bare "ZA" for nationwide/pipeline roles with no city), OR structured addressLocality/addressRegion/addressCountry (some roles, e.g. branch/business-banker). The shared client parser tolerates both; country is the ISO alpha-2 code directly.',
+      'datePosted microdata is Java-toString ("Tue Jul 14 00:00:00 UTC 2026") → YYYY-MM-DD; validThrough (~19-day window) exists but is IGNORED (closure is lastSeen-driven; no expiry stored).',
+      'robots.txt disallows /talentcommunity/, /services/, /preapply/, /applybutton/, /emailsubscribe/, etc.; /sitemap.xml, /job/, /search/, /viewalljobs/ are allowed. The apply flow under /talentcommunity/ and the analytics beacon /services/t/l are NEVER fetched.',
+      'applyUrl = the public /job/ detail page: the real apply route is robots-disallowed and session-bound.',
+      'NEVER fetch www.capitecbank.co.za — the marketing site is Cloudflare-challenge protected (403). Only the careers subdomain is used, and it is unprotected.',
+      'Server-templated listing pages exist (/search/?startrow=N, 25/page) but are NOT used: overrunning startrow yields a garbage "Results 76–10 of 10" page that reprints page 1 — the sitemap supersedes them.',
+      'Every response mints a fresh JSESSIONID but no request requires sending one back — stay stateless.',
+    ],
+  };
+  writeFileSync(join(fixturesDir, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
+  console.log(`Wrote detail-1..${chosen.length}.html + manifest.json to ${fixturesDir}.`);
+}
+
 interface WorkdayManifestArgs {
   source: string;
   listUrl: string;
@@ -827,7 +975,12 @@ function writeManifest(fixturesDir: string, args: WorkdayManifestArgs): void {
 // ---------------------------------------------------------------------------
 
 async function main(): Promise<void> {
+  // pnpm's documented `pnpm run capture -- --source=X` form forwards the
+  // literal `--` separator; parseArgs treats it as a positional and rejects it,
+  // so strip it before parsing (mirrors ingest/cli.ts).
+  const args = process.argv.slice(2).filter((a) => a !== '--');
   const { values } = parseArgs({
+    args,
     options: { source: { type: 'string', default: 'absa' } },
     allowPositionals: false,
   });
@@ -855,9 +1008,12 @@ async function main(): Promise<void> {
     case 'discovery':
       await captureSuccessFactorsSitemap(DISCOVERY_SF_CONFIG);
       return;
+    case 'capitec':
+      await captureCapitecSitemap(CAPITEC_SF_CONFIG);
+      return;
     default:
       console.error(
-        `Unknown --source '${source}' (expected absa | firstrand | standardbank | investec | gotyme | nedbank | discovery).`,
+        `Unknown --source '${source}' (expected absa | firstrand | standardbank | investec | gotyme | nedbank | discovery | capitec).`,
       );
       process.exit(1);
   }

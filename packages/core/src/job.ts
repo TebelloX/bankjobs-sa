@@ -6,6 +6,7 @@ export const SOURCES = [
   'gotyme',
   'nedbank',
   'discovery',
+  'capitec',
 ] as const;
 export type SourceId = (typeof SOURCES)[number];
 
@@ -21,7 +22,8 @@ export type Brand =
   | 'Investec'
   | 'GoTyme Bank'
   | 'Nedbank'
-  | 'Discovery Bank';
+  | 'Discovery Bank'
+  | 'Capitec';
 
 export const CATEGORIES = [
   'Branch & Retail',

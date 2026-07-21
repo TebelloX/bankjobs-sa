@@ -1,6 +1,6 @@
 # BankJobs SA — Implementation Plan
 
-**Version:** 0.5 · **Date:** 21 July 2026 · **Companion to:** BankJobs SA PRD v0.2
+**Version:** 0.6 · **Date:** 21 July 2026 · **Companion to:** BankJobs SA PRD v0.2
 
 This plan translates the PRD into a build sequence. It is written for a solo developer working in evenings/weekends; effort estimates are rough and assume familiarity with TypeScript. Each phase ends with a working, deployable system — never a half-built one.
 
@@ -155,11 +155,7 @@ Per adapter:
 
 - [ ] **SARB (Oracle Cloud Recruiting REST):** same adapter pattern; expect fiddlier pagination/auth-less quirks. Fixture-test as usual.
 - [x] **Nedbank (SuccessFactors): DONE 21 Jul 2026 (bbb7bb4).** No JSON API, but the tenant's `/sitemap.xml` is a mislabeled, uncapped Google-for-Jobs RSS feed — all reqs in one GET, no cheerio needed. postedDate enriched non-fatally from detail-page microdata (absent on some pages by design tolerance). 77 jobs live (74 SA + 3 Namibia).
-- [ ] **Capitec (custom/Graylink):**
-  - Recon first: network inspector on the careers site; look for any JSON the frontend consumes before assuming raw HTML scraping.
-  - Respect robots.txt and modest request rates; honest User-Agent with contact URL.
-  - Budget for a headless-browser fallback (Playwright in Actions) only if plain fetch fails — avoid it if possible (slower, flakier).
-  - Entry-level roles are the payoff: verify branch/sales listings normalize into `Branch & Retail` / `Sales` categories correctly.
+- [x] **Capitec: DONE 21 Jul 2026 — and it wasn't Graylink.** Recon found careers.capitecbank.co.za is SAP SuccessFactors CSB: server-rendered, robots-allowed real URL sitemap + detail-page microdata, no JSON API needed, **no headless browser needed**. Reuses the shared SuccessFactors sitemap strategy (parser made tolerant of Capitec's two microdata shape variants; Discovery's output unchanged). 51 roles live, all SA. **Mission caveat: the channel currently lists ZERO frontline branch roles** (no Bank Better Champion / Service Consultant) — inventory is corporate/HQ plus graduate/internship pipelines; branch/teller recruitment likely runs through a separate high-volume channel (detail pages link out to SHL Talent Central assessments). A `'bank better champion' → Branch & Retail` rule is pre-seeded so frontline roles categorize correctly the moment they appear. Monitor the mix across scheduled runs before concluding the mission payoff needs another channel. Never fetch www.capitecbank.co.za (Cloudflare-challenged); the careers subdomain is unprotected.
 ### Long-tail banks (ATS recon done 21 Jul 2026 — ordered easiest first)
 
 Live recon (curl probes against each careers site) confirmed every bank's ATS and tested for JSON APIs. None of the five fits the existing Workday/SmartRecruiters clients as a pure config entry; ranked by expected effort:
@@ -170,7 +166,7 @@ Live recon (curl probes against each careers site) confirmed every bank's ATS an
 - [ ] **African Bank — hardest source that has data.** "Career Focus" portal (afb.outsourcefocus.co.za): legacy ASP.NET WebForms — ~245KB `__VIEWSTATE`, rotating session cookies, full `__doPostBack` required to even run a search, no JSON/RSS surface. The main africanbank.co.za site 403s plain fetches behind a Cloudflare JS challenge. Needs Playwright-class automation and will be brittle; defer until the Capitec headless pattern exists, then reassess.
 - [x] **Bank Zero — DEFERRED (written deferral).** No careers infrastructure at all: "Join Us" page is a contact email + phone number; no ATS, no listings, no LinkedIn Jobs presence (~34 staff). Acquired by Lesaka Technologies in 2025 — re-check quarterly in case hiring consolidates onto a group-level ATS.
 
-**Exit criteria:** Capitec entry-level roles live and stable for 2 weeks of scheduled runs; each long-tail bank either has a live adapter or a written deferral.
+**Exit criteria:** Capitec source live and stable for 2 weeks of scheduled runs, with the entry-level mix monitored (frontline branch roles are not currently posted on the fetchable channel — the original "entry-level roles live" bar can only be met when Capitec posts them, or via a future second channel); each long-tail bank either has a live adapter or a written deferral.
 
 ---
 

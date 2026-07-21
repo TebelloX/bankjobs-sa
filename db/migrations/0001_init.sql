@@ -24,7 +24,10 @@ INSERT INTO sources (id, name, enabled) VALUES
   -- 'Discovery Bank', which is a handful of roles. Enabled, but note the low
   -- count: it can legitimately hit 0 and trip the zero-jobs guardrail (warn +
   -- skip closures — safe by design; do NOT weaken the guardrail for it).
-  ('discovery', 'Discovery Bank', 1);
+  ('discovery', 'Discovery Bank', 1),
+  -- Capitec's careers site is single-brand (every posting is Capitec) on the
+  -- same SuccessFactors CSB sitemap path as Discovery; ~50 roles, no filter.
+  ('capitec', 'Capitec', 1);
 
 CREATE TABLE jobs (
   id               TEXT PRIMARY KEY,

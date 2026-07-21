@@ -57,18 +57,24 @@ export interface SfSitemapPosting {
   url: string;
   title: string;
   /** The 'Business Unit' labelled field (customfield1), e.g. 'Discovery Bank'
-   * — a group-wide CSB site tags each posting with its brand here. */
+   * — a group-wide CSB site tags each posting with its brand here. '' on a
+   * single-brand tenant (Capitec) that carries no labelled fields. */
   businessUnit: string;
   /** The 'Function' labelled field (department), e.g. 'Banking' — folds into
-   * the categorize haystack alongside the title. */
+   * the categorize haystack alongside the title. '' when the tenant carries no
+   * labelled department field. */
   jobFunction: string;
   /** The description HTML from the detail page (schema.org `description`). */
   description: string;
-  /** schema.org `addressLocality` microdata, e.g. 'Sandton - 1 Discovery Place'
-   * (the CSB combines suburb + building — normalizeLocation resolves the city). */
+  /** The posting's city string: schema.org `addressLocality` microdata (e.g.
+   * 'Sandton - 1 Discovery Place', where the CSB combines suburb + building), or
+   * the city parsed from a single `streetAddress` ('Sandton, ZA' → 'Sandton').
+   * '' for a nationwide/pipeline role with no city — normalizeLocation resolves
+   * the rest. */
   locality: string;
-  /** schema.org `addressCountry` microdata. This tenant emits an ISO alpha-2
-   * code directly ('ZA'), not a display name; '' when the meta is absent. */
+  /** ISO alpha-2 country: schema.org `addressCountry` microdata ('ZA') or the
+   * trailing token of a `streetAddress`. Emitted as a code directly, not a
+   * display name; '' when no address microdata is present. */
   country: string;
   /** YYYY-MM-DD from the datePosted microdata, or null (tolerant). */
   postedDate: string | null;
