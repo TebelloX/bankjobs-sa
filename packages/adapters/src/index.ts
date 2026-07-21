@@ -41,17 +41,39 @@ export {
   SMARTRECRUITERS_UA,
 } from './smartrecruiters/client';
 
+export type {
+  EarcuJobPosting,
+  EarcuRawPosting,
+  LdPlace,
+  LdPostalAddress,
+  LdPropertyValue,
+} from './earcu/types';
+
+export type { EarcuConfig } from './earcu/client';
+export {
+  fetchAllEarcu,
+  extractPagestamp,
+  extractDetailUrls,
+  extractJobPostingLd,
+  extractCanonicalUrl,
+  cookieHeaderFrom,
+  EARCU_UA,
+} from './earcu/client';
+
 import { absaAdapter } from './absa';
 import { firstrandAdapter } from './firstrand';
 import { standardbankAdapter } from './standardbank';
+import { investecAdapter } from './investec';
 
 export { absaAdapter, ABSA_WORKDAY_CONFIG } from './absa';
 export { firstrandAdapter, FIRSTRAND_WORKDAY_CONFIG } from './firstrand';
 export { standardbankAdapter, STANDARDBANK_SR_CONFIG } from './standardbank';
+export { investecAdapter, INVESTEC_EARCU_CONFIG } from './investec';
 
 /** Adapter registry — one entry per live source. */
 export const adapters = {
   absa: absaAdapter,
   firstrand: firstrandAdapter,
   standardbank: standardbankAdapter,
+  investec: investecAdapter,
 } as const;

@@ -14,15 +14,27 @@ import { writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { normalizeLocation } from '@bankjobs/core';
+
 import { ABSA_WORKDAY_CONFIG } from '../src/absa';
 import { FIRSTRAND_WORKDAY_CONFIG } from '../src/firstrand';
 import { STANDARDBANK_SR_CONFIG } from '../src/standardbank';
+import { INVESTEC_EARCU_CONFIG } from '../src/investec';
 import { BROWSER_UA, HONEST_UA } from '../src/workday/client';
 import type { WorkdayConfig } from '../src/workday/client';
 import type { WorkdayJobDetail, WorkdayListResponse } from '../src/workday/types';
 import { SMARTRECRUITERS_UA } from '../src/smartrecruiters/client';
 import type { SmartRecruitersConfig } from '../src/smartrecruiters/client';
 import type { SrListResponse, SrPostingDetail } from '../src/smartrecruiters/types';
+import {
+  EARCU_UA,
+  cookieHeaderFrom,
+  extractDetailUrls,
+  extractJobPostingLd,
+  extractPagestamp,
+} from '../src/earcu/client';
+import type { EarcuConfig } from '../src/earcu/client';
+import type { EarcuJobPosting } from '../src/earcu/types';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const fixturesRoot = join(scriptDir, '../../../fixtures');
@@ -271,6 +283,130 @@ async function captureSmartRecruiters(cfg: SmartRecruitersConfig): Promise<void>
   console.log(`Wrote detail-1/2/3.json + manifest.json to ${fixturesDir}.`);
 }
 
+// ---------------------------------------------------------------------------
+// eArcu source (investec).
+// ---------------------------------------------------------------------------
+
+async function captureEarcu(cfg: EarcuConfig): Promise<void> {
+  const delayMs = cfg.delayMs ?? 400;
+  const resultsPath = cfg.resultsPath ?? '/jobs/vacancy/find/results/';
+  const origin = `https://${cfg.host}`;
+  const fixturesDir = join(fixturesRoot, 'investec');
+
+  const eaFetch = (url: string, cookie?: string): Promise<Response> =>
+    fetch(url, {
+      headers: {
+        'User-Agent': EARCU_UA,
+        ...(cookie ? { Cookie: cookie, 'X-Requested-With': 'XMLHttpRequest' } : {}),
+      },
+    });
+
+  // 1) results page → cookies + pagestamp (rotates per load; never cached).
+  const resultsUrl = `${origin}${resultsPath}`;
+  const resultsRes = await eaFetch(resultsUrl);
+  if (resultsRes.status !== 200) {
+    console.error(`investec results page returned HTTP ${resultsRes.status}.`);
+    console.error(`Tried: GET ${resultsUrl}`);
+    process.exit(1);
+  }
+  const cookie = cookieHeaderFrom(resultsRes.headers.getSetCookie());
+  const pagestamp = extractPagestamp(await resultsRes.text());
+  if (!pagestamp) {
+    console.error('investec results page carried no pagestamp — page shape may have drifted.');
+    process.exit(1);
+  }
+
+  // 2) grid fragment → detail URLs (stored verbatim as ground truth).
+  await sleep(delayMs);
+  const gridUrl = `${origin}${resultsPath}ajaxaction/posbrowser_gridhandler/?pagestamp=${pagestamp}`;
+  const gridRes = await eaFetch(gridUrl, cookie);
+  if (gridRes.status !== 200) {
+    console.error(`investec grid endpoint returned HTTP ${gridRes.status}.`);
+    console.error(`Tried: GET ${gridUrl}`);
+    process.exit(1);
+  }
+  const gridHtml = await gridRes.text();
+  writeFileSync(join(fixturesDir, 'grid.html'), gridHtml);
+  const detailUrls = extractDetailUrls(gridHtml, origin);
+  console.log(`Wrote grid.html (${detailUrls.length} vacancies).`);
+
+  // 3) detail pages → full HTML. Pick three for variety: a Western Cape city, a
+  // Gauteng city, and a posting whose JSON-LD address is empty (city lives in
+  // the title only) to exercise the no-location branch.
+  let wc, gp, noLoc;
+  for (const url of detailUrls) {
+    if (wc && gp && noLoc) break;
+    await sleep(delayMs);
+    const res = await eaFetch(url);
+    if (res.status !== 200) throw new Error(`Detail ${url} returned HTTP ${res.status}`);
+    const html = await res.text();
+    const posting = extractJobPostingLd(html);
+    if (!posting) continue;
+    const captured = { url, html, posting };
+    const locality = firstLocality(posting);
+    if (locality === null) {
+      noLoc ??= captured;
+      continue;
+    }
+    const province = normalizeLocation(locality).province;
+    if (province === 'Western Cape') wc ??= captured;
+    else if (province === 'Gauteng') gp ??= captured;
+  }
+  const chosen = [wc, gp, noLoc].filter((c) => c !== undefined);
+  if (chosen.length < 3) {
+    console.error('Could not find all three investec fixture varieties (WC / Gauteng / no-city).');
+    process.exit(1);
+  }
+  chosen.forEach((c, i) => writeFileSync(join(fixturesDir, `detail-${i + 1}.html`), c.html));
+
+  const manifest = {
+    source: 'investec',
+    capturedAt: new Date().toISOString(),
+    ats: 'eArcu',
+    endpoints: {
+      results: `GET ${resultsUrl}`,
+      grid: `GET ${origin}${resultsPath}ajaxaction/posbrowser_gridhandler/?pagestamp={pagestamp}`,
+      detail: `GET ${origin}/jobs/vacancy/{slug}/{id}/description/`,
+    },
+    totalAtCapture: detailUrls.length,
+    files: {
+      'grid.html': 'The grid AJAX HTML fragment; anchors are the detail-page URLs.',
+      'detail-1.html': fileNoteEarcu(wc),
+      'detail-2.html': fileNoteEarcu(gp),
+      'detail-3.html': fileNoteEarcu(noLoc),
+    },
+    notes: [
+      'Corporate www.investec.com is behind Cloudflare Turnstile and 403s bots — NEVER fetch it; only careers.investec.co.za is used.',
+      'The results page sets session cookies (earcusessionid, earcusession, __cf_bm) and embeds a per-load pagestamp that rotates on every load.',
+      'The grid endpoint returns text/html (Accept: application/json is ignored) and needs the session cookie + that pagestamp.',
+      'Detail pages are stable and cookie-free; each embeds ONE application/ld+json JobPosting block.',
+      'id = investec:{identifier.value} (identifier is a PropertyValue object; value is the req number).',
+      'datePosted is templated to today (untrusted) and validThrough is unreliable — postedDate is set null.',
+      'applyUrl is the detail-page URL itself (the /action/apply/?pagestamp=... link is session-bound).',
+      'addressCountry is a display name (South Africa) — map via countryCodeFor; addressLocality can be empty.',
+    ],
+  };
+  writeFileSync(join(fixturesDir, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
+  console.log(`Wrote detail-1/2/3.html + manifest.json to ${fixturesDir}.`);
+}
+
+/** The first jobLocation's city, or null when the address carries none. */
+function firstLocality(posting: EarcuJobPosting): string | null {
+  const place = Array.isArray(posting.jobLocation) ? posting.jobLocation[0] : posting.jobLocation;
+  const locality = place?.address?.addressLocality?.trim();
+  return locality ? locality : null;
+}
+
+function fileNoteEarcu(captured: { url: string; posting: EarcuJobPosting } | undefined): string {
+  if (!captured) return '';
+  const id =
+    typeof captured.posting.identifier === 'string'
+      ? captured.posting.identifier
+      : (captured.posting.identifier?.value ?? '?');
+  const locality = firstLocality(captured.posting) ?? 'no city in JSON-LD';
+  return `${String(id)} — ${captured.posting.title ?? '?'} (${locality})`;
+}
+
 interface WorkdayManifestArgs {
   source: string;
   listUrl: string;
@@ -322,8 +458,13 @@ async function main(): Promise<void> {
     case 'standardbank':
       await captureSmartRecruiters(STANDARDBANK_SR_CONFIG);
       return;
+    case 'investec':
+      await captureEarcu(INVESTEC_EARCU_CONFIG);
+      return;
     default:
-      console.error(`Unknown --source '${source}' (expected absa | firstrand | standardbank).`);
+      console.error(
+        `Unknown --source '${source}' (expected absa | firstrand | standardbank | investec).`,
+      );
       process.exit(1);
   }
 }

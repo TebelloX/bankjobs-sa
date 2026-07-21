@@ -1,0 +1,224 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`investecAdapter.normalize — snapshots > normalizes 12158 1`] = `
+{
+  "applyUrl": "https://careers.investec.co.za/jobs/vacancy/internal-consultant-wi---paarl-12158-paarl/12176/description/",
+  "brand": "Investec",
+  "category": "Other",
+  "country": "ZA",
+  "descriptionHtml": "<p>Description of the role </p>
+<p>Main responsibilities:</p>
+<p>•    Executing all administrative duties relating to investments, including, but not limited to: client onboarding &amp; account opening, investments, additions, payments, repurchases, switches and transfers, assisting with and effective resolution of all client queries</p>
+<p>•    Educating clients on technology and platforms available to them to improve their investment administration experience</p>
+<p>•    Gathering client information – internally and externally</p>
+<p>•    Working with external vendors/product providers and LISPs</p>
+<p>•    Researching products and competitors</p>
+<p>•    Completing of ad-hoc projects and attendance of relevant training courses and client meetings where required</p>
+<p>•    Preparing, printing &amp; binding proposals and reviews </p>
+<p>•    Pre-completing and formatting various documents</p>
+<p>•    Providing timely feedback within a compliance context on investment reviews, client remediation and client debtors book, and maintain meticulous client records </p>
+<p>•    Initiating, facilitating &amp; completing of platform transfer requests incl. Section 14, Section 37 &amp; Section 42 transfers both in and out </p>
+<p>•    Building and maintaining strong internal and external stakeholder relationships</p>
+<p>•    Problem-solving &amp; troubleshooting to enhance clients' experience</p>
+<p>•    Efficient multi-tasking in terms of managing multiple transactions with different cut-off times and dates</p>
+<p><br />Qualifications &amp; Experience</p>
+<p>•    Relevant tertiary qualification is essential (Financial Planning/Investment Planning/B.Com) <br />•    Basic knowledge of tax and ability to analyse tax statements (upskill on the job if necessary)<br />•    Basic knowledge of investment products, asset allocation and risk profiles (upskill on the job if necessary)<br />•    2-3 years financial planning or wealth management experience advantageous<br />•    MS Office Suite, Advanced Excel would be advantageous</p>
+<p><br />Personal attributes and other requirements:</p>
+<p>•    Ultra-high net worth client service orientation<br />•    Excellent verbal and written communication skills <br />•    Entrepreneurial mindset, self-starter, independent thinker<br />•    Ability to work independently as well as within a team<br />•    Open to learning and challenging, sharing best practices and knowledge with team<br />•    Effective time-management, planning &amp; organisational skills, ability to prioritise &amp; multi-task<br />•    Work beyond traditional work hours if required<br />•    Ability to work effectively under pressure, tenacious temperament<br />•    High attention to detail <br />•    Well-presented and confident<br />•    Strong work ethic &amp; pride in work, honesty &amp; integrity<br />•    Can-do problem solving attitude<br />•    Solution-driven as opposed to task-driven<br />•    Break China for clients &amp; demonstrate cast-iron integrity, resulting in doing right by clients at every opportunity<br />•    Insights, interpersonal skills &amp; meticulous planning to maintain the standard expected by Investec's ultra-high net worth clients<br />•    Commitment to teamwork &amp; positive influence on the team whilst fostering a culture of diversity &amp; inclusion</p>
+<p> </p>
+<p>Investec Culture </p>
+<p>At Investec we look for dynamic, energetic people filled with tenacity, integrity and out of the ordinary thinking.</p>
+<p>We value individuals who in turn value our culture that is, a can-do attitude while challenging convention.</p>
+<p>Diversity, competency, and flexible leadership are respected in pursuit of the growth of our business.</p>
+<p> </p>
+<p> </p>
+<p> </p>",
+  "descriptionText": "Description of the role Main responsibilities: • Executing all administrative duties relating to investments, including, but not limited to: client onboarding & account opening, investments, additions, payments, repurchases, switches and transfers, assisting with and effective resolution of all client queries • Educating clients on technology and platforms available to them to improve their investment administration experience • Gathering client information – internally and externally • Working with external vendors/product providers and LISPs • Researching products and competitors • Completing of ad-hoc projects and attendance of relevant training courses and client meetings where required • Preparing, printing & binding proposals and reviews • Pre-completing and formatting various documents • Providing timely feedback within a compliance context on investment reviews, client remediation and client debtors book, and maintain meticulous client records • Initiating, facilitating & completing of platform transfer requests incl. Section 14, Section 37 & Section 42 transfers both in and out • Building and maintaining strong internal and external stakeholder relationships • Problem-solving & troubleshooting to enhance clients' experience • Efficient multi-tasking in terms of managing multiple transactions with different cut-off times and dates Qualifications & Experience • Relevant tertiary qualification is essential (Financial Planning/Investment Planning/B.Com) • Basic knowledge of tax and ability to analyse tax statements (upskill on the job if necessary) • Basic knowledge of investment products, asset allocation and risk profiles (upskill on the job if necessary) • 2-3 years financial planning or wealth management experience advantageous • MS Office Suite, Advanced Excel would be advantageous Personal attributes and other requirements: • Ultra-high net worth client service orientation • Excellent verbal and written communication skills • Entrepreneurial mindset, self-starter, independent thinker • Ability to work independently as well as within a team • Open to learning and challenging, sharing best practices and knowledge with team • Effective time-management, planning & organisational skills, ability to prioritise & multi-task • Work beyond traditional work hours if required • Ability to work effectively under pressure, tenacious temperament • High attention to detail • Well-presented and confident • Strong work ethic & pride in work, honesty & integrity • Can-do problem solving attitude • Solution-driven as opposed to task-driven • Break China for clients & demonstrate cast-iron integrity, resulting in doing right by clients at every opportunity • Insights, interpersonal skills & meticulous planning to maintain the standard expected by Investec's ultra-high net worth clients • Commitment to teamwork & positive influence on the team whilst fostering a culture of diversity & inclusion Investec Culture At Investec we look for dynamic, energetic people filled with tenacity, integrity and out of the ordinary thinking. We value individuals who in turn value our culture that is, a can-do attitude while challenging convention. Diversity, competency, and flexible leadership are respected in pursuit of the growth of our business.",
+  "employmentType": "Full-time",
+  "excerpt": "Description of the role Main responsibilities: • Executing all administrative duties relating to investments, including, but not limited to: client onboarding & account opening, investments, additions, payments, repurchases, switches and transfers, assisting with and effective resolution of all client queries • Educating clients on technology and platforms available to them to improve their…",
+  "id": "investec:12158",
+  "locations": [],
+  "postedDate": null,
+  "primaryLocation": null,
+  "source": "investec",
+  "title": "Internal Consultant (W&I - Paarl)",
+}
+`;
+
+exports[`investecAdapter.normalize — snapshots > normalizes 13749 1`] = `
+{
+  "applyUrl": "https://careers.investec.co.za/jobs/vacancy/product-owner-and-core-banking-platform-lead-13749-sandton/13767/description/",
+  "brand": "Investec",
+  "category": "Other",
+  "country": "ZA",
+  "descriptionHtml": "<p>Description</p>
+<p>The Account Services Platform delivers the core technical capabilities for account-based and transactional banking services in the UK. The team is responsible for reconciliation, reporting, financial controls, and accurate financial representation of client transactions, while working in an agile, delivery-focused environment with close collaboration across channels, operations, risk, and finance. </p>
+<p>You will leads the vision, strategy, and roadmap for the UK transactional banking platform, delivering secure, scalable, and compliant account services. The role drives product value by balancing customer needs, business priorities, regulatory requirements, and technology modernisation, while providing strategic leadership, people leadership, and coaching to cross-functional teams across the UK and South Africa. It also fosters strong stakeholder relationships, promotes collaboration, and ensures successful product delivery and continuous platform evolution.  </p>
+<p>The Core Banking Platform provides the account, ledger, product configuration, balance, interest, fees, overdraft and servicing capabilities that underpin UK transactional banking. The platform enables current accounts, savings products, accurate financial representation, reconciliation, reporting and controlled integration across Cards, Payments, Channels, Client Lifecycle, Finance, Risk, Operations and Data. </p>
+<p>You will be accountable for the product vision, strategy, roadmap and measurable outcomes for the Bank's core banking capability. The role balances client outcomes, business priorities, regulatory obligations, financial control, operational resilience, platform sustainability and long term technology evolution. </p>
+<p>This is a senior platform product role responsible for shaping the evolution of a critical banking capability. The role requires close partnership with Engineering, Architecture, Operations, Risk, Finance, Product, Compliance, Service Management and strategic technology partners to ensure the platform is secure, resilient, scalable, well governed and aligned to the Bank's strategic objectives. </p>
+<p>Key Responsibilities</p>
+<p>As Leader and Product Owner, you will: </p>
+<ul>
+<li>Define, own, and communicate the platform vision, strategy, roadmap, and measurable outcomes aligned with the Bank's strategic objectives. </li>
+</ul>
+<ul>
+<li>Own the end-to-end product lifecycle, from discovery and prioritisation through delivery, adoption, and continual optimisation. </li>
+</ul>
+<ul>
+<li>Establish and manage a value-driven product backlog, balancing customer value, commercial priorities, regulatory requirements, operational resilience, and technical debt </li>
+<li>Ensure product configuration and change governance is controlled, tested, documented and auditable, including changes to product setup, account rules, fees, interest, overdrafts, limits and servicing capabilities. </li>
+</ul>
+<ul>
+<li>Maintain a strong focus on ledger integrity, accurate financial representation, reconciliation, reporting quality, auditability, data lineage and financial controls across all platform changes. </li>
+</ul>
+<ul>
+<li>Translate business strategy into platform capabilities by working closely with Engineering, Architecture, Operations, Risk, Finance, Product, Compliance, Service Management and other consuming platforms. </li>
+</ul>
+<ul>
+<li>Lead prioritisation and dependency management across Cards, Payments, Channels, Client Lifecycle, Finance, Risk, Operations, Reporting and Data, ensuring platform decisions are made with an enterprise view. </li>
+</ul>
+<ul>
+<li>Lead Agile planning, product governance and delivery alignment across cross-functional teams, ensuring outcomes, risks, dependencies and decisions are visible and actively managed. </li>
+</ul>
+<ul>
+<li>Define and monitor product success through KPIs, OKRs, client insights, service health, control metrics, operational outcomes and delivery metrics, using data to inform product decisions and investment priorities. </li>
+</ul>
+<ul>
+<li>Drive platform modernisation through well governed APIs, resilient integration patterns, scalable configuration, automation and event driven capabilities where they improve speed, control, reliability, resilience or client outcomes. </li>
+</ul>
+<ul>
+<li>Shape the long term evolution of the Core Banking Platform, ensuring product decisions support future modernisation, portability, sustainability and strategic technology transformation where required. </li>
+</ul>
+<ul>
+<li>Identify and manage strategic risks, dependencies and delivery impediments, ensuring risks to client outcomes, regulatory obligations, financial control, operational resilience and business value are understood and addressed. </li>
+</ul>
+<ul>
+<li>Manage strategic technology partner relationships, ensuring roadmap alignment, release awareness, platform constraints, support performance, escalation routes and value realisation are actively understood and managed. </li>
+</ul>
+<ul>
+<li>Lead organisational change by communicating platform strategy, supporting business readiness and driving successful adoption of new capabilities across Product, Operations, Finance, Risk, Service and Technology teams. </li>
+</ul>
+<ul>
+<li>Partner with Service Management, Operations, Engineering and Risk to improve platform health, service stability, supportability, incident learning, root cause remediation and continuous improvement. </li>
+</ul>
+<ul>
+<li>Coach and mentor Product Owners, Business Analysts and platform SMEs, setting standards for discovery, prioritisation, backlog quality, governance, decision making, stakeholder engagement and value measurement. </li>
+</ul>
+<ul>
+<li>Promote a strong culture of ownership, collaboration, accountability and continuous improvement across all jurisdictions (UK, SA, India).  </li>
+</ul>
+<p>Qualifications, Experience and Skills</p>
+<p>Experience &amp; Skills </p>
+<ul>
+<li>Significant experience in Product or Application Ownership within Financial Services or Banking, ideally with exposure to core banking, transactional banking, deposits, savings, current accounts or ledger based platforms. </li>
+</ul>
+<ul>
+<li>Proven experience delivering large scale platform, core banking or transactional banking transformation initiatives in complex, regulated environments. </li>
+</ul>
+<ul>
+<li>Strong understanding of core banking platforms, APIs, event-driven architecture, microservices, integration patterns, and modern technology platforms.  </li>
+</ul>
+<ul>
+<li>Experience with one or more modern core banking platforms such as Mambu, Finacle, Temenos, Thought Machine, Oracle FLEXCUBE or similar would be advantageous. </li>
+<li>Strong understanding of account lifecycle, ledger movements, balances, interest, fees, overdrafts, limits, product configuration, financial representation and account servicing. </li>
+<li>Strong Business Analysis capability, including business process modelling, data modelling, API specifications (Swagger/OpenAPI), and requirements management. </li>
+</ul>
+<ul>
+<li>Experience delivering technology change within highly regulated environments. </li>
+</ul>
+<ul>
+<li>Strong knowledge of Agile product delivery, product lifecycle management, DevSecOps, and continuous delivery practices. </li>
+</ul>
+<ul>
+<li>Excellent communication, stakeholder management, negotiation, and influencing skills. </li>
+</ul>
+<ul>
+<li>Demonstrated ability to lead cross-functional teams and manage complex dependencies within a matrix organisation. </li>
+</ul>
+<ul>
+<li>Strong analytical, strategic thinking, and decision-making skills. </li>
+</ul>
+<p>Personal, Behavioural &amp; Cultural Expectations </p>
+<ul>
+<li>Client and colleague outcome focused, with a strong commitment to delivering measurable business value while maintaining control, resilience and service quality. </li>
+</ul>
+<ul>
+<li>Demonstrates strategic thinking, sound judgement and resilience when managing ambiguity, complexity and competing priorities. </li>
+</ul>
+<ul>
+<li>Builds trusted relationships through collaboration, emotional intelligence, transparency and effective communication. </li>
+</ul>
+<ul>
+<li>Leads through influence, empowering teams and fostering accountability in a matrix environment. </li>
+</ul>
+<ul>
+<li>Champions innovation, continuous improvement and a culture of learning and knowledge sharing. </li>
+</ul>
+<ul>
+<li>Acts with integrity, professionalism and a strong commitment to governance, risk management, financial control and operational excellence. </li>
+<li>Comfortable challenging the status quo while remaining pragmatic, delivery focused and commercially aware. </li>
+</ul>
+<p>Investec Culture </p>
+<p>At Investec we look for intelligent, energetic people filled with passion, integrity and curiosity. We value individuals who in turn value our culture that is, a flexible attitude comfortable to live with ambiguity and willing to challenge the status quo. Diversity, talent and leadership are respected in pursuit of the growth of our business. People who can manage themselves and build strong relationships in order to get things done, will perform in out of the ordinary ways in our environment. </p>
+<p> </p>
+<p> </p>
+<p> </p>",
+  "descriptionText": "Description The Account Services Platform delivers the core technical capabilities for account-based and transactional banking services in the UK. The team is responsible for reconciliation, reporting, financial controls, and accurate financial representation of client transactions, while working in an agile, delivery-focused environment with close collaboration across channels, operations, risk, and finance. You will leads the vision, strategy, and roadmap for the UK transactional banking platform, delivering secure, scalable, and compliant account services. The role drives product value by balancing customer needs, business priorities, regulatory requirements, and technology modernisation, while providing strategic leadership, people leadership, and coaching to cross-functional teams across the UK and South Africa. It also fosters strong stakeholder relationships, promotes collaboration, and ensures successful product delivery and continuous platform evolution. The Core Banking Platform provides the account, ledger, product configuration, balance, interest, fees, overdraft and servicing capabilities that underpin UK transactional banking. The platform enables current accounts, savings products, accurate financial representation, reconciliation, reporting and controlled integration across Cards, Payments, Channels, Client Lifecycle, Finance, Risk, Operations and Data. You will be accountable for the product vision, strategy, roadmap and measurable outcomes for the Bank's core banking capability. The role balances client outcomes, business priorities, regulatory obligations, financial control, operational resilience, platform sustainability and long term technology evolution. This is a senior platform product role responsible for shaping the evolution of a critical banking capability. The role requires close partnership with Engineering, Architecture, Operations, Risk, Finance, Product, Compliance, Service Management and strategic technology partners to ensure the platform is secure, resilient, scalable, well governed and aligned to the Bank's strategic objectives. Key Responsibilities As Leader and Product Owner, you will: Define, own, and communicate the platform vision, strategy, roadmap, and measurable outcomes aligned with the Bank's strategic objectives. Own the end-to-end product lifecycle, from discovery and prioritisation through delivery, adoption, and continual optimisation. Establish and manage a value-driven product backlog, balancing customer value, commercial priorities, regulatory requirements, operational resilience, and technical debt Ensure product configuration and change governance is controlled, tested, documented and auditable, including changes to product setup, account rules, fees, interest, overdrafts, limits and servicing capabilities. Maintain a strong focus on ledger integrity, accurate financial representation, reconciliation, reporting quality, auditability, data lineage and financial controls across all platform changes. Translate business strategy into platform capabilities by working closely with Engineering, Architecture, Operations, Risk, Finance, Product, Compliance, Service Management and other consuming platforms. Lead prioritisation and dependency management across Cards, Payments, Channels, Client Lifecycle, Finance, Risk, Operations, Reporting and Data, ensuring platform decisions are made with an enterprise view. Lead Agile planning, product governance and delivery alignment across cross-functional teams, ensuring outcomes, risks, dependencies and decisions are visible and actively managed. Define and monitor product success through KPIs, OKRs, client insights, service health, control metrics, operational outcomes and delivery metrics, using data to inform product decisions and investment priorities. Drive platform modernisation through well governed APIs, resilient integration patterns, scalable configuration, automation and event driven capabilities where they improve speed, control, reliability, resilience or client outcomes. Shape the long term evolution of the Core Banking Platform, ensuring product decisions support future modernisation, portability, sustainability and strategic technology transformation where required. Identify and manage strategic risks, dependencies and delivery impediments, ensuring risks to client outcomes, regulatory obligations, financial control, operational resilience and business value are understood and addressed. Manage strategic technology partner relationships, ensuring roadmap alignment, release awareness, platform constraints, support performance, escalation routes and value realisation are actively understood and managed. Lead organisational change by communicating platform strategy, supporting business readiness and driving successful adoption of new capabilities across Product, Operations, Finance, Risk, Service and Technology teams. Partner with Service Management, Operations, Engineering and Risk to improve platform health, service stability, supportability, incident learning, root cause remediation and continuous improvement. Coach and mentor Product Owners, Business Analysts and platform SMEs, setting standards for discovery, prioritisation, backlog quality, governance, decision making, stakeholder engagement and value measurement. Promote a strong culture of ownership, collaboration, accountability and continuous improvement across all jurisdictions (UK, SA, India). Qualifications, Experience and Skills Experience & Skills Significant experience in Product or Application Ownership within Financial Services or Banking, ideally with exposure to core banking, transactional banking, deposits, savings, current accounts or ledger based platforms. Proven experience delivering large scale platform, core banking or transactional banking transformation initiatives in complex, regulated environments. Strong understanding of core banking platforms, APIs, event-driven architecture, microservices, integration patterns, and modern technology platforms. Experience with one or more modern core banking platforms such as Mambu, Finacle, Temenos, Thought Machine, Oracle FLEXCUBE or similar would be advantageous. Strong understanding of account lifecycle, ledger movements, balances, interest, fees, overdrafts, limits, product configuration, financial representation and account servicing. Strong Business Analysis capability, including business process modelling, data modelling, API specifications (Swagger/OpenAPI), and requirements management. Experience delivering technology change within highly regulated environments. Strong knowledge of Agile product delivery, product lifecycle management, DevSecOps, and continuous delivery practices. Excellent communication, stakeholder management, negotiation, and influencing skills. Demonstrated ability to lead cross-functional teams and manage complex dependencies within a matrix organisation. Strong analytical, strategic thinking, and decision-making skills. Personal, Behavioural & Cultural Expectations Client and colleague outcome focused, with a strong commitment to delivering measurable business value while maintaining control, resilience and service quality. Demonstrates strategic thinking, sound judgement and resilience when managing ambiguity, complexity and competing priorities. Builds trusted relationships through collaboration, emotional intelligence, transparency and effective communication. Leads through influence, empowering teams and fostering accountability in a matrix environment. Champions innovation, continuous improvement and a culture of learning and knowledge sharing. Acts with integrity, professionalism and a strong commitment to governance, risk management, financial control and operational excellence. Comfortable challenging the status quo while remaining pragmatic, delivery focused and commercially aware. Investec Culture At Investec we look for intelligent, energetic people filled with passion, integrity and curiosity. We value individuals who in turn value our culture that is, a flexible attitude comfortable to live with ambiguity and willing to challenge the status quo. Diversity, talent and leadership are respected in pursuit of the growth of our business. People who can manage themselves and build strong relationships in order to get things done, will perform in out of the ordinary ways in our environment.",
+  "employmentType": "Full-time",
+  "excerpt": "Description The Account Services Platform delivers the core technical capabilities for account-based and transactional banking services in the UK. The team is responsible for reconciliation, reporting, financial controls, and accurate financial representation of client transactions, while working in an agile, delivery-focused environment with close collaboration across channels, operations, risk,…",
+  "id": "investec:13749",
+  "locations": [
+    {
+      "city": "Johannesburg",
+      "province": "Gauteng",
+      "raw": "Johannesburg",
+    },
+  ],
+  "postedDate": null,
+  "primaryLocation": "Johannesburg, Gauteng",
+  "source": "investec",
+  "title": "Product Owner and Core Banking Platform Lead",
+}
+`;
+
+exports[`investecAdapter.normalize — snapshots > normalizes 13787 1`] = `
+{
+  "applyUrl": "https://careers.investec.co.za/jobs/vacancy/product-analyst-13787-cape-town/13805/description/",
+  "brand": "Investec",
+  "category": "Other",
+  "country": "ZA",
+  "descriptionHtml": "<p>Description</p>
+<p>Investec Alternatives (within Investec Bank plc) is building its off-balance sheet funds and funding capability as a strategic growth priority, creating an opportunity to develop capital-efficient solutions that meet client needs and draw on our specialist expertise, client relationships and distinctive deal flow.</p>
+<p>The Product Analyst will play an important role in shaping this platform, helping turn market opportunities into well-structured, scalable and operationally robust fund solutions.</p>
+<p>Working across new fund establishment and existing fund oversight, the role brings together investment teams, internal stakeholders and external service providers to support effective product development, governance, controls, compliance, operations and investor reporting.</p>
+<p>The role of the Product Analyst is to work on the product development, launch and ongoing management of new funds.</p>
+<p> </p>
+<p>Key Responsibilities</p>
+<p>Product Development<br />•    Incorporation of fund entities<br />•    Opening bank accounts for fund entities<br />•    Idenditying service providers and assisting in the negotiation of key terms with service providers (e.g. Administrators, AIFM's, Depositary, Risk Advisory, Lawyers and Tax Advisers)<br />•    Identity and assist in the establishment of subscription line and leverage facilities to support fund operations and growth<br />•    Assist in the negotiation and completion of fund documentation (investor agreements, management agreements, PPM etc)<br />•    Assist in concluding the funds investment strategy<br />Launch<br />•    Supporting achieving regulatory approvals for fund structures<br />•    Assisting in the onboarding of investors<br />•    Ensuring all systems are in place and effective<br />Ongoing Management<br />•    Cash flow management (capital calls, distributions, utilization of subline, cash flow forecasting) <br />•    Risk Management (legal, regulatory, reputations)<br />•    Transaction management – ensuring appropriate cash settlement of transactions and tracking receipt of income<br />•    Asset valuation<br />•    Treasury risk management – supporting the hedging of relevant exposures<br />•    Relationship management with key stakeholders, internal and external<br />•    Monitoring and reporting of KPIs<br />•    Monitoring and reporting of financial, legal and regulatory reporting<br />•    Continuous engagement with portfolio manager and investment teams</p>
+<p> </p>
+<p>Qualifications, Experience and Skills</p>
+<p>Bcom Honours/CA with 3-5 years product analysis experience in alternative investments</p>
+<p> </p>
+<p>Investec Culture </p>
+<p>At Investec we look for intelligent, energetic people filled with passion, integrity and curiosity. We value individuals who in turn value our culture that is, a flexible attitude comfortable to live with ambiguity and willing to challenge the status quo. Diversity, talent and leadership are respected in pursuit of the growth of our business. People who can manage themselves and build strong relationships in order to get things done, will perform in out of the ordinary ways in our environment. </p>
+<p> </p>
+<p> </p>
+<p> </p>",
+  "descriptionText": "Description Investec Alternatives (within Investec Bank plc) is building its off-balance sheet funds and funding capability as a strategic growth priority, creating an opportunity to develop capital-efficient solutions that meet client needs and draw on our specialist expertise, client relationships and distinctive deal flow. The Product Analyst will play an important role in shaping this platform, helping turn market opportunities into well-structured, scalable and operationally robust fund solutions. Working across new fund establishment and existing fund oversight, the role brings together investment teams, internal stakeholders and external service providers to support effective product development, governance, controls, compliance, operations and investor reporting. The role of the Product Analyst is to work on the product development, launch and ongoing management of new funds. Key Responsibilities Product Development • Incorporation of fund entities • Opening bank accounts for fund entities • Idenditying service providers and assisting in the negotiation of key terms with service providers (e.g. Administrators, AIFM's, Depositary, Risk Advisory, Lawyers and Tax Advisers) • Identity and assist in the establishment of subscription line and leverage facilities to support fund operations and growth • Assist in the negotiation and completion of fund documentation (investor agreements, management agreements, PPM etc) • Assist in concluding the funds investment strategy Launch • Supporting achieving regulatory approvals for fund structures • Assisting in the onboarding of investors • Ensuring all systems are in place and effective Ongoing Management • Cash flow management (capital calls, distributions, utilization of subline, cash flow forecasting) • Risk Management (legal, regulatory, reputations) • Transaction management – ensuring appropriate cash settlement of transactions and tracking receipt of income • Asset valuation • Treasury risk management – supporting the hedging of relevant exposures • Relationship management with key stakeholders, internal and external • Monitoring and reporting of KPIs • Monitoring and reporting of financial, legal and regulatory reporting • Continuous engagement with portfolio manager and investment teams Qualifications, Experience and Skills Bcom Honours/CA with 3-5 years product analysis experience in alternative investments Investec Culture At Investec we look for intelligent, energetic people filled with passion, integrity and curiosity. We value individuals who in turn value our culture that is, a flexible attitude comfortable to live with ambiguity and willing to challenge the status quo. Diversity, talent and leadership are respected in pursuit of the growth of our business. People who can manage themselves and build strong relationships in order to get things done, will perform in out of the ordinary ways in our environment.",
+  "employmentType": "Full-time",
+  "excerpt": "Description Investec Alternatives (within Investec Bank plc) is building its off-balance sheet funds and funding capability as a strategic growth priority, creating an opportunity to develop capital-efficient solutions that meet client needs and draw on our specialist expertise, client relationships and distinctive deal flow.",
+  "id": "investec:13787",
+  "locations": [
+    {
+      "city": "Cape Town",
+      "province": "Western Cape",
+      "raw": "Cape Town",
+    },
+  ],
+  "postedDate": null,
+  "primaryLocation": "Cape Town, Western Cape",
+  "source": "investec",
+  "title": "Product Analyst",
+}
+`;

@@ -27,6 +27,7 @@ const BANK_DISPLAY_NAMES: Record<string, string> = {
   absa: 'Absa',
   firstrand: 'FNB · RMB · WesBank',
   standardbank: 'Standard Bank',
+  investec: 'Investec',
 };
 function bankName(id: string, fallback: string): string {
   return BANK_DISPLAY_NAMES[id] ?? fallback;

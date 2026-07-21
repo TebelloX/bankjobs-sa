@@ -38,6 +38,7 @@ const PER_SOURCE_RULES: Record<SourceId, CompiledRule[]> = {
   absa: compile(rulesData.perSource.absa as Rule[]),
   firstrand: compile(rulesData.perSource.firstrand as Rule[]),
   standardbank: compile(rulesData.perSource.standardbank as Rule[]),
+  investec: compile(rulesData.perSource.investec as Rule[]),
 };
 
 /**

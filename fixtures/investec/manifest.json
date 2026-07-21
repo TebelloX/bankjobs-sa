@@ -1,0 +1,27 @@
+{
+  "source": "investec",
+  "capturedAt": "2026-07-21T08:55:32.178Z",
+  "ats": "eArcu",
+  "endpoints": {
+    "results": "GET https://careers.investec.co.za/jobs/vacancy/find/results/",
+    "grid": "GET https://careers.investec.co.za/jobs/vacancy/find/results/ajaxaction/posbrowser_gridhandler/?pagestamp={pagestamp}",
+    "detail": "GET https://careers.investec.co.za/jobs/vacancy/{slug}/{id}/description/"
+  },
+  "totalAtCapture": 5,
+  "files": {
+    "grid.html": "The grid AJAX HTML fragment; anchors are the detail-page URLs.",
+    "detail-1.html": "13787 — Product Analyst (Cape Town)",
+    "detail-2.html": "13749 — Product Owner and Core Banking Platform Lead (Johannesburg)",
+    "detail-3.html": "12158 — Internal Consultant (W&I - Paarl) (no city in JSON-LD)"
+  },
+  "notes": [
+    "Corporate www.investec.com is behind Cloudflare Turnstile and 403s bots — NEVER fetch it; only careers.investec.co.za is used.",
+    "The results page sets session cookies (earcusessionid, earcusession, __cf_bm) and embeds a per-load pagestamp that rotates on every load.",
+    "The grid endpoint returns text/html (Accept: application/json is ignored) and needs the session cookie + that pagestamp.",
+    "Detail pages are stable and cookie-free; each embeds ONE application/ld+json JobPosting block.",
+    "id = investec:{identifier.value} (identifier is a PropertyValue object; value is the req number).",
+    "datePosted is templated to today (untrusted) and validThrough is unreliable — postedDate is set null.",
+    "applyUrl is the detail-page URL itself (the /action/apply/?pagestamp=... link is session-bound).",
+    "addressCountry is a display name (South Africa) — map via countryCodeFor; addressLocality can be empty."
+  ]
+}

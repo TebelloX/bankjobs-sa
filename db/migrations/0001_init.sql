@@ -13,7 +13,8 @@ CREATE TABLE sources (
 INSERT INTO sources (id, name, enabled) VALUES
   ('absa', 'Absa', 1),
   ('firstrand', 'FirstRand', 1),
-  ('standardbank', 'Standard Bank', 1);
+  ('standardbank', 'Standard Bank', 1),
+  ('investec', 'Investec', 1);
 
 CREATE TABLE jobs (
   id               TEXT PRIMARY KEY,

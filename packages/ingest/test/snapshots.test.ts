@@ -138,7 +138,7 @@ describe('emitSnapshots', () => {
 
     const absa = meta.sources.find((s) => s.id === 'absa');
     expect(absa?.count).toBe(4);
-    expect(meta.sources.length).toBe(3); // absa, firstrand, standardbank all present
+    expect(meta.sources.length).toBe(4); // absa, firstrand, standardbank, investec all present
 
     expect(Object.keys(meta.categories).length).toBe(10);
     expect(meta.categories['software-it']).toBe(1);

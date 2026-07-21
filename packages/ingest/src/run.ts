@@ -2,6 +2,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import type { CanonicalJob, SourceId } from '@bankjobs/core';
 import type {
+  EarcuRawPosting,
   SrListResponse,
   SrPostingDetail,
   SrRawPosting,
@@ -9,6 +10,7 @@ import type {
   WorkdayListResponse,
   WorkdayRawPosting,
 } from '@bankjobs/adapters';
+import { extractCanonicalUrl, extractJobPostingLd } from '@bankjobs/adapters';
 import { openIngestDb, repoRoot } from './db';
 import type { JobsDb } from './db';
 import { registry } from './registry';
@@ -31,6 +33,7 @@ const FAILURE_RATIO = 0.1;
 type Outcome = 'success' | 'warning' | 'failure';
 
 const FIXTURE_DETAIL_RE = /^detail-.*\.json$/;
+const FIXTURE_DETAIL_HTML_RE = /^detail-.*\.html$/;
 
 function fixtureDetailFiles(dir: string): string[] {
   return readdirSync(dir)
@@ -82,9 +85,32 @@ function loadSrFixtures(): SrRawPosting[] {
   return pairs;
 }
 
+/**
+ * eArcu fixtures (investec): each detail-*.html is a full captured detail page.
+ * The parsed JobPosting JSON-LD is the raw payload and the page's own canonical
+ * link is the durable apply URL — the same two extractions the live client runs.
+ */
+function loadEarcuFixtures(): EarcuRawPosting[] {
+  const dir = join(repoRoot(), 'fixtures', 'investec');
+  const files = readdirSync(dir)
+    .filter((f) => FIXTURE_DETAIL_HTML_RE.test(f))
+    .sort();
+
+  const raws: EarcuRawPosting[] = [];
+  for (const file of files) {
+    const html = readFileSync(join(dir, file), 'utf8');
+    const jsonLd = extractJobPostingLd(html);
+    const url = extractCanonicalUrl(html);
+    if (jsonLd === null || url === null) continue;
+    raws.push({ url, jsonLd });
+  }
+  return raws;
+}
+
 /** Build raw postings from committed fixtures (offline dev + CI). */
 function loadFixtures(source: SourceId): unknown[] {
   if (source === 'standardbank') return loadSrFixtures();
+  if (source === 'investec') return loadEarcuFixtures();
   return loadWorkdayFixtures(source);
 }
 
