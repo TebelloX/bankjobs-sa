@@ -1,5 +1,6 @@
 import type { CanonicalJob, JobLocation } from '@bankjobs/core';
 import {
+  assertAllowedApplyHost,
   categorize,
   cleanApplyUrl,
   countryCodeFor,
@@ -132,7 +133,7 @@ export const sarbAdapter: SourceAdapter<OracleRawPosting> = {
       country,
       // applyUrl = the stable public job page. The '/apply' suffix is the flow
       // itself; we always link the posting page (the established precedent).
-      applyUrl: cleanApplyUrl(oracleJobUrl(SARB_ORACLE_CONFIG, id)),
+      applyUrl: assertAllowedApplyHost(SOURCE, cleanApplyUrl(oracleJobUrl(SARB_ORACLE_CONFIG, id))),
       postedDate,
     };
   },

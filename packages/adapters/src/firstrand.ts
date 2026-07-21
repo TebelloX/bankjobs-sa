@@ -1,5 +1,6 @@
 import type { Brand, CanonicalJob, JobLocation } from '@bankjobs/core';
 import {
+  assertAllowedApplyHost,
   categorize,
   cleanApplyUrl,
   countryCodeFor,
@@ -128,7 +129,7 @@ export const firstrandAdapter: SourceAdapter<WorkdayRawPosting> = {
       // country descriptor defaults to ZA rather than 'International — ZZ'. A
       // present-but-unrecognized descriptor still maps to ZZ.
       country: info.country?.descriptor ? countryCodeFor(info.country.descriptor) : 'ZA',
-      applyUrl: cleanApplyUrl(externalUrl),
+      applyUrl: assertAllowedApplyHost(SOURCE, cleanApplyUrl(externalUrl)),
       // startDate is the ISO posted date; NEVER the relative postedOn text.
       postedDate: info.startDate ?? null,
     };

@@ -1,5 +1,6 @@
 import type { CanonicalJob, JobLocation } from '@bankjobs/core';
 import {
+  assertAllowedApplyHost,
   categorize,
   cleanApplyUrl,
   makeExcerpt,
@@ -102,7 +103,7 @@ export const nedbankAdapter: SourceAdapter<SfRawPosting> = {
       primaryLocation,
       locations,
       country,
-      applyUrl: cleanApplyUrl(link),
+      applyUrl: assertAllowedApplyHost(SOURCE, cleanApplyUrl(link)),
       postedDate,
     };
   },

@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import { CATEGORIES } from '@bankjobs/core';
 
-import { sarbAdapter } from '../src/index';
+import { SARB_ORACLE_CONFIG, sarbAdapter } from '../src/index';
 import { fetchAllOracle, fetchOracleJobList } from '../src/index';
 import type {
   OracleConfig,
@@ -249,5 +249,27 @@ describe('sarbAdapter.normalize — mapping', () => {
     // A role with no JobSchedule (real: ~2 roles) yields null, never an invention.
     const stripped = { ...pair, detail: { ...pair.detail, JobSchedule: undefined } };
     expect(sarbAdapter.normalize(stripped).employmentType).toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// applyUrl host guard (Oracle family). Like Workable, SARB's apply URL is BUILT
+// from its config host (SARB_ORACLE_CONFIG.host), not from feed data — a stronger
+// position, since a hijacked feed cannot move it. To prove normalize's wired guard
+// still fires, we simulate a compromised/mis-set config host and confirm the throw,
+// restoring the host afterwards so no other test observes the change.
+// ---------------------------------------------------------------------------
+
+describe('sarbAdapter.normalize — applyUrl host guard', () => {
+  it('throws if the (config-derived) apply host is ever not allowlisted', () => {
+    const original = SARB_ORACLE_CONFIG.host;
+    try {
+      SARB_ORACLE_CONFIG.host = 'fa-evra-saasfaprod1.fa.ocs.oraclecloud.com.evil.example';
+      const pair = pairs.find((p) => p.detail.Id === '1643');
+      if (!pair) throw new Error('No fixture pair for 1643');
+      expect(() => sarbAdapter.normalize(pair)).toThrow(/not allowlisted/);
+    } finally {
+      SARB_ORACLE_CONFIG.host = original;
+    }
   });
 });

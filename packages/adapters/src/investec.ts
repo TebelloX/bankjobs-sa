@@ -1,5 +1,6 @@
 import type { CanonicalJob, JobLocation } from '@bankjobs/core';
 import {
+  assertAllowedApplyHost,
   categorize,
   cleanApplyUrl,
   countryCodeFor,
@@ -128,7 +129,7 @@ export const investecAdapter: SourceAdapter<EarcuRawPosting> = {
       primaryLocation,
       locations,
       country,
-      applyUrl: cleanApplyUrl(applyUrl),
+      applyUrl: assertAllowedApplyHost(SOURCE, cleanApplyUrl(applyUrl)),
       // datePosted is templated to today's date on every page load (untrusted)
       // and validThrough is unreliable, so we trust neither. The pipeline's
       // firstSeen carries recency instead.

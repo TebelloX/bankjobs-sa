@@ -1,0 +1,52 @@
+# BankJobs SA — Cloudflare Pages response headers (project: bankjobs-sa).
+# Astro copies site/public/* into dist/, and Pages serves this _headers file as
+# per-path response headers. Applied to every path via the /* pattern below.
+#
+# The Content-Security-Policy was derived from the ACTUAL built dist/ output in
+# both build modes (plain `pnpm build` = static, and PUBLIC_SEARCH_MODE=api =
+# production), not guessed. Notes per directive:
+#
+#   default-src 'none'  Deny every resource class by default; open each one below
+#                       only as far as the built output actually needs.
+#
+#   script-src 'self'   The site ships NO third-party JS and NO inline scripts.
+#                       The one executable script is the search island, which
+#                       astro.config.mjs forces to an EXTERNAL same-origin file
+#                       (vite build.assetsInlineLimit: 0) precisely so this
+#                       directive needs no inline-script hashes — hashes would
+#                       silently break on any toolchain bump, invisibly to CI.
+#                       If a build ever inlines a <script type="module"> again,
+#                       that config regressed; fix it there, don't add hashes.
+#                       (Note: <script type="application/ld+json"> blocks are
+#                       data, not executable, so they are NOT covered here.)
+#
+#   style-src 'self'    One same-origin stylesheet under /_astro/. No inline
+#                       <style> blocks and no style= attributes exist anywhere
+#                       (job-description HTML is sanitised with an empty
+#                       attribute allowlist, so it can carry no inline styles).
+#
+#   img-src 'self' data:  No <img> elements in the HTML, but global.css paints a
+#                       data:image/svg+xml noise texture as a background-image.
+#
+#   font-src 'self'     Self-hosted @fontsource woff2/woff under /_astro/. No
+#                       web-font origins.
+#
+#   connect-src         Static mode fetches same-origin /data/jobs.json; api mode
+#                       fetches the search Worker. The Worker origin is hard-coded
+#                       here BY NECESSITY — a static _headers file cannot read it
+#                       from PUBLIC_API_BASE at deploy time. Keep this origin in
+#                       sync with the site's PUBLIC_API_BASE.
+#
+#   form-action 'self'  The homepage search box is a same-origin GET
+#                       <form action="/search">; 'none' would block its submit.
+#
+#   frame-ancestors 'none' + object-src 'none' + base-uri 'self'
+#                       Hardening: not framable, no plugins, no <base> hijack.
+#                       upgrade-insecure-requests upgrades any stray http URL.
+
+/*
+  Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://bankjobs-api.tebello-namo.workers.dev; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  X-Frame-Options: DENY

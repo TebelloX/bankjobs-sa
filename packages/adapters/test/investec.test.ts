@@ -168,3 +168,17 @@ describe('eArcu client extraction', () => {
     expect(extractPagestamp('<html>no stamp</html>')).toBeNull();
   });
 });
+
+// ---------------------------------------------------------------------------
+// applyUrl host guard (eArcu family). The apply link is the detail page's own
+// canonical URL; a page whose canonical was tampered onto a foreign host makes
+// normalize throw rather than surface a phishing link.
+// ---------------------------------------------------------------------------
+
+describe('investecAdapter.normalize — applyUrl host guard', () => {
+  it('throws when the canonical apply URL is on a non-allowlisted host', () => {
+    const hostile = structuredClone(raws[0]!);
+    hostile.url = 'https://careers.investec.co.za.evil.example/jobs/vacancy/x/13805/description/';
+    expect(() => investecAdapter.normalize(hostile)).toThrow(/not allowlisted/);
+  });
+});

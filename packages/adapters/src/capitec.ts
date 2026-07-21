@@ -1,5 +1,6 @@
 import type { CanonicalJob, JobLocation } from '@bankjobs/core';
 import {
+  assertAllowedApplyHost,
   categorize,
   cleanApplyUrl,
   countryCodeFor,
@@ -108,7 +109,7 @@ export const capitecAdapter: SourceAdapter<SfSitemapPosting> = {
       // applyUrl = the stable public detail page. The real apply route is the
       // robots-disallowed, session-bound /talentcommunity/ flow, so the durable
       // link is the detail page itself (the Investec/Discovery precedent).
-      applyUrl: cleanApplyUrl(raw.url),
+      applyUrl: assertAllowedApplyHost(SOURCE, cleanApplyUrl(raw.url)),
       postedDate: raw.postedDate,
     };
   },

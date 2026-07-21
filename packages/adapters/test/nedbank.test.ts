@@ -222,3 +222,17 @@ describe('nedbankAdapter.normalize — mapping', () => {
     expect(job.primaryLocation).toBe('Cape Town, Western Cape');
   });
 });
+
+// ---------------------------------------------------------------------------
+// applyUrl host guard (SuccessFactors family). The feed's <link> is the apply
+// URL; a hijacked feed pointing it at a foreign host makes normalize throw. The
+// sitemap-driven CSB adapters (discovery, capitec) share this exact guard.
+// ---------------------------------------------------------------------------
+
+describe('nedbankAdapter.normalize — applyUrl host guard', () => {
+  it('throws when the feed link is on a non-allowlisted host', () => {
+    const hostile = structuredClone(raws[0]!);
+    hostile.item.link = 'https://jobs.nedbank.co.za.evil.example/job/X/1416539933/';
+    expect(() => nedbankAdapter.normalize(hostile)).toThrow(/not allowlisted/);
+  });
+});

@@ -101,3 +101,16 @@ describe('standardbankAdapter.normalize — mapping', () => {
     expect(job.descriptionHtml).not.toContain('career-enhancing opportunities');
   });
 });
+
+// ---------------------------------------------------------------------------
+// applyUrl host guard (SmartRecruiters family). A compromised feed's applyUrl on
+// a foreign host makes normalize throw rather than publish a phishing link.
+// ---------------------------------------------------------------------------
+
+describe('standardbankAdapter.normalize — applyUrl host guard', () => {
+  it('throws when the feed applyUrl is on a non-allowlisted host', () => {
+    const hostile = structuredClone(pairs[0]!);
+    hostile.detail.applyUrl = 'https://jobs.smartrecruiters.com.evil.example/StandardBankGroup/1';
+    expect(() => standardbankAdapter.normalize(hostile)).toThrow(/not allowlisted/);
+  });
+});

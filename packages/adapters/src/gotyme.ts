@@ -1,5 +1,6 @@
 import type { CanonicalJob, JobLocation } from '@bankjobs/core';
 import {
+  assertAllowedApplyHost,
   categorize,
   cleanApplyUrl,
   countryCodeFor,
@@ -130,7 +131,7 @@ export const gotymeAdapter: SourceAdapter<WorkableRawPosting> = {
       primaryLocation,
       locations,
       country,
-      applyUrl: cleanApplyUrl(applyUrl),
+      applyUrl: assertAllowedApplyHost(SOURCE, cleanApplyUrl(applyUrl)),
       postedDate,
     };
   },

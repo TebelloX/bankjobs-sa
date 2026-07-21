@@ -1,5 +1,6 @@
 import type { CanonicalJob, JobLocation } from '@bankjobs/core';
 import {
+  assertAllowedApplyHost,
   categorize,
   cleanApplyUrl,
   makeExcerpt,
@@ -104,7 +105,7 @@ export const standardbankAdapter: SourceAdapter<SrRawPosting> = {
       primaryLocation,
       locations,
       country,
-      applyUrl: cleanApplyUrl(applyUrl),
+      applyUrl: assertAllowedApplyHost(SOURCE, cleanApplyUrl(applyUrl)),
       postedDate,
     };
   },

@@ -1,0 +1,41 @@
+# Dependabot for BankJobs SA — tuned for a solo maintainer: a few batched PRs
+# instead of a stream of one-per-dependency noise.
+# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+version: 2
+updates:
+  # --- JS/TS dependencies: the whole pnpm workspace, resolved from the root ---
+  - package-ecosystem: "npm" # also covers pnpm workspaces from the repo root
+    directory: "/"
+    schedule:
+      interval: "weekly" # one small weekly digest, not daily churn
+    open-pull-requests-limit: 5
+    groups:
+      # Every safe (minor + patch) bump across the workspace lands in ONE PR.
+      # Majors are deliberately excluded from the group, so each major opens its
+      # own PR with its own changelog to review before merging.
+      minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+    ignore:
+      # The Workers test runtime is pinned on purpose: vitest-pool-workers@0.8.71
+      # is the last line that runs on vitest 3; 0.9+/vitest 4 is a coordinated
+      # migration, not an automated bump. Keep both off Dependabot's radar.
+      - dependency-name: "@cloudflare/vitest-pool-workers"
+      - dependency-name: "vitest"
+        update-types:
+          - "version-update:semver-major"
+
+  # --- GitHub Actions used by the workflows -----------------------------------
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly" # CI actions move slowly; monthly is plenty
+    open-pull-requests-limit: 3
+    groups:
+      # All action bumps collapse into a single monthly PR.
+      actions:
+        patterns:
+          - "*"

@@ -1,5 +1,6 @@
 import type { CanonicalJob, JobLocation } from '@bankjobs/core';
 import {
+  assertAllowedApplyHost,
   categorize,
   cleanApplyUrl,
   countryCodeFor,
@@ -108,7 +109,7 @@ export const absaAdapter: SourceAdapter<WorkdayRawPosting> = {
       // site, and 'International — ZZ' would be worse than an unlabelled SA row.
       // A descriptor that is present but unrecognized still maps to ZZ.
       country: info.country?.descriptor ? countryCodeFor(info.country.descriptor) : 'ZA',
-      applyUrl: cleanApplyUrl(externalUrl),
+      applyUrl: assertAllowedApplyHost(SOURCE, cleanApplyUrl(externalUrl)),
       // startDate is the ISO posted date; NEVER the relative postedOn text.
       postedDate: info.startDate ?? null,
     };

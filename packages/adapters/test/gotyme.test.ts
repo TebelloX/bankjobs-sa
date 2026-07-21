@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
-import { CATEGORIES } from '@bankjobs/core';
+import { CATEGORIES, assertAllowedApplyHost } from '@bankjobs/core';
 
 import { gotymeAdapter } from '../src/index';
 import { fetchAllWorkable, fetchWorkableJobList } from '../src/index';
@@ -204,5 +204,23 @@ describe('gotymeAdapter.normalize — mapping', () => {
     // 'Greece' is not in the core country table, so the fallback yields 'ZZ' —
     // never a silent ZA. Real GoTyme records carry countryCode 'ZA' anyway.
     expect(gotymeAdapter.normalize(stripped).country).toBe('ZZ');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// applyUrl host guard (Workable family). Unlike the feed-driven adapters, GoTyme's
+// apply URL is BUILT from this adapter's own config + the shared apply.workable.com
+// origin (a private client constant), so a hijacked feed can never move its host —
+// every posting normalizes under the allowlisted origin (asserted in the invariants
+// above). The guard normalize invokes is still exercised here directly: a foreign
+// host for the 'gotyme' source is rejected, so the day the origin ever changed
+// upstream the wired call would fail loudly.
+// ---------------------------------------------------------------------------
+
+describe('gotymeAdapter.normalize — applyUrl host guard', () => {
+  it('the wired guard rejects a foreign host for the gotyme source', () => {
+    expect(() =>
+      assertAllowedApplyHost('gotyme', 'https://apply.workable.com.evil.example/gotyme/j/X/'),
+    ).toThrow(/not allowlisted/);
   });
 });

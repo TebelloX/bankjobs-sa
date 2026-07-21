@@ -252,3 +252,23 @@ describe('fetchAllWorkday — pagination & UA fallback', () => {
     expect(log).toContain('absa: skipped 1 malformed list items');
   });
 });
+
+// ---------------------------------------------------------------------------
+// applyUrl host guard (Workday family). A hijacked upstream feed cannot publish
+// a phishing apply link: a foreign externalUrl makes normalize throw, which the
+// ingest runner turns into a skip (and a wholesale swap trips the >10% abort).
+// ---------------------------------------------------------------------------
+
+describe('absaAdapter.normalize — applyUrl host guard', () => {
+  it('throws when the feed points externalUrl at a non-allowlisted host', () => {
+    const hostile = structuredClone(pairs[0]!);
+    hostile.detail.jobPostingInfo.externalUrl = 'https://evil.example.com/phishing-apply';
+    expect(() => absaAdapter.normalize(hostile)).toThrow(/not allowlisted/);
+  });
+
+  it('rejects a suffix-appended lookalike host (absa.wd3.myworkdayjobs.com.evil.example)', () => {
+    const hostile = structuredClone(pairs[0]!);
+    hostile.detail.jobPostingInfo.externalUrl = 'https://absa.wd3.myworkdayjobs.com.evil.example/x';
+    expect(() => absaAdapter.normalize(hostile)).toThrow(/not allowlisted/);
+  });
+});
