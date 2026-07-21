@@ -41,6 +41,7 @@ const PER_SOURCE_RULES: Record<SourceId, CompiledRule[]> = {
   investec: compile(rulesData.perSource.investec as Rule[]),
   gotyme: compile(rulesData.perSource.gotyme as Rule[]),
   nedbank: compile(rulesData.perSource.nedbank as Rule[]),
+  discovery: compile(rulesData.perSource.discovery as Rule[]),
 };
 
 /**

@@ -77,7 +77,7 @@ export {
   WORKABLE_UA,
 } from './workable/client';
 
-export type { SfFeedItem, SfRawPosting } from './successfactors/types';
+export type { SfFeedItem, SfRawPosting, SfSitemapPosting } from './successfactors/types';
 
 export type { SuccessFactorsConfig } from './successfactors/client';
 export {
@@ -87,6 +87,10 @@ export {
   extractJobId,
   fetchFeed,
   fetchAllSuccessFactors,
+  parseSitemap,
+  parseSitemapDetail,
+  fetchSitemap,
+  fetchAllSuccessFactorsSitemap,
   SUCCESSFACTORS_UA,
 } from './successfactors/client';
 
@@ -96,6 +100,7 @@ import { standardbankAdapter } from './standardbank';
 import { investecAdapter } from './investec';
 import { gotymeAdapter } from './gotyme';
 import { nedbankAdapter } from './nedbank';
+import { discoveryAdapter } from './discovery';
 
 export { absaAdapter, ABSA_WORKDAY_CONFIG } from './absa';
 export { firstrandAdapter, FIRSTRAND_WORKDAY_CONFIG } from './firstrand';
@@ -103,6 +108,7 @@ export { standardbankAdapter, STANDARDBANK_SR_CONFIG } from './standardbank';
 export { investecAdapter, INVESTEC_EARCU_CONFIG } from './investec';
 export { gotymeAdapter, GOTYME_WORKABLE_CONFIG } from './gotyme';
 export { nedbankAdapter, NEDBANK_SF_CONFIG } from './nedbank';
+export { discoveryAdapter, DISCOVERY_SF_CONFIG } from './discovery';
 
 /** Adapter registry — one entry per live source. */
 export const adapters = {
@@ -112,4 +118,5 @@ export const adapters = {
   investec: investecAdapter,
   gotyme: gotymeAdapter,
   nedbank: nedbankAdapter,
+  discovery: discoveryAdapter,
 } as const;

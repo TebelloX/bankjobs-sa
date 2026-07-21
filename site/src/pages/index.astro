@@ -30,6 +30,7 @@ const BANK_DISPLAY_NAMES: Record<string, string> = {
   investec: 'Investec',
   gotyme: 'GoTyme Bank',
   nedbank: 'Nedbank',
+  discovery: 'Discovery Bank',
 };
 function bankName(id: string, fallback: string): string {
   return BANK_DISPLAY_NAMES[id] ?? fallback;

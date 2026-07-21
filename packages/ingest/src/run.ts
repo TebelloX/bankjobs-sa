@@ -4,6 +4,7 @@ import type { CanonicalJob, SourceId } from '@bankjobs/core';
 import type {
   EarcuRawPosting,
   SfRawPosting,
+  SfSitemapPosting,
   SrListResponse,
   SrPostingDetail,
   SrRawPosting,
@@ -21,6 +22,7 @@ import {
   extractJobPostingLd,
   extractSfCanonicalUrl,
   parseFeed,
+  parseSitemapDetail,
 } from '@bankjobs/adapters';
 import { openIngestDb, repoRoot } from './db';
 import type { JobsDb } from './db';
@@ -166,12 +168,34 @@ function loadSuccessFactorsFixtures(): SfRawPosting[] {
   return items.map((item) => ({ item, postedDate: postedById.get(item.id) ?? null }));
 }
 
+/**
+ * SuccessFactors SITEMAP fixtures (discovery): each detail-*.html is a full
+ * captured detail page — the load-bearing source on the sitemap path. Parse
+ * each into a structured posting (its own canonical link supplies the URL), then
+ * apply the SAME Discovery-Bank filter the live `fetchAll` does, so the offline
+ * pipeline drops the committed non-bank fixture(s) exactly as production would.
+ */
+function loadDiscoveryFixtures(): SfSitemapPosting[] {
+  const dir = join(repoRoot(), 'fixtures', 'discovery');
+  const postings: SfSitemapPosting[] = [];
+  for (const file of readdirSync(dir).filter((f) => FIXTURE_DETAIL_HTML_RE.test(f))) {
+    const html = readFileSync(join(dir, file), 'utf8');
+    const url = extractSfCanonicalUrl(html);
+    if (url === null) continue;
+    const posting = parseSitemapDetail(html, url);
+    if (posting === null) continue;
+    postings.push(posting);
+  }
+  return postings.filter((p) => p.businessUnit.trim() === 'Discovery Bank');
+}
+
 /** Build raw postings from committed fixtures (offline dev + CI). */
 function loadFixtures(source: SourceId): unknown[] {
   if (source === 'standardbank') return loadSrFixtures();
   if (source === 'investec') return loadEarcuFixtures();
   if (source === 'gotyme') return loadWorkableFixtures();
   if (source === 'nedbank') return loadSuccessFactorsFixtures();
+  if (source === 'discovery') return loadDiscoveryFixtures();
   return loadWorkdayFixtures(source);
 }
 

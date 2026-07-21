@@ -39,3 +39,37 @@ export interface SfRawPosting {
   item: SfFeedItem;
   postedDate: string | null;
 }
+
+/**
+ * A posting acquired via the SITEMAP-driven path (Discovery). Some CSB tenants
+ * serve a genuine URL sitemap at `/sitemap.xml` — a `<urlset>` whose every
+ * `<loc>` is a job detail page — rather than the Google-for-Jobs RSS the feed
+ * path consumes. Every field here is parsed from the detail page, so unlike the
+ * feed path the detail page is LOAD-BEARING: a page missing jobId or title is
+ * skipped upstream (never emitted), so both are always present here.
+ *
+ * `normalize` reads only this record, so it stays pure and offline-testable.
+ */
+export interface SfSitemapPosting {
+  /** Numeric SuccessFactors posting id, taken from the detail-page URL. */
+  jobId: string;
+  /** The public detail-page URL (also the durable apply link). */
+  url: string;
+  title: string;
+  /** The 'Business Unit' labelled field (customfield1), e.g. 'Discovery Bank'
+   * — a group-wide CSB site tags each posting with its brand here. */
+  businessUnit: string;
+  /** The 'Function' labelled field (department), e.g. 'Banking' — folds into
+   * the categorize haystack alongside the title. */
+  jobFunction: string;
+  /** The description HTML from the detail page (schema.org `description`). */
+  description: string;
+  /** schema.org `addressLocality` microdata, e.g. 'Sandton - 1 Discovery Place'
+   * (the CSB combines suburb + building — normalizeLocation resolves the city). */
+  locality: string;
+  /** schema.org `addressCountry` microdata. This tenant emits an ISO alpha-2
+   * code directly ('ZA'), not a display name; '' when the meta is absent. */
+  country: string;
+  /** YYYY-MM-DD from the datePosted microdata, or null (tolerant). */
+  postedDate: string | null;
+}

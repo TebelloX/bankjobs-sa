@@ -19,7 +19,12 @@ INSERT INTO sources (id, name, enabled) VALUES
   -- disabled so scheduled runs skip it (a 0-job source trips the guardrail on
   -- every run); flip enabled to 1 when GoTyme posts roles.
   ('gotyme', 'GoTyme Bank', 0),
-  ('nedbank', 'Nedbank', 1);
+  ('nedbank', 'Nedbank', 1),
+  -- Discovery's careers site is group-wide; we keep only Business Unit =
+  -- 'Discovery Bank', which is a handful of roles. Enabled, but note the low
+  -- count: it can legitimately hit 0 and trip the zero-jobs guardrail (warn +
+  -- skip closures — safe by design; do NOT weaken the guardrail for it).
+  ('discovery', 'Discovery Bank', 1);
 
 CREATE TABLE jobs (
   id               TEXT PRIMARY KEY,

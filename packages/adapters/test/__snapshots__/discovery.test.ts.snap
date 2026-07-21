@@ -1,0 +1,290 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`discoveryAdapter.normalize — snapshots > normalizes 1415675533 1`] = `
+{
+  "applyUrl": "https://careers.discovery.co.za/job/Sandton-1-Discovery-Place-Technology-Risk-Manager-GP-2196/1415675533/",
+  "brand": "Discovery Bank",
+  "category": "Software & IT",
+  "country": "ZA",
+  "descriptionHtml": "
+                <p></p>
+<p><strong>About Discovery</strong> </p>
+<p> </p>
+<p>Discovery’s core purpose is to make people healthier and to enhance and protect their lives. We seek out and invest in exceptional individuals who understand and support our core purpose, and whose own values align with those of Discovery. Our fast-paced and dynamic environment enables smart, self-driven people to be their best. As global thought leaders, Discovery is passionate about innovating in order to not only achieve financial success, but to ignite positive and meaningful change within our society. </p>
+<p> </p>
+<p><strong>About Discovery Bank</strong> </p>
+<p> </p>
+<p>Discovery Bank is a bank like no other – a shared-value bank, designed with our clients in mind. We’re all about sharing the value that clients create when they manage their money well, back with them through exceptional interest rates and rewards. Our Vitality Money programme measures how well clients manage their finances, informs them of what it means to be financially healthy, and empowers them with the knowledge to get enhanced rewards for managing their money well. If you’re adaptable, a problem-solver, always questioning the way things are done, passionate about doing what is right, and obsessed with providing a quality service experience, we have a job for you where you can be your best in an environment that’s safe and nurturing. </p>
+<p> </p>
+<p><strong>Job Purpose</strong> </p>
+<p> </p>
+<p>The <strong>Technology</strong> <strong>Risk Manager</strong> is responsible for developing, implementing, and maintaining the organisation’s Technology Risk Management Framework. The role will provide oversight, advice and assistance to the business in the identification, evaluation, assessment and treatment of information and technology related risks, to improve risk awareness and risk culture through challenging first-line management’s information and technology risk management practices.</p>
+<p> </p>
+<p>This position reports to the Head of Technology / Data Risk.</p>
+<p> </p>
+<p><strong>Areas of responsibility may include but are not limited to</strong> </p>
+<p> </p>
+<ul>
+<li>Technology Risk Framework &amp; Governance
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li>Implement and enhance the Technology Risk Management Framework.</li>
+<li>Maintain IT governance standards, policies, and procedures.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p> </p>
+<ul>
+<li>Technology Risk Identification, Assessment &amp; Monitoring
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li>Conduct technology and cybersecurity risk assessments.</li>
+<li>Maintain a comprehensive IT risk register.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p> </p>
+<ul>
+<li>Technology Governance Committees &amp; Reporting
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li>Produce clear, concise, and decision-focused risk reporting for senior management, risk committees, and executive forums.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p> </p>
+<ul>
+<li>Emerging Technology, Data, and AI Risk
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li>Assess technology risks associated with emerging technologies, including AI, advanced analytics, data science, and automation initiatives.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p> </p>
+<ul>
+<li>Collaboration &amp; Stakeholder Engagement
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li>Work with IT, Cybersecurity, Data, and business units to embed technology risk.</li>
+<li>Regulatory Compliance &amp; Technology Standards</li>
+<li>Ensure compliance with relevant technology and cybersecurity regulations.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p> </p>
+<ul>
+<li>Facilitate the escalation of risk and control issues requiring visibility by providing a cohesive and comprehensive view of assurance across the risk environment.</li>
+<li>Continuous monitoring of levels of IT risks across the business by tracking implementation of management action plans to mitigate or address identified risk, and issues as well as audit findings raised.</li>
+<li>Develop effective ways of working in partnership with key functions within the risk Business Unit and across other Business Units to ensure a consistent holistic approach to assurance and early communication of emerging issues.</li>
+<li>Prepare clear, concise risk reports, presentations, risk information and investigations for senior management, risk committees, and executive forums.</li>
+<li>Use the risk management tool as an enabling technology, including automated risk monitoring and reporting</li>
+<li>Providing independent oversight and advice on information and technology-related risks.</li>
+<li>Challenging and improving first-line management’s risk management practices.</li>
+<li>Identifying, evaluating, and assessing potential risks to our systems and data.</li>
+<li>Improving risk awareness and promoting a strong risk culture throughout the organization.</li>
+</ul>
+<p> </p>
+<p><strong>Personal Attributes and Skills</strong> </p>
+<p> </p>
+<ul>
+<li>Proven experience in a Technology Risk and oversight capacity, such as IT Risk, IT Governance, IT Audit, or Information Security.</li>
+<li>A strong understanding of Cyber and IT Security best practices and principles.</li>
+<li>Experience with relevant risk methodologies and control frameworks like COBIT, ISO, NIST, and ITIL.</li>
+<li>Excellent analytical, communication, and interpersonal skills.</li>
+<li>Sound understanding of technology-enabled risk</li>
+<li>Identify, analyse and address risks appropriately in order to move the business forward</li>
+<li>A sound knowledge of the financial / retail banking industry, the mechanics of its operation and its trends. Familiarity with banking specific and other relevant legislation and regulations (e.g. Banks Act, Basel, TCF, POPI) is useful</li>
+<li>Communicate efficiently and effectively with the business at all levels</li>
+<li>Ability to work independently and meet deadlines</li>
+<li>Confidentiality and Integrity</li>
+<li>Structured analytical thinking and strong professional judgement</li>
+<li>Able to work at designated office or from home as and when required</li>
+</ul>
+<p> </p>
+<p><strong>Education and Experience</strong> </p>
+<p> </p>
+<ul>
+<li>Bachelor’s degree in information systems / computer science / informatics / commerce /finance / audit</li>
+<li>A minimum of 5 years’ experience in Technology Risk, IT Audit, or Cybersecurity.</li>
+<li>Minimum 3 years’ financial services experience</li>
+<li>Professional Certifications advantageous - CRISC / CISA / CISM</li>
+</ul>
+<p> </p>
+<p> </p><p>EMPLOYMENT EQUITY   <br />
+                             <br />
+The Company’s approved Employment Equity Plan and Targets will be considered as part of the recruitment process. As an Equal Opportunities employer, we actively encourage and welcome people with various disabilities to apply.</p>
+                
+    ",
+  "descriptionText": "About Discovery Discovery’s core purpose is to make people healthier and to enhance and protect their lives. We seek out and invest in exceptional individuals who understand and support our core purpose, and whose own values align with those of Discovery. Our fast-paced and dynamic environment enables smart, self-driven people to be their best. As global thought leaders, Discovery is passionate about innovating in order to not only achieve financial success, but to ignite positive and meaningful change within our society. About Discovery Bank Discovery Bank is a bank like no other – a shared-value bank, designed with our clients in mind. We’re all about sharing the value that clients create when they manage their money well, back with them through exceptional interest rates and rewards. Our Vitality Money programme measures how well clients manage their finances, informs them of what it means to be financially healthy, and empowers them with the knowledge to get enhanced rewards for managing their money well. If you’re adaptable, a problem-solver, always questioning the way things are done, passionate about doing what is right, and obsessed with providing a quality service experience, we have a job for you where you can be your best in an environment that’s safe and nurturing. Job Purpose The Technology Risk Manager is responsible for developing, implementing, and maintaining the organisation’s Technology Risk Management Framework. The role will provide oversight, advice and assistance to the business in the identification, evaluation, assessment and treatment of information and technology related risks, to improve risk awareness and risk culture through challenging first-line management’s information and technology risk management practices. This position reports to the Head of Technology / Data Risk. Areas of responsibility may include but are not limited to Technology Risk Framework & Governance Implement and enhance the Technology Risk Management Framework. Maintain IT governance standards, policies, and procedures. Technology Risk Identification, Assessment & Monitoring Conduct technology and cybersecurity risk assessments. Maintain a comprehensive IT risk register. Technology Governance Committees & Reporting Produce clear, concise, and decision-focused risk reporting for senior management, risk committees, and executive forums. Emerging Technology, Data, and AI Risk Assess technology risks associated with emerging technologies, including AI, advanced analytics, data science, and automation initiatives. Collaboration & Stakeholder Engagement Work with IT, Cybersecurity, Data, and business units to embed technology risk. Regulatory Compliance & Technology Standards Ensure compliance with relevant technology and cybersecurity regulations. Facilitate the escalation of risk and control issues requiring visibility by providing a cohesive and comprehensive view of assurance across the risk environment. Continuous monitoring of levels of IT risks across the business by tracking implementation of management action plans to mitigate or address identified risk, and issues as well as audit findings raised. Develop effective ways of working in partnership with key functions within the risk Business Unit and across other Business Units to ensure a consistent holistic approach to assurance and early communication of emerging issues. Prepare clear, concise risk reports, presentations, risk information and investigations for senior management, risk committees, and executive forums. Use the risk management tool as an enabling technology, including automated risk monitoring and reporting Providing independent oversight and advice on information and technology-related risks. Challenging and improving first-line management’s risk management practices. Identifying, evaluating, and assessing potential risks to our systems and data. Improving risk awareness and promoting a strong risk culture throughout the organization. Personal Attributes and Skills Proven experience in a Technology Risk and oversight capacity, such as IT Risk, IT Governance, IT Audit, or Information Security. A strong understanding of Cyber and IT Security best practices and principles. Experience with relevant risk methodologies and control frameworks like COBIT, ISO, NIST, and ITIL. Excellent analytical, communication, and interpersonal skills. Sound understanding of technology-enabled risk Identify, analyse and address risks appropriately in order to move the business forward A sound knowledge of the financial / retail banking industry, the mechanics of its operation and its trends. Familiarity with banking specific and other relevant legislation and regulations (e.g. Banks Act, Basel, TCF, POPI) is useful Communicate efficiently and effectively with the business at all levels Ability to work independently and meet deadlines Confidentiality and Integrity Structured analytical thinking and strong professional judgement Able to work at designated office or from home as and when required Education and Experience Bachelor’s degree in information systems / computer science / informatics / commerce /finance / audit A minimum of 5 years’ experience in Technology Risk, IT Audit, or Cybersecurity. Minimum 3 years’ financial services experience Professional Certifications advantageous - CRISC / CISA / CISM EMPLOYMENT EQUITY The Company’s approved Employment Equity Plan and Targets will be considered as part of the recruitment process. As an Equal Opportunities employer, we actively encourage and welcome people with various disabilities to apply.",
+  "employmentType": null,
+  "excerpt": "About Discovery Discovery’s core purpose is to make people healthier and to enhance and protect their lives. We seek out and invest in exceptional individuals who understand and support our core purpose, and whose own values align with those of Discovery. Our fast-paced and dynamic environment enables smart, self-driven people to be their best.",
+  "id": "discovery:1415675533",
+  "locations": [
+    {
+      "city": "Sandton",
+      "province": "Gauteng",
+      "raw": "Sandton - 1 Discovery Place",
+    },
+  ],
+  "postedDate": "2026-07-16",
+  "primaryLocation": "Sandton, Gauteng",
+  "source": "discovery",
+  "title": "Technology Risk Manager",
+}
+`;
+
+exports[`discoveryAdapter.normalize — snapshots > normalizes 1415847033 1`] = `
+{
+  "applyUrl": "https://careers.discovery.co.za/job/Sandton-1-Discovery-Place-Collections-Manager-GP-2196/1415847033/",
+  "brand": "Discovery Bank",
+  "category": "Credit & Lending",
+  "country": "ZA",
+  "descriptionHtml": "
+                <p></p>
+
+
+
+ 
+
+
+
+<p><strong>About Discovery</strong><strong> </strong></p>
+<p> </p>
+<p>Discovery’s core purpose is to make people healthier and to enhance and protect their lives. We seek out and invest in exceptional individuals who understand and support our core purpose, and whose own values align with those of Discovery. Our fast-paced and dynamic environment enables smart, self-driven people to be their best. As global thought leaders, Discovery is passionate about innovating in order to not only achieve financial success, but to ignite positive and meaningful change within our society. </p>
+<p> </p>
+<p><strong>About Discovery Bank</strong><strong> </strong></p>
+<p> </p>
+<p>Discovery Bank is a bank like no other – a shared-value bank, designed with our clients in mind. We’re all about sharing the value that clients create when they manage their money well, back with them through exceptional interest rates and rewards. Our Vitality Money programme measures how well clients manage their finances, informs them of what it means to be financially healthy, and empowers them with the knowledge to get enhanced rewards for managing their money well. If you’re adaptable, a problem-solver, always questioning the way things are done, passionate about doing what is right, and obsessed with providing a quality service experience, we have a job for you where you can be your best in an environment that’s safe and nurturing. </p>
+<p> </p>
+<p><strong>Key Purpose</strong><strong> </strong></p>
+<p> </p>
+<p>The Collections Operations Manager  is responsible for ensuring that the collections functions within Discovery Bank run efficiently and effectively on a 24/7/365 basis. The incumbent is required to assist in the design and continuous improvement of both current and future business processes. This includes systems and processes that support day-to-day operations, outlining process flows, defining operating rules and policies, and assigning and monitoring operational roles and responsibilities.</p>
+<p> </p>
+<p> The incumbent must keep track of performance metrics, analyse bottlenecks, and take corrective actions where required.  He/she also responsible for implementing credit and collections solutions to improve performance levels. It is important that the incumbent has a hand-on approach and gets involved in front-line work to get the job done and to gain a better understanding of the business.</p>
+<p> </p>
+<p><strong>Areas of responsibility may include but are not limited to.</strong></p>
+<p> </p>
+<ul>
+<li>Manages the bank’s risk operations processes and oversees a wide range of operational activities while managing customer relationships. These will include establishing direct communication channels with applicants or borrowers (clients), identifying, and managing delinquent accounts, taking direct collections and recovery actions, issuing monthly statements, and handling escalated customer queries.</li>
+<li>Runs a client credit portfolio efficiently while delivering strong customer satisfaction.</li>
+<li>Analyses data and to find patterns that may identify credit risks in the products and escalates to the Risk Operations management team.</li>
+<li>Oversees and develops a plan to handle client disputes by requesting new client information via the Service Consultants/Discovery Banker. Applying discretion in line the overall policy to re-assess the credit scoring and granting and using this information as client intelligence to provide input into the credit model.</li>
+<li>Performs data analysis on a portfolio of client cases to identify trends and provides this intelligence as strategic input for the credit model to ensure the Bank’s credit risk is mitigated.</li>
+<li>Performs in-depth analysis of clients’ financial status to determine how to best intervene through education, motivation, and negotiation with the aim of getting the client in a better financial situation.</li>
+<li>Executes the collections and recovery strategies aligned to the overall bank strategies.</li>
+<li>Manages and monitors the performance of external collections agencies within SLA’s.</li>
+<li>Ensures that a detailed risk register with mitigation plan exists for credit ops, collections, and recoveries to mitigate operational risks.</li>
+<li>Monitors all daily and monthly reports for credit ops and collections performance and takes action as required.</li>
+<li>Creates, maintains, and enhances internal and external stakeholder relationships in order to improve overall efficiency and ensure compliance.</li>
+<li>Effectively leads the team and takes accountability for the continuous up-skilling of employees to ensure that current and future business demands are met.</li>
+<li>Develops, executes, and gives inputs into the policies, procedures and standards within collections and credits ops aligned to the regulatory framework.</li>
+</ul>
+<p> </p>
+<p><strong>Technical Skills or Knowledge</strong></p>
+<p> </p>
+<ul>
+<li>Planning and organising.</li>
+<li>Problem solving.</li>
+<li>Judgment and decision making.</li>
+<li>Conflict management.</li>
+<li>Innovative process management.</li>
+<li>Client service orientation.</li>
+<li>Verbal and written communication.</li>
+<li>Financial advice.</li>
+<li>Income and expenditure, budgeting, financial planning, pulling bureau reports.</li>
+<li>Analytical and numerical.</li>
+<li>Basic economics.</li>
+<li>All related regulatory and compliance acts.</li>
+</ul>
+<p> </p>
+<p><strong>Education and Experience</strong><strong> </strong><strong>Required</strong></p>
+<p> </p>
+<ul>
+<li>At least 4 to 6 years’ experience in debt management services.</li>
+<li>Experience in managing people.</li>
+<li>At least 2 years in financial planning at a senior level.</li>
+</ul>
+<p> </p>
+<p><strong>Preferred</strong></p>
+<p> </p>
+<ul>
+<li>At least 4 to 6 years in credit operations, collections and operational risk management in retail banking or financial services.</li>
+<li>Experience in process design and optimisation.</li>
+</ul>
+<p> </p>
+<p><strong>Required</strong></p>
+<ul>
+<li>A bachelor’s degree with finance, accounting, economics, law, or business management.</li>
+<li>FAIS accredited.</li>
+</ul>
+<p> </p>
+<p><strong>Preferred</strong></p>
+<p> </p>
+<ul>
+<li>Degree with Honours (finance, accounting, economics, law, or business management)</li>
+<li>NQF level 9 qualification (MBL, MBA, M Comm)</li>
+</ul>
+
+
+<p> </p>
+<p> </p>
+<p> </p>
+
+<p>EMPLOYMENT EQUITY   <br />
+                             <br />
+The Company’s approved Employment Equity Plan and Targets will be considered as part of the recruitment process. As an Equal Opportunities employer, we actively encourage and welcome people with various disabilities to apply.</p>
+                
+    ",
+  "descriptionText": "About Discovery Discovery’s core purpose is to make people healthier and to enhance and protect their lives. We seek out and invest in exceptional individuals who understand and support our core purpose, and whose own values align with those of Discovery. Our fast-paced and dynamic environment enables smart, self-driven people to be their best. As global thought leaders, Discovery is passionate about innovating in order to not only achieve financial success, but to ignite positive and meaningful change within our society. About Discovery Bank Discovery Bank is a bank like no other – a shared-value bank, designed with our clients in mind. We’re all about sharing the value that clients create when they manage their money well, back with them through exceptional interest rates and rewards. Our Vitality Money programme measures how well clients manage their finances, informs them of what it means to be financially healthy, and empowers them with the knowledge to get enhanced rewards for managing their money well. If you’re adaptable, a problem-solver, always questioning the way things are done, passionate about doing what is right, and obsessed with providing a quality service experience, we have a job for you where you can be your best in an environment that’s safe and nurturing. Key Purpose The Collections Operations Manager is responsible for ensuring that the collections functions within Discovery Bank run efficiently and effectively on a 24/7/365 basis. The incumbent is required to assist in the design and continuous improvement of both current and future business processes. This includes systems and processes that support day-to-day operations, outlining process flows, defining operating rules and policies, and assigning and monitoring operational roles and responsibilities. The incumbent must keep track of performance metrics, analyse bottlenecks, and take corrective actions where required. He/she also responsible for implementing credit and collections solutions to improve performance levels. It is important that the incumbent has a hand-on approach and gets involved in front-line work to get the job done and to gain a better understanding of the business. Areas of responsibility may include but are not limited to. Manages the bank’s risk operations processes and oversees a wide range of operational activities while managing customer relationships. These will include establishing direct communication channels with applicants or borrowers (clients), identifying, and managing delinquent accounts, taking direct collections and recovery actions, issuing monthly statements, and handling escalated customer queries. Runs a client credit portfolio efficiently while delivering strong customer satisfaction. Analyses data and to find patterns that may identify credit risks in the products and escalates to the Risk Operations management team. Oversees and develops a plan to handle client disputes by requesting new client information via the Service Consultants/Discovery Banker. Applying discretion in line the overall policy to re-assess the credit scoring and granting and using this information as client intelligence to provide input into the credit model. Performs data analysis on a portfolio of client cases to identify trends and provides this intelligence as strategic input for the credit model to ensure the Bank’s credit risk is mitigated. Performs in-depth analysis of clients’ financial status to determine how to best intervene through education, motivation, and negotiation with the aim of getting the client in a better financial situation. Executes the collections and recovery strategies aligned to the overall bank strategies. Manages and monitors the performance of external collections agencies within SLA’s. Ensures that a detailed risk register with mitigation plan exists for credit ops, collections, and recoveries to mitigate operational risks. Monitors all daily and monthly reports for credit ops and collections performance and takes action as required. Creates, maintains, and enhances internal and external stakeholder relationships in order to improve overall efficiency and ensure compliance. Effectively leads the team and takes accountability for the continuous up-skilling of employees to ensure that current and future business demands are met. Develops, executes, and gives inputs into the policies, procedures and standards within collections and credits ops aligned to the regulatory framework. Technical Skills or Knowledge Planning and organising. Problem solving. Judgment and decision making. Conflict management. Innovative process management. Client service orientation. Verbal and written communication. Financial advice. Income and expenditure, budgeting, financial planning, pulling bureau reports. Analytical and numerical. Basic economics. All related regulatory and compliance acts. Education and Experience Required At least 4 to 6 years’ experience in debt management services. Experience in managing people. At least 2 years in financial planning at a senior level. Preferred At least 4 to 6 years in credit operations, collections and operational risk management in retail banking or financial services. Experience in process design and optimisation. Required A bachelor’s degree with finance, accounting, economics, law, or business management. FAIS accredited. Preferred Degree with Honours (finance, accounting, economics, law, or business management) NQF level 9 qualification (MBL, MBA, M Comm) EMPLOYMENT EQUITY The Company’s approved Employment Equity Plan and Targets will be considered as part of the recruitment process. As an Equal Opportunities employer, we actively encourage and welcome people with various disabilities to apply.",
+  "employmentType": null,
+  "excerpt": "About Discovery Discovery’s core purpose is to make people healthier and to enhance and protect their lives. We seek out and invest in exceptional individuals who understand and support our core purpose, and whose own values align with those of Discovery. Our fast-paced and dynamic environment enables smart, self-driven people to be their best.",
+  "id": "discovery:1415847033",
+  "locations": [
+    {
+      "city": "Sandton",
+      "province": "Gauteng",
+      "raw": "Sandton - 1 Discovery Place",
+    },
+  ],
+  "postedDate": "2026-07-16",
+  "primaryLocation": "Sandton, Gauteng",
+  "source": "discovery",
+  "title": "Collections Manager",
+}
+`;

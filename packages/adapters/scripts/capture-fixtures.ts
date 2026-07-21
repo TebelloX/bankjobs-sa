@@ -40,9 +40,16 @@ import {
 import type { EarcuConfig } from '../src/earcu/client';
 import type { EarcuJobPosting } from '../src/earcu/types';
 import { NEDBANK_SF_CONFIG } from '../src/nedbank';
-import { SUCCESSFACTORS_UA, extractDatePosted, parseFeed } from '../src/successfactors/client';
+import { DISCOVERY_SF_CONFIG } from '../src/discovery';
+import {
+  SUCCESSFACTORS_UA,
+  extractDatePosted,
+  parseFeed,
+  parseSitemap,
+  parseSitemapDetail,
+} from '../src/successfactors/client';
 import type { SuccessFactorsConfig } from '../src/successfactors/client';
-import type { SfFeedItem } from '../src/successfactors/types';
+import type { SfFeedItem, SfSitemapPosting } from '../src/successfactors/types';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const fixturesRoot = join(scriptDir, '../../../fixtures');
@@ -651,6 +658,140 @@ async function captureSuccessFactors(cfg: SuccessFactorsConfig): Promise<void> {
   console.log(`Wrote detail-1/2/3.html + manifest.json to ${fixturesDir}.`);
 }
 
+// ---------------------------------------------------------------------------
+// SuccessFactors CSB, SITEMAP path (discovery). Group-wide site: crawl every
+// job the sitemap enumerates, tally group vs bank, and capture a handful of
+// detail pages that MUST include at least one Discovery Bank role AND at least
+// one non-bank role (the client-side filter needs a real negative case).
+// ---------------------------------------------------------------------------
+
+interface SfCaptured {
+  url: string;
+  html: string;
+  posting: SfSitemapPosting;
+}
+
+async function captureSuccessFactorsSitemap(cfg: SuccessFactorsConfig): Promise<void> {
+  const delayMs = cfg.delayMs ?? 400;
+  const sitemapPath = cfg.sitemapPath ?? '/sitemap.xml';
+  const origin = `https://${cfg.host}`;
+  const fixturesDir = join(fixturesRoot, 'discovery');
+
+  const sfFetch = (url: string): Promise<Response> =>
+    fetch(url, { headers: { 'User-Agent': SUCCESSFACTORS_UA } });
+
+  // 1) The URL sitemap — one GET enumerates every open role. Stored verbatim.
+  const sitemapUrl = `${origin}${sitemapPath}`;
+  const sitemapRes = await sfFetch(sitemapUrl);
+  if (sitemapRes.status !== 200) {
+    console.error(`discovery sitemap returned HTTP ${sitemapRes.status} — shape may have drifted.`);
+    console.error(`Tried: GET ${sitemapUrl}`);
+    process.exit(1);
+  }
+  const sitemapXml = await sitemapRes.text();
+  const urls = parseSitemap(sitemapXml);
+  if (urls.length === 0) {
+    console.error('discovery sitemap parsed to zero job URLs — parser or shape may have drifted.');
+    process.exit(1);
+  }
+  writeFileSync(join(fixturesDir, 'sitemap.xml'), sitemapXml);
+  console.log(`Wrote sitemap.xml (${urls.length} job URLs).`);
+
+  // 2) Crawl every detail page: tally group vs bank and pick the fixture variety
+  //    (2 bank roles for the kept case + category spread, 2 non-bank for the
+  //    dropped case + KZN/EC location spread, backfilled from any non-bank).
+  const BANK = 'Discovery Bank';
+  const banks: SfCaptured[] = [];
+  const nonBanks: SfCaptured[] = [];
+  let nonBankKZN: SfCaptured | undefined;
+  let nonBankEC: SfCaptured | undefined;
+  let skipped = 0;
+
+  for (const url of urls) {
+    await sleep(delayMs);
+    const res = await sfFetch(url);
+    if (res.status !== 200) {
+      skipped += 1;
+      console.warn(`  skip ${url} — HTTP ${res.status}`);
+      continue;
+    }
+    const html = await res.text();
+    const posting = parseSitemapDetail(html, url);
+    if (posting === null) {
+      skipped += 1;
+      console.warn(`  skip ${url} — missing critical field (jobId/title)`);
+      continue;
+    }
+    const captured: SfCaptured = { url, html, posting };
+    if (posting.businessUnit.trim() === BANK) {
+      banks.push(captured);
+    } else {
+      nonBanks.push(captured);
+      const province = posting.locality ? normalizeLocation(posting.locality).province : null;
+      if (province === 'KwaZulu-Natal') nonBankKZN ??= captured;
+      else if (province === 'Eastern Cape') nonBankEC ??= captured;
+    }
+  }
+
+  console.log(
+    `Crawled ${urls.length} URLs: ${banks.length} ${BANK}, ${nonBanks.length} other-brand, ${skipped} skipped.`,
+  );
+  if (banks.length === 0 || nonBanks.length === 0) {
+    console.error(
+      `Need at least one ${BANK} role AND one non-bank role for fixtures ` +
+        `(got ${banks.length} bank, ${nonBanks.length} non-bank).`,
+    );
+    process.exit(1);
+  }
+
+  // detail-1/2 = bank; detail-3/4 = non-bank (prefer KZN then EC, backfill any).
+  const nonBankPicks: SfCaptured[] = [];
+  for (const c of [nonBankKZN, nonBankEC, ...nonBanks]) {
+    if (c && !nonBankPicks.includes(c)) nonBankPicks.push(c);
+    if (nonBankPicks.length === 2) break;
+  }
+  const chosen: SfCaptured[] = [...banks.slice(0, 2), ...nonBankPicks];
+
+  const files: Record<string, string> = {
+    'sitemap.xml': `The full URL sitemap (${urls.length} job URLs) — the enumeration source.`,
+  };
+  chosen.forEach((c, i) => {
+    writeFileSync(join(fixturesDir, `detail-${i + 1}.html`), c.html);
+    const p = c.posting;
+    files[`detail-${i + 1}.html`] =
+      `${p.jobId} — ${p.title} [${p.businessUnit}] (${p.locality}, ${p.country}) ` +
+      `datePosted=${p.postedDate ?? 'none'}`;
+  });
+
+  const manifest = {
+    source: 'discovery',
+    capturedAt: new Date().toISOString(),
+    ats: 'SAP SuccessFactors Career Site Builder (group-wide)',
+    brand: BANK,
+    endpoints: {
+      sitemap: `GET ${sitemapUrl}`,
+      detail: `GET ${origin}/job/{City-Slug-Title}/{numericId}/`,
+    },
+    totalAtCapture: urls.length,
+    bankAtCapture: banks.length,
+    otherBrandAtCapture: nonBanks.length,
+    files,
+    notes: [
+      'careers.discovery.co.za is a GROUP-WIDE CSB site (all Discovery Limited brands); /sitemap.xml here is a REAL <urlset> of job detail URLs, NOT the Google-for-Jobs RSS Nedbank serves at that path.',
+      "Server-side filtering (?customfield1=…) is IGNORED — crawl everything and filter client-side to Business Unit == 'Discovery Bank'.",
+      'Detail pages are LOAD-BEARING: title/businessUnit/function come from the labelled data-careersite-propertyid fields (customfield1 = Business Unit is ONLY exposed there); address/date come from schema.org itemprop microdata.',
+      'datePosted microdata is Java-toString ("Thu Jul 16 00:00:00 UTC 2026") → YYYY-MM-DD; addressCountry is an ISO alpha-2 code ("ZA") directly, addressLocality combines suburb + building ("Sandton - 1 Discovery Place").',
+      'validThrough microdata exists but is IGNORED (closure is lastSeen-driven; no expiry stored).',
+      'robots.txt disallows /talentcommunity/, /services/, /preapply/, /applybutton/; /sitemap.xml and /job/ are allowed. The capped RSS under /services/ and the apply flow /talentcommunity/apply/{jobId}/ are NEVER fetched.',
+      'applyUrl = the public /job/ detail page: the real apply route /talentcommunity/apply/{jobId}/ is robots-disallowed and session-bound.',
+      'Fixtures include non-bank roles on purpose — the Discovery-Bank filter needs a real negative case; the ingest fixtures loader drops them exactly as fetchAll does.',
+      'Every response mints a fresh JSESSIONID but no request requires sending one back — stay stateless.',
+    ],
+  };
+  writeFileSync(join(fixturesDir, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
+  console.log(`Wrote detail-1..${chosen.length}.html + manifest.json to ${fixturesDir}.`);
+}
+
 interface WorkdayManifestArgs {
   source: string;
   listUrl: string;
@@ -711,9 +852,12 @@ async function main(): Promise<void> {
     case 'nedbank':
       await captureSuccessFactors(NEDBANK_SF_CONFIG);
       return;
+    case 'discovery':
+      await captureSuccessFactorsSitemap(DISCOVERY_SF_CONFIG);
+      return;
     default:
       console.error(
-        `Unknown --source '${source}' (expected absa | firstrand | standardbank | investec | gotyme | nedbank).`,
+        `Unknown --source '${source}' (expected absa | firstrand | standardbank | investec | gotyme | nedbank | discovery).`,
       );
       process.exit(1);
   }

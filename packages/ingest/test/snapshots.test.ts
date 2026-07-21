@@ -138,10 +138,10 @@ describe('emitSnapshots', () => {
 
     const absa = meta.sources.find((s) => s.id === 'absa');
     expect(absa?.count).toBe(4);
-    // absa, firstrand, standardbank, investec, gotyme, nedbank all present
-    // (gotyme is seeded disabled but still a sources row, so it appears with
-    // count 0).
-    expect(meta.sources.length).toBe(6);
+    // absa, firstrand, standardbank, investec, gotyme, nedbank, discovery all
+    // present (gotyme is seeded disabled but still a sources row, so it appears
+    // with count 0).
+    expect(meta.sources.length).toBe(7);
 
     expect(Object.keys(meta.categories).length).toBe(10);
     expect(meta.categories['software-it']).toBe(1);

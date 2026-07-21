@@ -1,0 +1,31 @@
+{
+  "source": "discovery",
+  "capturedAt": "2026-07-21T11:00:41.307Z",
+  "ats": "SAP SuccessFactors Career Site Builder (group-wide)",
+  "brand": "Discovery Bank",
+  "endpoints": {
+    "sitemap": "GET https://careers.discovery.co.za/sitemap.xml",
+    "detail": "GET https://careers.discovery.co.za/job/{City-Slug-Title}/{numericId}/"
+  },
+  "totalAtCapture": 48,
+  "bankAtCapture": 2,
+  "otherBrandAtCapture": 46,
+  "files": {
+    "sitemap.xml": "The full URL sitemap (48 job URLs) — the enumeration source.",
+    "detail-1.html": "1415847033 — Collections Manager [Discovery Bank] (Sandton - 1 Discovery Place, ZA) datePosted=2026-07-16",
+    "detail-2.html": "1415675533 — Technology Risk Manager [Discovery Bank] (Sandton - 1 Discovery Place, ZA) datePosted=2026-07-16",
+    "detail-3.html": "1410338333 — Mass Market - Onsite Visibility Consultant - Durban- [DCM Distribution] (Durban - 41 Imvubupark Place, ZA) datePosted=2026-07-01",
+    "detail-4.html": "1233280501 — Pre Auth Service Consultant - Talent Pool [Discovery Health] (Port Elizabeth - Coega BPO Bui, ZA) datePosted=2026-07-12"
+  },
+  "notes": [
+    "careers.discovery.co.za is a GROUP-WIDE CSB site (all Discovery Limited brands); /sitemap.xml here is a REAL <urlset> of job detail URLs, NOT the Google-for-Jobs RSS Nedbank serves at that path.",
+    "Server-side filtering (?customfield1=…) is IGNORED — crawl everything and filter client-side to Business Unit == 'Discovery Bank'.",
+    "Detail pages are LOAD-BEARING: title/businessUnit/function come from the labelled data-careersite-propertyid fields (customfield1 = Business Unit is ONLY exposed there); address/date come from schema.org itemprop microdata.",
+    "datePosted microdata is Java-toString (\"Thu Jul 16 00:00:00 UTC 2026\") → YYYY-MM-DD; addressCountry is an ISO alpha-2 code (\"ZA\") directly, addressLocality combines suburb + building (\"Sandton - 1 Discovery Place\").",
+    "validThrough microdata exists but is IGNORED (closure is lastSeen-driven; no expiry stored).",
+    "robots.txt disallows /talentcommunity/, /services/, /preapply/, /applybutton/; /sitemap.xml and /job/ are allowed. The capped RSS under /services/ and the apply flow /talentcommunity/apply/{jobId}/ are NEVER fetched.",
+    "applyUrl = the public /job/ detail page: the real apply route /talentcommunity/apply/{jobId}/ is robots-disallowed and session-bound.",
+    "Fixtures include non-bank roles on purpose — the Discovery-Bank filter needs a real negative case; the ingest fixtures loader drops them exactly as fetchAll does.",
+    "Every response mints a fresh JSESSIONID but no request requires sending one back — stay stateless."
+  ]
+}
