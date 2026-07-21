@@ -9,14 +9,21 @@
 #   default-src 'none'  Deny every resource class by default; open each one below
 #                       only as far as the built output actually needs.
 #
-#   script-src 'self'   The site ships NO third-party JS and NO inline scripts.
-#                       The one executable script is the search island, which
-#                       astro.config.mjs forces to an EXTERNAL same-origin file
-#                       (vite build.assetsInlineLimit: 0) precisely so this
-#                       directive needs no inline-script hashes — hashes would
-#                       silently break on any toolchain bump, invisibly to CI.
-#                       If a build ever inlines a <script type="module"> again,
-#                       that config regressed; fix it there, don't add hashes.
+#   script-src          The site ships NO third-party JS and NO external script
+#                       files. The one executable inline script is Astro's
+#                       hoisted search island (site/src/pages/search.astro),
+#                       which Astro inlines into /search's HTML instead of
+#                       emitting a file — so it is allow-listed by SHA-256 hash
+#                       rather than 'unsafe-inline'. Two hashes are listed
+#                       because the inlined code differs by build mode:
+#                         sha256-BKyM… = api build    (production deploy)
+#                         sha256-duOx… = static build  (CI / preview)
+#                       REGENERATE both if search.astro or the Astro/Vite
+#                       toolchain changes (the search island would otherwise be
+#                       CSP-blocked). To recompute, sha256 the exact bytes
+#                       between <script type="module"> and </script> in
+#                       dist/search/index.html and base64-encode. 'self' is kept
+#                       to cover any future same-origin external script.
 #                       (Note: <script type="application/ld+json"> blocks are
 #                       data, not executable, so they are NOT covered here.)
 #
@@ -45,7 +52,7 @@
 #                       upgrade-insecure-requests upgrades any stray http URL.
 
 /*
-  Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.mybankjobs.co.za https://bankjobs-api.tebello-namo.workers.dev; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'none'; script-src 'self' 'sha256-BKyMcghvdHRY0DNydEhSSWgo2xtpJdFW5pvkjMzARKE=' 'sha256-duOxzH8TU6GCz3YAOLq1Z9ZyYJhJv8lPQaA6pmrnSj0='; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://bankjobs-api.tebello-namo.workers.dev; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()

@@ -25,6 +25,10 @@ const year = new Date().getFullYear();
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="generator" content={Astro.generator} />
+    {/* The site also answers on bankjobs-sa.pages.dev (Pages keeps that origin
+        alive) — an absolute canonical on every page keeps search engines on
+        the real domain. */}
+    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
     <link rel="sitemap" href="/sitemap-index.xml" />
   </head>
   <body>

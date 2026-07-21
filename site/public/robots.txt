@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://bankjobs-sa.pages.dev/sitemap-index.xml
+Sitemap: https://mybankjobs.co.za/sitemap-index.xml

@@ -5,7 +5,7 @@ import sitemap from '@astrojs/sitemap';
 // https://astro.build/config
 export default defineConfig({
   output: 'static',
-  site: 'https://bankjobs-sa.pages.dev',
+  site: 'https://mybankjobs.co.za',
   integrations: [sitemap()],
   // No web fonts, no third-party origins — the page-weight budget and privacy
   // promise both depend on this staying empty.

@@ -5,9 +5,14 @@
   // (miniflare 4.20250906.x). Bump on deploy if a newer feature is needed.
   "compatibility_date": "2025-09-01",
   // Serve on the account's workers.dev subdomain (bankjobs-api.tebello-namo.
-  // workers.dev) — explicit so deploys don't warn about the fallback. A custom
-  // domain/route would be added alongside this, not instead of it.
+  // workers.dev) — explicit so deploys don't warn about the fallback. Kept
+  // alongside the custom domain so the old origin never breaks mid-transition.
   "workers_dev": true,
+  // Custom domain on the mybankjobs.co.za zone (same Cloudflare account).
+  // wrangler creates the DNS record + cert on deploy. If a CI deploy fails
+  // attaching this, the API token needs Zone → Workers Routes → Edit for the
+  // zone (account-level Workers Scripts:Edit alone may not cover domains).
+  "routes": [{ "pattern": "api.mybankjobs.co.za", "custom_domain": true }],
   "d1_databases": [
     {
       "binding": "DB",
