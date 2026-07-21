@@ -11,3 +11,7 @@ site/src/data/jobs-full.json
 .wrangler/
 coverage/
 *.log
+
+# Playwright
+test-results/
+playwright-report/
