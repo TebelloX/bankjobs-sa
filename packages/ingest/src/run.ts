@@ -1,6 +1,7 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import type { CanonicalJob, SourceId } from '@bankjobs/core';
+import { describeError } from '@bankjobs/core';
 import type {
   EarcuRawPosting,
   OracleDetailResponse,
@@ -452,7 +453,9 @@ export async function runIngest(opts: RunOptions): Promise<number> {
           `${source}: ${outcome} seen=${seen} new=${inserted} changed=${updated} closed=${closed}`,
         );
       } catch (e) {
-        const msg = (e as Error).message;
+        // describeError, not .message: undici's network-level failures all read
+        // 'fetch failed' with the actionable reason buried in the cause chain.
+        const msg = describeError(e);
         log(`[${source}] ERROR: ${msg}`);
         if (!dryRun && runId !== undefined) {
           await finalizeRun(db, runId, 'failure', 0, 0, 0, msg, new Date().toISOString());

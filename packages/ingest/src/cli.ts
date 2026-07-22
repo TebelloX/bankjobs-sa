@@ -1,6 +1,7 @@
 import { parseArgs } from 'node:util';
 import { existsSync } from 'node:fs';
 import { isAbsolute, join } from 'node:path';
+import { describeError } from '@bankjobs/core';
 import { openIngestDb, openLocalDb, repoRoot } from './db';
 import type { JobsDb } from './db';
 import { openD1Db } from './d1http';
@@ -226,5 +227,10 @@ async function main(): Promise<void> {
 
 main().catch((err: unknown) => {
   process.stderr.write(`${err instanceof Error ? (err.stack ?? err.message) : String(err)}\n`);
+  // A stack omits the cause chain, where undici hides every network-level
+  // reason (connect timeout, DNS, TLS) — print it separately when present.
+  if (err instanceof Error && err.cause !== undefined) {
+    process.stderr.write(`caused by: ${describeError(err.cause)}\n`);
+  }
   process.exitCode = 1;
 });

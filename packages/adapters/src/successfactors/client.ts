@@ -1,3 +1,5 @@
+import { describeError } from '@bankjobs/core';
+
 import type { FetchOptions } from '../types';
 import type { SfFeedItem, SfRawPosting, SfSitemapPosting } from './types';
 
@@ -24,6 +26,11 @@ export interface SuccessFactorsConfig {
   sitemapPath?: string;
   /** default 400 — delay between every network request. */
   delayMs?: number;
+  /**
+   * default [5000, 15000] — backoff before each retry of the load-bearing
+   * feed/sitemap GET (so up to 3 attempts in total). Tests pass [] or [0].
+   */
+  retryDelaysMs?: number[];
 }
 
 /**
@@ -37,6 +44,8 @@ export const SUCCESSFACTORS_UA =
 const DEFAULT_FEED_PATH = '/sitemap.xml';
 const DEFAULT_SITEMAP_PATH = '/sitemap.xml';
 const DEFAULT_DELAY_MS = 400;
+/** Backoff before each retry of the load-bearing feed/sitemap GET. */
+const DEFAULT_RETRY_DELAYS_MS = [5_000, 15_000];
 /** Never enrich more than this many detail pages in a single run. */
 const SAFETY_CAP = 500;
 
@@ -167,14 +176,64 @@ async function sfFetch(url: string, opts: FetchOptions | undefined): Promise<Res
   return fetchImpl(url, { headers: { 'User-Agent': SUCCESSFACTORS_UA } });
 }
 
-/** GET the feed XML. Non-OK responses throw with status + url. */
+/**
+ * GET a load-bearing document (feed or sitemap) with bounded retry. Every SF
+ * CSB tenant we crawl CNAMEs to the same SAP edge (rmk12.jobs2web.com), so one
+ * transient connect failure there fails every SF source in the run at once
+ * (observed 2026-07-22: undici's default 10s connect timeout tripped for all
+ * three hosts while every non-SF platform connected fine). A thrown fetch
+ * (network-level), a failed body read, and a 429/5xx response all retry after
+ * the configured backoff; any other non-OK status is permanent and throws
+ * immediately — a 403/404 will not heal in 15 seconds.
+ */
+async function fetchDocument(
+  what: 'feed' | 'sitemap',
+  url: string,
+  retryDelaysMs: number[],
+  opts?: FetchOptions,
+): Promise<string> {
+  const attempts = retryDelaysMs.length + 1;
+  let lastError: Error | undefined;
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    if (attempt > 1) {
+      const delay = retryDelaysMs[attempt - 2] ?? 0;
+      opts?.log?.(
+        `${what} attempt ${attempt - 1}/${attempts} failed for ${url} — ` +
+          `${lastError === undefined ? 'unknown error' : describeError(lastError)}; ` +
+          `retrying in ${delay}ms`,
+      );
+      await sleep(delay);
+    }
+
+    let res: Response;
+    try {
+      res = await sfFetch(url, opts);
+    } catch (e) {
+      lastError = e instanceof Error ? e : new Error(String(e));
+      continue;
+    }
+
+    if (res.ok) {
+      try {
+        return await res.text();
+      } catch (e) {
+        lastError = e instanceof Error ? e : new Error(String(e));
+        continue;
+      }
+    }
+
+    lastError = new Error(`SuccessFactors ${what} request failed: HTTP ${res.status} for ${url}`);
+    if (res.status !== 429 && res.status < 500) throw lastError;
+  }
+
+  throw lastError ?? new Error(`SuccessFactors ${what} request failed for ${url}`);
+}
+
+/** GET the feed XML with retry; see {@link fetchDocument} for the policy. */
 export async function fetchFeed(cfg: SuccessFactorsConfig, opts?: FetchOptions): Promise<string> {
   const url = `https://${cfg.host}${cfg.feedPath ?? DEFAULT_FEED_PATH}`;
-  const res = await sfFetch(url, opts);
-  if (!res.ok) {
-    throw new Error(`SuccessFactors feed request failed: HTTP ${res.status} for ${url}`);
-  }
-  return res.text();
+  return fetchDocument('feed', url, cfg.retryDelaysMs ?? DEFAULT_RETRY_DELAYS_MS, opts);
 }
 
 /**
@@ -222,9 +281,7 @@ export async function fetchAllSuccessFactors(
         opts?.log?.(`${label}: no datePosted microdata at ${item.link}`);
       }
     } catch (e) {
-      opts?.log?.(
-        `${label}: postedDate enrichment failed for ${item.link} — ${(e as Error).message}`,
-      );
+      opts?.log?.(`${label}: postedDate enrichment failed for ${item.link} — ${describeError(e)}`);
     }
 
     result.push({ item, postedDate });
@@ -408,17 +465,13 @@ export function parseSitemapDetail(html: string, url: string): SfSitemapPosting 
   };
 }
 
-/** GET the URL sitemap XML. Non-OK responses throw with status + url. */
+/** GET the URL sitemap XML with retry; see {@link fetchDocument} for the policy. */
 export async function fetchSitemap(
   cfg: SuccessFactorsConfig,
   opts?: FetchOptions,
 ): Promise<string> {
   const url = `https://${cfg.host}${cfg.sitemapPath ?? DEFAULT_SITEMAP_PATH}`;
-  const res = await sfFetch(url, opts);
-  if (!res.ok) {
-    throw new Error(`SuccessFactors sitemap request failed: HTTP ${res.status} for ${url}`);
-  }
-  return res.text();
+  return fetchDocument('sitemap', url, cfg.retryDelaysMs ?? DEFAULT_RETRY_DELAYS_MS, opts);
 }
 
 /**
@@ -469,7 +522,7 @@ export async function fetchAllSuccessFactorsSitemap(
       }
     } catch (e) {
       skipped += 1;
-      opts?.log?.(`${label}: skipped ${url} — ${(e as Error).message}`);
+      opts?.log?.(`${label}: skipped ${url} — ${describeError(e)}`);
     }
     opts?.log?.(`${label}: details ${i + 1}/${urls.length}`);
   }

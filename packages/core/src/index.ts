@@ -20,3 +20,5 @@ export { categorize } from './categorize';
 export { cleanApplyUrl, assertAllowedApplyHost } from './applyUrl';
 
 export { countryCodeFor, countryName } from './country';
+
+export { describeError } from './error';
