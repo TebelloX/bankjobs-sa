@@ -901,6 +901,11 @@ a.pager-link:hover {
     align-items: center;
     padding: 0 20px;
   }
+  /* Phone widths keep only the wordmark in the header — the freshness line
+     is hidden, not wrapped, so the bar stays one clean row. */
+  .freshness {
+    display: none;
+  }
   .hero {
     padding: 40px 0 36px;
   }
