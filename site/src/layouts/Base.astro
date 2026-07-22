@@ -57,7 +57,9 @@ const year = new Date().getFullYear();
         footer keeps a link there so they stay one click away on every page. */}
     <footer class="site-footer">
       <div class="wrap">
-        <p>made with ❤️ by tebello · &copy; {year} mybankjobs · <a href="/about/">about</a></p>
+        {/* Phones show only the "made with" line — .ft-extra (copyright +
+            about link) is hidden by the mobile block in global.css. */}
+        <p>made with ❤️ by tebello<span class="ft-extra"> · &copy; {year} mybankjobs · <a href="/about/">about</a></span></p>
       </div>
     </footer>
   </body>

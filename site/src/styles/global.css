@@ -908,6 +908,9 @@ a.pager-link:hover {
   .fr-count {
     display: none;
   }
+  .ft-extra {
+    display: none;
+  }
   .hero {
     padding: 40px 0 36px;
   }
