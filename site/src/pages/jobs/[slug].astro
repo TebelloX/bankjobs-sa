@@ -44,7 +44,10 @@ const jsonLd: Record<string, unknown> = {
   '@context': 'https://schema.org/',
   '@type': 'JobPosting',
   title: job.title,
-  description: job.excerpt,
+  // Google's JobPosting docs want the complete description (HTML allowed) here,
+  // not a teaser. descriptionHtml is already sanitized by the ingest pipeline;
+  // the page meta description keeps the short excerpt.
+  description: job.descriptionHtml,
   validThrough,
   hiringOrganization: { '@type': 'Organization', name: job.brand },
   jobLocation: { '@type': 'Place', address },
@@ -58,7 +61,10 @@ const jsonLd: Record<string, unknown> = {
 jsonLd.datePosted = job.postedDate ?? job.firstSeen.slice(0, 10);
 if (mappedEmployment) jsonLd.employmentType = mappedEmployment;
 
-const jsonLdString = JSON.stringify(jsonLd);
+// The JSON now embeds job HTML inside a <script> block: a literal "</script>"
+// in the data would end the block early, so escape every "<" as \u003c
+// (identical JSON, inert in HTML).
+const jsonLdString = JSON.stringify(jsonLd).replace(/</g, '\\u003c');
 ---
 
 <Base title={`${job.title} — ${job.brand} | mybankjobs`} description={job.excerpt} narrow>
