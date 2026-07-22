@@ -40,8 +40,11 @@ const year = new Date().getFullYear();
     <header class="site-header">
       <div class="wrap bar">
         <a class="wordmark" href="/">my<em>bank</em>jobs</a>
+        {/* Phones show only the timestamp — .fr-count (the vacancy count) is
+            hidden by the mobile block in global.css. */}
         <p class="freshness">
-          Last updated <strong>{updated}</strong> · <strong>{meta.totalSA}</strong> open vacancies
+          Last updated <strong>{updated}</strong><span class="fr-count">
+            · <strong>{meta.totalSA}</strong> open vacancies</span>
         </p>
       </div>
     </header>
