@@ -9,16 +9,23 @@
 #   default-src 'none'  Deny every resource class by default; open each one below
 #                       only as far as the built output actually needs.
 #
-#   script-src 'self'   The site ships NO third-party JS and NO inline scripts.
-#                       The one executable script is the search island, which
-#                       astro.config.mjs forces to an EXTERNAL same-origin file
-#                       (vite build.assetsInlineLimit: 0) precisely so this
+#   script-src 'self'   The BUILD ships no third-party JS and no inline scripts.
+#                       The one executable script we ship is the search island,
+#                       which astro.config.mjs forces to an EXTERNAL same-origin
+#                       file (vite build.assetsInlineLimit: 0) precisely so this
 #                       directive needs no inline-script hashes — hashes would
 #                       silently break on any toolchain bump, invisibly to CI.
 #                       If a build ever inlines a <script type="module"> again,
 #                       that config regressed; fix it there, don't add hashes.
 #                       (Note: <script type="application/ld+json"> blocks are
 #                       data, not executable, so they are NOT covered here.)
+#                       static.cloudflareinsights.com is the ONE third-party
+#                       exception (decided 22 Jul 2026): Cloudflare Web
+#                       Analytics — cookieless RUM, edge-injected by Cloudflare
+#                       itself, invisible to curl/CI. It pairs with the
+#                       cloudflareinsights.com entry in connect-src (the beacon
+#                       POSTs to /cdn-cgi/rum). Remove BOTH if Web Analytics is
+#                       ever turned off in the Cloudflare dashboard.
 #
 #   style-src 'self'    One same-origin stylesheet under /_astro/. No inline
 #                       <style> blocks and no style= attributes exist anywhere
@@ -45,7 +52,7 @@
 #                       upgrade-insecure-requests upgrades any stray http URL.
 
 /*
-  Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.mybankjobs.co.za https://bankjobs-api.tebello-namo.workers.dev; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'none'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.mybankjobs.co.za https://bankjobs-api.tebello-namo.workers.dev https://cloudflareinsights.com; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
