@@ -14,6 +14,22 @@ interface Props {
 
 const { title, description, narrow = false, bleed = false } = Astro.props;
 const wrapClass = narrow ? 'wrap wrap--narrow' : 'wrap';
+
+// ONE absolute URL per page, shared by <link rel="canonical"> and og:url — a
+// preview that advertises a different URL than the canonical one splits the
+// page's identity across crawlers and share cards.
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site).href;
+
+// One static brand card for the whole site (site/public/og.png, 1200x630).
+// MUST be absolute: WhatsApp/Facebook silently drop relative og:image paths.
+const ogImage = new URL('/og.png', Astro.site).href;
+
+// Job detail pages append " | mybankjobs" to their <title>; og:site_name
+// already carries the brand, so the suffix would say it twice in a preview.
+// Every other page uses the " — mybankjobs" em-dash form, which reads as part
+// of the sentence and stays.
+const BRAND_SUFFIX = ' | mybankjobs';
+const ogTitle = title.endsWith(BRAND_SUFFIX) ? title.slice(0, -BRAND_SUFFIX.length) : title;
 {/* The build bakes the ABSOLUTE form ('23 Jul, 19:58') — a static page is
     served long after it is built, so 'today'/'yesterday' can only be decided
     in the browser. The script below upgrades the wording at view time;
@@ -33,7 +49,28 @@ const year = new Date().getFullYear();
     {/* The site also answers on bankjobs-sa.pages.dev (Pages keeps that origin
         alive) — an absolute canonical on every page keeps search engines on
         the real domain. */}
-    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+    <link rel="canonical" href={canonicalUrl} />
+    {/* Rich link previews. WhatsApp is the share channel this site is built
+        for (see the share block on job pages) and it reads the og:* tags;
+        the twitter:* set is the fallback other apps look for. No fb:app_id,
+        no analytics-adjacent tags. */}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="mybankjobs" />
+    <meta property="og:locale" content="en_ZA" />
+    <meta property="og:title" content={ogTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="mybankjobs — every official bank vacancy in South Africa. One page."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={ogTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
     <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
     <link rel="icon" href="/favicon-16.png" type="image/png" sizes="16x16" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
