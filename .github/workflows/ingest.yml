@@ -19,11 +19,11 @@ name: Ingest
 
 on:
   schedule:
-    # 04:17 / 10:17 / 16:17 UTC = 06:17 / 12:17 / 18:17 SAST (UTC+2, no DST).
+    # 02:02 / 09:02 / 14:02 UTC = 04:02 / 11:02 / 16:02 SAST (UTC+2, no DST).
     # Deliberately OFF the top of the hour: GitHub cron is best-effort and
     # drops :00 slots under load far more often (the 04:00 run on 22 Jul 2026
     # simply never fired). Odd minutes get materially better delivery.
-    - cron: '17 4,10,16 * * *'
+    - cron: '2 2,9,14 * * *'
   workflow_dispatch:
     inputs:
       only:
