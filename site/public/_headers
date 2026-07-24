@@ -10,9 +10,10 @@
 #                       only as far as the built output actually needs.
 #
 #   script-src 'self'   The BUILD ships no third-party JS and no inline scripts.
-#                       The one executable script we ship is the search island,
-#                       which astro.config.mjs forces to an EXTERNAL same-origin
-#                       file (vite build.assetsInlineLimit: 0) precisely so this
+#                       The executable scripts we ship (the search island, plus
+#                       the view-time freshness re-renders in Base.astro and
+#                       index.astro) are forced by astro.config.mjs to EXTERNAL
+#                       same-origin files (vite build.assetsInlineLimit: 0) so this
 #                       directive needs no inline-script hashes — hashes would
 #                       silently break on any toolchain bump, invisibly to CI.
 #                       If a build ever inlines a <script type="module"> again,

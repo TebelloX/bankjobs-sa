@@ -2,7 +2,8 @@
 import Base from '../layouts/Base.astro';
 import JobRow from '../components/JobRow.astro';
 import TrustStrip from '../components/TrustStrip.astro';
-import { saJobs, meta, formatRelative } from '../lib/data';
+import { saJobs, meta, formatDate } from '../lib/data';
+import { sastStatementDate } from '../lib/freshness';
 
 const sa = saJobs();
 
@@ -13,13 +14,12 @@ const statement = sa.slice(0, 4);
 // /vacancies/. The "browse all" row below carries the true total (sa.length).
 const latest = sa.slice(0, 20);
 
-// Today's date, SAST, for the statement header, e.g. "20 Jul 2026".
-const statementDate = new Intl.DateTimeFormat('en-ZA', {
-  timeZone: 'Africa/Johannesburg',
-  day: '2-digit',
-  month: 'short',
-  year: 'numeric',
-}).format(new Date());
+// The statement header date and the per-row 'posted today'/'posted 1d'
+// wording are both relative to the day the page is VIEWED, so — like the
+// header freshness label in Base.astro — they are re-rendered by the client
+// script at the bottom of this file. The build bakes the build-day date and
+// absolute 'posted 23 Jul' rows as the no-JS fallback.
+const statementDate = sastStatementDate();
 
 // Display names for the banks ledger. Sub-brands are what job seekers recognise,
 // so FirstRand shows as its franchises.
@@ -116,7 +116,7 @@ const description =
       <aside class="statement" aria-label="Most recent listings">
         <div class="st-head">
           <span class="t">Statement of vacancies</span>
-          <span class="d">{statementDate}</span>
+          <span class="d" id="st-date">{statementDate}</span>
         </div>
         {
           statement.map((job) => (
@@ -127,7 +127,9 @@ const description =
                   {stSource(job.brand, job.category, job.locations[0]?.city ?? null)}
                 </span>
               </p>
-              <span class="when">posted {formatRelative(job.postedDate)}</span>
+              <span class="when" data-posted-date={job.postedDate}>
+                posted {formatDate(job.postedDate)}
+              </span>
             </div>
           ))
         }
@@ -267,3 +269,20 @@ const description =
     </div>
   </section>
 </Base>
+
+<script>
+  // Re-render the statement card's day-relative pieces against NOW, replacing
+  // the baked build-day fallbacks: the header date becomes the viewing day and
+  // each row's 'posted 23 Jul' becomes 'posted today'/'posted 1d'. Bundled by
+  // Astro into an external same-origin file (assetsInlineLimit: 0), which
+  // script-src 'self' already allows.
+  import { formatPostedRelative, sastStatementDate } from '../lib/freshness';
+
+  const stDate = document.getElementById('st-date');
+  if (stDate) stDate.textContent = sastStatementDate();
+
+  for (const el of document.querySelectorAll<HTMLElement>('.st-row .when[data-posted-date]')) {
+    const rel = formatPostedRelative(el.dataset.postedDate ?? null);
+    if (rel) el.textContent = `posted ${rel}`;
+  }
+</script>

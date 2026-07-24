@@ -93,60 +93,7 @@ export function formatDate(iso: string | null): string {
   return `${d} ${MONTHS[m - 1]}`;
 }
 
-/**
- * Relative freshness for the statement card, e.g. 'today', '1d', '3d'. Compares
- * a date-only string ('2026-07-17') to today's date in SAST. Empty for null.
- * Additive helper — leaves formatDate and other exports untouched.
- */
-export function formatRelative(iso: string | null): string {
-  if (!iso) return '';
-  const [y, m, d] = iso.split('-').map(Number);
-  if (!y || !m || !d) return '';
-  const posted = Date.UTC(y, m - 1, d);
-  const [ty, tm, td] = sastYmd(new Date()).split('-').map(Number);
-  const today = Date.UTC(ty, tm - 1, td);
-  const days = Math.round((today - posted) / 86_400_000);
-  if (days <= 0) return 'today';
-  if (days === 1) return '1d';
-  return `${days}d`;
-}
-
-const SAST = 'Africa/Johannesburg';
-
-function sastYmd(date: Date): string {
-  return new Intl.DateTimeFormat('en-CA', {
-    timeZone: SAST,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).format(date);
-}
-
-/**
- * Format the snapshot's generatedAt (an ISO instant) as a short freshness
- * string in SAST (Africa/Johannesburg): 'today 20:15' when it lands on the
- * build day, otherwise '19 Jul, 14:00'.
- */
-export function formatUpdated(generatedAt: string): string {
-  const d = new Date(generatedAt);
-  if (Number.isNaN(d.getTime())) return 'unknown';
-
-  const time = new Intl.DateTimeFormat('en-GB', {
-    timeZone: SAST,
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  }).format(d);
-
-  if (sastYmd(d) === sastYmd(new Date())) {
-    return `today ${time}`;
-  }
-
-  const day = new Intl.DateTimeFormat('en-ZA', {
-    timeZone: SAST,
-    day: 'numeric',
-    month: 'short',
-  }).format(d); // e.g. "19 Jul"
-
-  return `${day}, ${time}`;
-}
+// All relative freshness wording ('today', 'last night', '1d') lives in
+// freshness.ts — it is rendered at VIEW time by client scripts (a build-time
+// 'today' goes stale overnight on a static site), so it must not live in this
+// module, whose snapshot-JSON imports may never reach the browser bundle.

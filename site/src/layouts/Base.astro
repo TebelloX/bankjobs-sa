@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
-import { meta, formatUpdated } from '../lib/data';
+import { meta } from '../lib/data';
+import { formatUpdatedAbsolute } from '../lib/freshness';
 
 interface Props {
   title: string;
@@ -13,7 +14,11 @@ interface Props {
 
 const { title, description, narrow = false, bleed = false } = Astro.props;
 const wrapClass = narrow ? 'wrap wrap--narrow' : 'wrap';
-const updated = formatUpdated(meta.generatedAt);
+{/* The build bakes the ABSOLUTE form ('23 Jul, 19:58') — a static page is
+    served long after it is built, so 'today'/'yesterday' can only be decided
+    in the browser. The script below upgrades the wording at view time;
+    without JS the absolute form stays, which is never wrong. */}
+const updated = formatUpdatedAbsolute(meta.generatedAt);
 const year = new Date().getFullYear();
 ---
 
@@ -43,7 +48,7 @@ const year = new Date().getFullYear();
         {/* Phones show only the timestamp — .fr-count (the vacancy count) is
             hidden by the mobile block in global.css. */}
         <p class="freshness">
-          Last updated <strong>{updated}</strong><span class="fr-count">
+          Last updated <strong id="fr-updated" data-generated-at={meta.generatedAt}>{updated}</strong><span class="fr-count">
             · <strong>{meta.totalSA}</strong> open vacancies</span>
         </p>
       </div>
@@ -55,6 +60,18 @@ const year = new Date().getFullYear();
 
     {/* The unaffiliated disclaimer + takedown contact live on /about — the
         footer keeps a link there so they stay one click away on every page. */}
+    <script>
+      // Re-render the header freshness label relative to NOW ('today 19:58',
+      // 'last night 19:58', 'yesterday 15:00'), replacing the baked absolute
+      // fallback. Bundled by Astro into an external same-origin file
+      // (assetsInlineLimit: 0), which script-src 'self' already allows.
+      import { formatUpdatedLabel } from '../lib/freshness';
+
+      const el = document.getElementById('fr-updated');
+      const generatedAt = el?.dataset.generatedAt;
+      if (el && generatedAt) el.textContent = formatUpdatedLabel(generatedAt);
+    </script>
+
     <footer class="site-footer">
       <div class="wrap">
         {/* Phones show only the "made with" line — .ft-extra (copyright +
