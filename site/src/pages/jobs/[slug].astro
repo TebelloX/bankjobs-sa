@@ -1,7 +1,9 @@
 ---
 import Base from '../../layouts/Base.astro';
+import JobRow from '../../components/JobRow.astro';
 import { allOpenJobs, formatDate } from '../../lib/data';
 import { mailtoShareHref, shareLabel, whatsappShareHref } from '../../lib/share';
+import { pickRelated } from '../../lib/related';
 import { countryName } from '@bankjobs/core';
 import type { FullJob } from '../../lib/data';
 
@@ -27,6 +29,12 @@ if (job.primaryLocation) metaParts.push(job.primaryLocation);
 if (job.postedDate) metaParts.push(`posted ${formatDate(job.postedDate)}`);
 if (job.employmentType) metaParts.push(job.employmentType);
 const metaLine = metaParts.join(' · ');
+
+// "More like this": up to 5 sibling vacancies, tiered by province → brand →
+// country → brand (see lib/related.ts), drawn from the whole open ledger in
+// snapshot order. Deterministic — no shuffling — so an unchanged snapshot
+// rebuilds to an identical page. An empty pick renders no section at all.
+const related = pickRelated(job, allOpenJobs());
 
 // Share links. The URL is built exactly as Base.astro builds the canonical
 // <link>, so a shared link is byte-identical to the canonical one — no
@@ -113,6 +121,28 @@ const jsonLdString = JSON.stringify(jsonLd).replace(/</g, '\\u003c');
       <span class="sr-only" role="status" data-share-status></span>
     </div>
   </div>
+
+  {
+    related.length > 0 && (
+      <section class="related" aria-labelledby="related-h">
+        <h2 class="sec-eyebrow" id="related-h">
+          More like this
+        </h2>
+        <ul class="joblist">
+          {related.map((r) => (
+            <JobRow
+              slug={r.slug}
+              title={r.title}
+              brand={r.brand}
+              category={r.category}
+              primaryLocation={r.primaryLocation}
+              postedDate={r.postedDate}
+            />
+          ))}
+        </ul>
+      </section>
+    )
+  }
 
   <script type="application/ld+json" set:html={jsonLdString} is:inline />
 

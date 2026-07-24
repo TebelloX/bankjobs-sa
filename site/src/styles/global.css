@@ -817,6 +817,13 @@ a.pager-link:hover {
   background: var(--paper-deep);
 }
 
+/* ---- "more like this" (job detail) ----
+   Reuses the ledger .joblist rows and the .sec-eyebrow section label wholesale;
+   all this rule owes them is the breathing room under the apply/share block. */
+.related {
+  margin-top: 34px;
+}
+
 /* ---- content sections (about) ---- */
 .prose h2 {
   margin-top: 1.8rem;

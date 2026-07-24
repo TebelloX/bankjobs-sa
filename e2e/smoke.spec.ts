@@ -18,6 +18,30 @@ test('job detail page renders from a ledger row', async ({ page }) => {
   await expect(page.locator('h1.detail-title')).toBeVisible();
 });
 
+test('related jobs on a detail page link to other vacancies', async ({ page }) => {
+  await page.goto('/vacancies/');
+  await page.locator('a[href^="/jobs/"]').first().click();
+  await expect(page.locator('h1.detail-title')).toBeVisible();
+
+  const here = new URL(page.url()).pathname;
+  const section = page.locator('section.related');
+
+  // The section is omitted when a job has no related rows, so this stays
+  // conditional — but when it IS there, every link must be a real, different
+  // job page. Which job the ledger surfaces first depends on the snapshot.
+  if ((await section.count()) > 0) {
+    const hrefs = await section
+      .locator('a')
+      .evaluateAll((els) => els.map((el) => el.getAttribute('href') ?? ''));
+    expect(hrefs.length).toBeGreaterThan(0);
+    for (const href of hrefs) {
+      expect(href).toMatch(/^\/jobs\/[^/]+\/$/);
+      expect(href).not.toBe(here);
+    }
+    await expect(section.locator('a').first()).toBeVisible();
+  }
+});
+
 test('search page renders', async ({ page }) => {
   await page.goto('/search');
   await expect(page.locator('h1')).toHaveText('Search vacancies');
