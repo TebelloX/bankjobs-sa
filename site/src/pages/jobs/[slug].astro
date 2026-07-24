@@ -106,6 +106,29 @@ const jsonLdString = JSON.stringify(jsonLd).replace(/</g, '\\u003c');
       You'll apply on the bank's own system. We never handle applications or CVs.
     </p>
 
+    {/* Save-for-later. Everything the saved page needs to render this row after
+        the vacancy closes rides on the data- attributes; the script below reads
+        them back, so nothing about the shortlist is known server-side. The
+        button ships `hidden` and is revealed only where a localStorage write
+        actually succeeds — a no-JS or storage-blocked visitor never sees a
+        control that could not remember anything. */}
+    <div
+      class="saveline"
+      data-save-job
+      data-job-id={job.id}
+      data-job-slug={job.slug}
+      data-job-title={job.title}
+      data-job-brand={job.brand}
+      data-job-category={job.category}
+      data-job-location={job.primaryLocation ?? ''}
+      data-job-posted={job.postedDate ?? ''}
+    >
+      <button class="share-btn save-btn" type="button" data-save-toggle hidden
+        >save this vacancy</button
+      >
+      <span class="sr-only" role="status" data-save-status></span>
+    </div>
+
     {/* WhatsApp and email are plain anchors — they work with JavaScript off,
         which matters on the cheap/low-data handsets a lot of this audience
         uses. The two button-driven channels ship `hidden` and are revealed by
@@ -193,6 +216,61 @@ const jsonLdString = JSON.stringify(jsonLd).replace(/</g, '\\u003c');
           // Dismissing the OS share sheet rejects with AbortError — expected
           // user action, not an error worth surfacing.
           navigator.share({ title: label, text: label, url }).catch(() => {});
+        });
+      }
+    }
+  </script>
+
+  <script>
+    // Progressive enhancement for the save toggle, same shape as the share
+    // script above: the button ships `hidden` and is only revealed once
+    // getLocalStorage() has proved a write round-trips (it probes, because
+    // Safari's private mode hands out a localStorage whose setItem always
+    // throws). Bundled by Astro into an external same-origin file
+    // (assetsInlineLimit: 0) — no inline script, so `script-src 'self'` holds.
+    //
+    // lib/savedJobs.ts is dependency-free, so importing it here costs the page
+    // nothing but the module itself: no job snapshot follows it into the bundle.
+    import { getLocalStorage, isSaved, toggleSaved } from '../../lib/savedJobs';
+
+    const box = document.querySelector<HTMLElement>('[data-save-job]');
+    const btn = box?.querySelector<HTMLButtonElement>('[data-save-toggle]');
+    const storage = getLocalStorage();
+
+    if (box && btn && storage) {
+      const status = box.querySelector<HTMLElement>('[data-save-status]');
+      const d = box.dataset;
+      // Empty strings mean "the source gave us none" — stored as null, exactly
+      // as the snapshot carries them, so a saved row renders like a ledger row.
+      const entry = {
+        id: d.jobId ?? '',
+        slug: d.jobSlug ?? '',
+        title: d.jobTitle ?? '',
+        brand: d.jobBrand ?? '',
+        category: d.jobCategory ?? '',
+        primaryLocation: d.jobLocation || null,
+        postedDate: d.jobPosted || null,
+      };
+
+      if (entry.id && entry.slug && entry.title) {
+        /** Label + pressed state always mirror what is actually persisted. */
+        function paint(saved: boolean): void {
+          btn!.textContent = saved ? 'saved ✓' : 'save this vacancy';
+          btn!.setAttribute('aria-pressed', saved ? 'true' : 'false');
+          btn!.classList.toggle('is-saved', saved);
+        }
+
+        paint(isSaved(storage, entry.id));
+        btn.hidden = false;
+
+        btn.addEventListener('click', () => {
+          const { saved, ok } = toggleSaved(storage, entry);
+          paint(saved);
+          if (!status) return;
+          // Announced to screen readers only — the visible label already
+          // carries the state for everyone else.
+          if (!ok) status.textContent = 'could not save — this browser is not storing it';
+          else status.textContent = saved ? 'saved to your list' : 'removed from your list';
         });
       }
     }

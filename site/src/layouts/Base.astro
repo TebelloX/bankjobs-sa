@@ -128,9 +128,11 @@ const year = new Date().getFullYear();
 
     <footer class="site-footer">
       <div class="wrap">
-        {/* Phones show only the "made with" line — .ft-extra (copyright +
-            about link) is hidden by the mobile block in global.css. */}
-        <p>Made with ❤️ by Tebello<span class="ft-extra"> · &copy; {year} mybankjobs · <a href="/about/">about</a></span></p>
+        {/* Phones keep the "made with" line AND the saved link — the shortlist
+            is stored per-device and phones are the main audience, so it is the
+            one footer link that must survive the mobile block in global.css
+            (which hides .ft-extra: copyright + about). */}
+        <p>Made with ❤️ by Tebello · <a href="/saved/">saved</a><span class="ft-extra"> · &copy; {year} mybankjobs · <a href="/about/">about</a></span></p>
       </div>
     </footer>
   </body>

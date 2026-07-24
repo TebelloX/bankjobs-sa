@@ -1,0 +1,140 @@
+---
+import Base from '../layouts/Base.astro';
+
+// The whole shortlist lives in the visitor's own browser (lib/savedJobs.ts), so
+// this page is a STATIC shell with an island that reads localStorage — there is
+// nothing to render server-side and nothing about it reaches us. Which is why
+// it is also deliberately absent from the sitemap's usefulness: every visitor's
+// version of this page is different and none of it is ours to index.
+const description =
+  'The bank vacancies you saved. Kept in this browser only — no account, nothing sent to us.';
+---
+
+<Base title="Saved vacancies — mybankjobs" description={description}>
+  <p class="eyebrow">Saved</p>
+  <h1>Saved vacancies</h1>
+
+  {/* The count line doubles as the island's status line: it carries the honest
+      message when the browser refuses storage, so the failure is never silent. */}
+  <p id="saved-count" class="results-count" aria-live="polite" role="status">
+    Loading your saved vacancies…
+  </p>
+
+  <ul id="saved-list" class="joblist saved-list" aria-label="Saved vacancies" hidden></ul>
+
+  <p id="saved-empty" class="list-empty" hidden>
+    Nothing saved yet — open a vacancy and tap “save this vacancy”.
+  </p>
+
+  <noscript>
+    <p class="muted">
+      Saved vacancies are stored in this browser and need JavaScript to show — nothing is sent to
+      us, so there is no account to sign into. The open ledger is below.
+    </p>
+  </noscript>
+
+  <p class="intl-link"><a href="/vacancies/">All open vacancies →</a></p>
+
+  <script>
+    // Saved-jobs island. Bundled by Astro into an external same-origin file
+    // (assetsInlineLimit: 0), so `script-src 'self'` needs no inline hashes.
+    //
+    // Every import here is dependency-free by design — none of them reaches
+    // lib/data.ts, so the gitignored job snapshot never lands in this bundle.
+    import { createJobRow } from '../lib/jobRowDom';
+    import { getLocalStorage, loadSaved, removeSaved } from '../lib/savedJobs';
+    import type { SavedJob } from '../lib/savedJobs';
+    // The same same-origin snapshot the search island reads — one constant, one
+    // URL, and `connect-src 'self'` already covers it.
+    import { SEARCH_DATA_URL } from '../lib/searchClient';
+
+    const list = document.getElementById('saved-list') as HTMLUListElement | null;
+    const count = document.getElementById('saved-count');
+    const empty = document.getElementById('saved-empty');
+    const storage = getLocalStorage();
+
+    if (list && count && empty) {
+      if (!storage) {
+        // Private mode, storage disabled by policy, quota refused on the probe:
+        // say so plainly rather than showing a permanently empty list.
+        count.textContent =
+          'This browser is not storing saved vacancies — private mode or storage is turned off.';
+      } else {
+        // Ids still present in the published snapshot. null = "we do not know
+        // yet" (or the fetch failed), which renders every row as a normal link:
+        // staleness marks are a nicety and must never hold up the list.
+        let openIds: Set<string> | null = null;
+
+        /** Quiet per-row control; its accessible name names the vacancy. */
+        function removeButton(entry: SavedJob): HTMLButtonElement {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'row-remove';
+          btn.appendChild(document.createTextNode('remove'));
+          const label = document.createElement('span');
+          label.className = 'sr-only';
+          label.textContent = ` ${entry.title}`;
+          btn.appendChild(label);
+          btn.addEventListener('click', () => {
+            removeSaved(storage, entry.id);
+            // localStorage is the source of truth — re-read and redraw rather
+            // than splicing the DOM, so a failed write cannot leave the page
+            // showing a removal that did not happen.
+            render();
+          });
+          return btn;
+        }
+
+        function countLabel(total: number, stale: number): string {
+          if (total === 0) return 'no saved vacancies';
+          const base = `${total} saved ${total === 1 ? 'vacancy' : 'vacancies'}`;
+          return stale > 0 ? `${base} — ${stale} no longer listed` : base;
+        }
+
+        // Rows are rendered NEWEST SAVE FIRST (loadSaved's order contract) with
+        // the same builder the search island uses, so a saved row and a search
+        // row are the same markup. DOM APIs only: stored titles are untrusted.
+        function render(): void {
+          const entries = loadSaved(storage);
+          while (list!.firstChild) list!.removeChild(list!.firstChild);
+
+          let stale = 0;
+          for (const entry of entries) {
+            const isStale = openIds !== null && !openIds.has(entry.id);
+            if (isStale) stale++;
+            // A closed vacancy has no page — the build only generates open jobs
+            // — so its title renders as plain text with a note, never a 404 link.
+            const row = createJobRow(entry, { linked: !isStale });
+            if (isStale) {
+              const note = document.createElement('span');
+              note.className = 'row-note';
+              note.textContent = 'no longer listed — may have closed';
+              row.querySelector('.job-cell')?.appendChild(note);
+            }
+            row.appendChild(removeButton(entry));
+            list!.appendChild(row);
+          }
+
+          list!.hidden = entries.length === 0;
+          empty!.hidden = entries.length > 0;
+          count!.textContent = countLabel(entries.length, stale);
+        }
+
+        render();
+
+        // Mark the rows whose job has left the snapshot. A failed fetch leaves
+        // openIds null and every row linked — the shortlist still works offline.
+        fetch(SEARCH_DATA_URL)
+          .then((r) => r.json())
+          .then((rows: Array<{ id?: unknown }>) => {
+            if (!Array.isArray(rows)) return;
+            openIds = new Set(
+              rows.map((r) => r.id).filter((id): id is string => typeof id === 'string'),
+            );
+            render();
+          })
+          .catch(() => {});
+      }
+    }
+  </script>
+</Base>

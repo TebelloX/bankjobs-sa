@@ -164,6 +164,97 @@ test('selecting a province locks the international toggle until it is cleared', 
   expect(new URL(page.url()).searchParams.has('province')).toBe(false);
 });
 
+// ---- saved vacancies -------------------------------------------------------
+// The shortlist is localStorage-only (site/src/lib/savedJobs.ts). Playwright
+// gives every test its own browser context, so each one starts with empty
+// storage — no clean-up needed between them.
+
+const SAVED_KEY = 'mybankjobs.saved.v1';
+
+test('saving a vacancy lists it on /saved, and removing it empties the list', async ({ page }) => {
+  await page.goto('/vacancies/');
+  await page.locator('a[href^="/jobs/"]').first().click();
+  const jobUrl = new URL(page.url()).pathname;
+  const title = ((await page.locator('h1.detail-title').textContent()) ?? '').trim();
+  expect(title).not.toBe('');
+
+  // The button ships hidden and is revealed only where a storage write actually
+  // round-trips — Chromium, so it must be here.
+  const toggle = page.locator('[data-save-toggle]');
+  await expect(toggle).toBeVisible();
+  await expect(toggle).toHaveText('save this vacancy');
+  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+
+  await toggle.click();
+  await expect(toggle).toHaveText(/saved/);
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+
+  // Revisiting the page reflects the stored state rather than resetting.
+  await page.reload();
+  await expect(page.locator('[data-save-toggle]')).toHaveText(/saved/);
+
+  await page.goto('/saved/');
+  const rows = page.locator('#saved-list .job-row');
+  await expect(rows).toHaveCount(1);
+  const link = rows.first().locator('a.job-title');
+  await expect(link).toHaveText(title);
+  await expect(page.locator('#saved-count')).toContainText('1 saved vacancy');
+  await expect(rows.first().locator('.row-note')).toHaveCount(0);
+
+  // The link is a real, working job page.
+  await expect(link).toHaveAttribute('href', jobUrl);
+  await link.click();
+  await expect(page.locator('h1.detail-title')).toHaveText(title);
+
+  await page.goto('/saved/');
+  await page.locator('#saved-list .row-remove').first().click();
+  await expect(page.locator('#saved-list .job-row')).toHaveCount(0);
+  await expect(page.locator('#saved-empty')).toBeVisible();
+  await expect(page.locator('#saved-count')).toHaveText('no saved vacancies');
+});
+
+test('a saved vacancy that is no longer listed is flagged and not linked', async ({ page }) => {
+  // A job id that cannot be in the snapshot: the saved page marks any entry the
+  // published /data/jobs.json does not carry, because its /jobs/ page is gone.
+  await page.addInitScript(
+    ([key, entry]) => {
+      window.localStorage.setItem(key as string, JSON.stringify([entry]));
+    },
+    [
+      SAVED_KEY,
+      {
+        id: 'absa:definitely-closed-0000',
+        slug: 'absa-definitely-closed-0000',
+        title: 'Closed Vacancy — Branch Consultant',
+        brand: 'Absa',
+        category: 'Branch & Retail',
+        primaryLocation: 'Sandton, Gauteng',
+        postedDate: '2026-01-05',
+        savedAt: '2026-07-01T09:00:00.000Z',
+      },
+    ],
+  );
+
+  await page.goto('/saved/');
+  const row = page.locator('#saved-list .job-row').first();
+  await expect(row).toContainText('Closed Vacancy — Branch Consultant');
+  // The staleness pass runs after the snapshot fetch lands; both assertions
+  // retry until it has.
+  await expect(row.locator('.row-note')).toContainText('no longer listed');
+  await expect(row.locator('a[href^="/jobs/"]')).toHaveCount(0);
+  await expect(page.locator('#saved-count')).toContainText('1 no longer listed');
+
+  // The row is still removable.
+  await row.locator('.row-remove').click();
+  await expect(page.locator('#saved-list .job-row')).toHaveCount(0);
+});
+
+test('every page footer links to the saved list', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('.site-footer a[href="/saved/"]').click();
+  await expect(page.locator('h1')).toHaveText('Saved vacancies');
+});
+
 test('province landing page renders a ledger with the right heading', async ({ page }) => {
   // Gauteng always has open roles in the snapshot, so its page is generated.
   await page.goto('/vacancies/gauteng/');

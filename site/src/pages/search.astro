@@ -148,6 +148,9 @@ const loadingLabel =
   <script>
     import { PUBLIC_SEARCH_MODE, SEARCH_DATA_URL, buildSearchUrl } from '../lib/searchClient';
     import type { ApiJobsResponse, SearchRow } from '../lib/searchClient';
+    // The ledger row builder moved to lib/jobRowDom.ts when the saved page
+    // needed the same rows — same DOM, same classes, same markup as JobRow.astro.
+    import { createJobRow } from '../lib/jobRowDom';
 
     const input = document.getElementById('search-input') as HTMLInputElement | null;
     const intl = document.getElementById('include-intl') as HTMLInputElement | null;
@@ -160,62 +163,6 @@ const loadingLabel =
     const more = document.getElementById('search-more');
 
     if (input && list && count && more) {
-      const MONTHS = [
-        'Jan',
-        'Feb',
-        'Mar',
-        'Apr',
-        'May',
-        'Jun',
-        'Jul',
-        'Aug',
-        'Sep',
-        'Oct',
-        'Nov',
-        'Dec',
-      ];
-
-      function fmtDate(iso: string | null): string {
-        if (!iso) return '';
-        const [y, m, d] = iso.split('-').map(Number);
-        if (!y || !m || !d) return '';
-        return `${d} ${MONTHS[m - 1]}`;
-      }
-
-      // Build one ledger <li> for a job row with DOM APIs only — never innerHTML
-      // with data. Shared by both modes so the markup stays identical to
-      // JobRow.astro regardless of data source: cell (title + source) | when.
-      function createJobRow(r: SearchRow): HTMLLIElement {
-        const li = document.createElement('li');
-        li.className = 'job-row';
-
-        const cell = document.createElement('span');
-        cell.className = 'job-cell';
-
-        const a = document.createElement('a');
-        a.className = 'job-title';
-        a.href = `/jobs/${r.slug}/`;
-        a.textContent = r.title;
-
-        const src = document.createElement('span');
-        src.className = 'src';
-        const parts = [r.brand, r.category];
-        if (r.primaryLocation) parts.push(r.primaryLocation);
-        src.textContent = parts.join(' · ');
-
-        cell.appendChild(a);
-        cell.appendChild(src);
-        li.appendChild(cell);
-
-        if (r.postedDate) {
-          const when = document.createElement('span');
-          when.className = 'when';
-          when.textContent = `posted ${fmtDate(r.postedDate)}`;
-          li.appendChild(when);
-        }
-        return li;
-      }
-
       // Long result sets render in statement-sized batches of 50: a first page
       // of 50 rows, then a "show more" button that reveals another 50 each click.
       const PAGE_SIZE = 50;
