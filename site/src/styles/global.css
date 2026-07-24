@@ -764,6 +764,59 @@ a.pager-link:hover {
   font-size: 13.5px;
 }
 
+/* ---- share block (job detail) ----
+   Deliberately quiet: monospace ledger-annotation labels in outline chips, so
+   the solid ink "Apply" button above stays the only loud control on the page.
+   The stamp red is a signature accent and never appears on anything clickable. */
+.share {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--rule);
+}
+.share-title {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 10px;
+}
+.share-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.share-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 8px 14px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  background: transparent;
+  border: 1px solid var(--rule);
+  cursor: pointer;
+}
+.share-btn:hover {
+  color: var(--ink);
+  border-color: var(--ink);
+}
+/* The copy / native buttons ship with the `hidden` attribute and are unhidden
+   by the script only where the API exists — author `display` would otherwise
+   out-specify the UA's [hidden] rule and show a dead control to no-JS users. */
+.share-btn[hidden] {
+  display: none;
+}
+/* Post-click confirmation ("copied"), reverted by the script after ~2s. */
+.share-btn.is-flashed {
+  color: var(--ink);
+  border-color: var(--ink);
+  background: var(--paper-deep);
+}
+
 /* ---- content sections (about) ---- */
 .prose h2 {
   margin-top: 1.8rem;
@@ -910,6 +963,10 @@ a.pager-link:hover {
   }
   .ft-extra {
     display: none;
+  }
+  /* Full 44px touch targets on phones — where the share block gets used most. */
+  .share-btn {
+    min-height: 44px;
   }
   .hero {
     padding: 40px 0 36px;
