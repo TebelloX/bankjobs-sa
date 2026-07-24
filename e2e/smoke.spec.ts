@@ -38,6 +38,15 @@ test('category × province combo page renders from a province cross-link', async
   await expect(page.locator('a[href^="/jobs/"]').first()).toBeVisible();
 });
 
+test('bank landing page renders from the homepage coverage ledger', async ({ page }) => {
+  await page.goto('/');
+  // The coverage ledger rows are the only /banks/ links on the homepage; which
+  // brand is first depends on the snapshot, so stay off specific banks.
+  await page.locator('a[href^="/banks/"]').first().click();
+  await expect(page.locator('h1')).toContainText('vacancies');
+  await expect(page.locator('.crosslinks a[href^="/banks/"]').first()).toBeVisible();
+});
+
 test('numeric vacancies pagination still resolves alongside the province routes', async ({
   page,
 }) => {

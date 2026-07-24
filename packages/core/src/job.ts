@@ -11,21 +11,28 @@ export const SOURCES = [
 ] as const;
 export type SourceId = (typeof SOURCES)[number];
 
-export type Brand =
-  | 'Absa'
-  | 'FNB'
-  | 'RMB'
-  | 'WesBank'
-  | 'Ashburton'
-  | 'DirectAxis'
-  | 'FirstRand'
-  | 'Standard Bank'
-  | 'Investec'
-  | 'GoTyme Bank'
-  | 'Nedbank'
-  | 'Discovery Bank'
-  | 'Capitec'
-  | 'SARB';
+// Canonical brand values exactly as stored on jobs.brand. A runtime list (not
+// just a union) so the site can enumerate brands for the /banks/ landing pages
+// — same idiom as SOURCES/CATEGORIES above. Order is the coverage order, not
+// alphabetical: FirstRand's franchises sit together under the source that
+// carries them.
+export const BRANDS = [
+  'Absa',
+  'FNB',
+  'RMB',
+  'WesBank',
+  'Ashburton',
+  'DirectAxis',
+  'FirstRand',
+  'Standard Bank',
+  'Investec',
+  'GoTyme Bank',
+  'Nedbank',
+  'Discovery Bank',
+  'Capitec',
+  'SARB',
+] as const;
+export type Brand = (typeof BRANDS)[number];
 
 export const CATEGORIES = [
   'Branch & Retail',

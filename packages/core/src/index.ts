@@ -1,4 +1,4 @@
-export { SOURCES, CATEGORIES, CATEGORY_SLUGS, PROVINCES, jobSlug } from './job';
+export { SOURCES, BRANDS, CATEGORIES, CATEGORY_SLUGS, PROVINCES, jobSlug } from './job';
 export type {
   SourceId,
   Brand,

@@ -1,0 +1,158 @@
+---
+import type { GetStaticPaths, Page } from 'astro';
+import Base from '../../../layouts/Base.astro';
+import JobRow from '../../../components/JobRow.astro';
+import Pager from '../../../components/Pager.astro';
+import { BRANDS, CATEGORY_SLUGS } from '@bankjobs/core';
+import type { Brand, Category } from '@bankjobs/core';
+import { allOpenJobs, saJobs, internationalJobs } from '../../../lib/data';
+import type { FullJob } from '../../../lib/data';
+import { BANK_SLUGS } from '../../../lib/banks';
+
+// One paginated landing page per brand, 20 SA rows a page. `[...page]` keeps
+// the bare URL (/banks/absa/) as page 1 and adds /banks/absa/2/ … FNB alone
+// carries 150+ SA roles, so these ledgers paginate rather than cap the way the
+// smaller province pages do.
+//
+// A page exists iff the brand has at least one OPEN job in ANY country — no
+// thin pages for brands we have a mapping for but no listings from (Ashburton,
+// DirectAxis, GoTyme Bank today), and the sitemap only ever lists real pages.
+// The predicate is deliberately all-countries, not SA: a brand whose current
+// openings are all abroad is still a real, hiring bank, and its page says so
+// honestly with an empty SA ledger and the international link.
+export const getStaticPaths = (({ paginate }) => {
+  const open = allOpenJobs();
+  return BRANDS.filter((name) => open.some((j) => j.brand === name)).flatMap((name) => {
+    const jobs = saJobs().filter((j) => j.brand === name);
+    return paginate(jobs, {
+      params: { bank: BANK_SLUGS[name] },
+      props: { name },
+      pageSize: 20,
+    });
+  });
+}) satisfies GetStaticPaths;
+
+interface Props {
+  page: Page<FullJob>;
+  name: Brand;
+}
+
+const { page, name } = Astro.props;
+const isFirst = page.currentPage === 1;
+
+// Counts reflect the whole brand (page.total), not just this page's slice.
+const jobs = saJobs().filter((j) => j.brand === name);
+const total = page.total;
+const noun = total === 1 ? 'role' : 'roles';
+
+const intlCount = internationalJobs().filter((j) => j.brand === name).length;
+const intlNoun = intlCount === 1 ? 'role' : 'roles';
+
+// "across N provinces" — distinct provinces in this brand's SA ledger, the same
+// locations[0].province the lean rows carry. Omitted when the ledger is empty.
+const provinceCount = new Set(
+  jobs.map((j) => j.locations[0]?.province).filter((p): p is NonNullable<typeof p> => Boolean(p)),
+).size;
+const provincePhrase =
+  provinceCount > 0
+    ? ` across ${provinceCount} ${provinceCount === 1 ? 'province' : 'provinces'}`
+    : '';
+
+// Cross-links (discovery — orphan pages don't rank), page 1 only. Categories
+// this brand is hiring for in South Africa link to the category ledgers; the
+// other live banks link to their own pages. Both follow canonical core order.
+const catsHere = isFirst
+  ? (Object.entries(CATEGORY_SLUGS) as Array<[Category, string]>)
+      .filter(([, cslug]) => jobs.some((j) => j.categorySlug === cslug))
+      .map(([cname, cslug]) => ({ name: cname, slug: cslug }))
+  : [];
+
+const liveBrands = new Set(allOpenJobs().map((j) => j.brand));
+const otherBanks = isFirst
+  ? BRANDS.filter((b) => b !== name && liveBrands.has(b)).map((b) => ({
+      name: b,
+      slug: BANK_SLUGS[b],
+    }))
+  : [];
+
+const baseTitle =
+  total > 0 ? `${total} ${name} vacancies in South Africa` : `${name} vacancies in South Africa`;
+const title = isFirst
+  ? `${baseTitle} — mybankjobs`
+  : `${name} vacancies — page ${page.currentPage} — mybankjobs`;
+
+const baseDesc =
+  total > 0
+    ? `${total} open ${noun} at ${name}${provincePhrase} — official listings straight from ${name}'s own career system, updated a few times a day.`
+    : `No open South African ${noun} at ${name} right now${
+        intlCount > 0 ? `, but ${intlCount} international ${intlNoun} are listed` : ''
+      } — official listings straight from ${name}'s own career system, updated a few times a day.`;
+const description = isFirst ? baseDesc : `${baseDesc} — page ${page.currentPage}`;
+---
+
+<Base title={title} description={description}>
+  <a class="backlink" href="/">← All vacancies</a>
+  <p class="eyebrow">Vacancies by bank</p>
+  <h1>{name} vacancies <span class="mono">({total})</span></h1>
+  <p class="lede">
+    {
+      total > 0
+        ? `${total} open ${noun} at ${name} in South Africa${provincePhrase} — updated three times a day.`
+        : `${name} has no open South African roles on the statement right now — everything currently listed is outside South Africa.`
+    }
+  </p>
+
+  {
+    page.data.length > 0 ? (
+      <ul class="joblist">
+        {page.data.map((job) => (
+          <JobRow
+            slug={job.slug}
+            title={job.title}
+            brand={job.brand}
+            category={job.category}
+            primaryLocation={job.primaryLocation}
+            postedDate={job.postedDate}
+          />
+        ))}
+      </ul>
+    ) : (
+      <p class="list-empty">No open {name} vacancies in South Africa right now.</p>
+    )
+  }
+
+  <Pager page={page} />
+
+  {
+    intlCount > 0 && (
+      <p class="intl-link">
+        <a href="/browse/international">
+          {`${intlCount} international ${intlNoun} at ${name} →`}
+        </a>
+      </p>
+    )
+  }
+
+  {
+    (catsHere.length > 0 || otherBanks.length > 0) && (
+      <nav class="crosslinks" aria-label="Related listings">
+        {catsHere.length > 0 && (
+          <p class="quick">
+            {name} by category:
+            {catsHere.map((c) => (
+              <a href={`/browse/${c.slug}/`}>{c.name}</a>
+            ))}
+          </p>
+        )}
+        {otherBanks.length > 0 && (
+          <p class="quick">
+            Other banks:
+            {otherBanks.map((b) => (
+              <a href={`/banks/${b.slug}/`}>{b.name}</a>
+            ))}
+          </p>
+        )}
+      </nav>
+    )
+  }
+</Base>

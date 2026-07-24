@@ -2,8 +2,10 @@
 import Base from '../layouts/Base.astro';
 import JobRow from '../components/JobRow.astro';
 import TrustStrip from '../components/TrustStrip.astro';
-import { saJobs, meta, formatDate } from '../lib/data';
+import { allOpenJobs, saJobs, meta, formatDate } from '../lib/data';
 import { sastStatementDate } from '../lib/freshness';
+import { BRANDS } from '@bankjobs/core';
+import { BANK_SLUGS } from '../lib/banks';
 
 const sa = saJobs();
 
@@ -21,8 +23,9 @@ const latest = sa.slice(0, 20);
 // absolute 'posted 23 Jul' rows as the no-JS fallback.
 const statementDate = sastStatementDate();
 
-// Display names for the banks ledger. Sub-brands are what job seekers recognise,
-// so FirstRand shows as its franchises.
+// Display names for the muted "coming soon" rows below, which are still keyed
+// by SOURCE. Sub-brands are what job seekers recognise, so a dormant FirstRand
+// source would show as its franchises.
 const BANK_DISPLAY_NAMES: Record<string, string> = {
   absa: 'Absa',
   firstrand: 'FNB · RMB · WesBank',
@@ -38,31 +41,34 @@ function bankName(id: string, fallback: string): string {
   return BANK_DISPLAY_NAMES[id] ?? fallback;
 }
 
-// Live rows: every source with open roles, largest ledger first. The search
-// query is the source's real name (the client search matches source ids and
-// brands), not the multi-brand display label, which would match nothing.
+// Live rows: one per BRAND with open roles, largest ledger first, each linking
+// to its own /banks/<slug>/ landing page. Brands — not sources — because a
+// source can carry several: the firstrand source is FNB, RMB, WesBank and
+// FirstRand, and a job seeker looking for FNB should land on an FNB ledger.
+// Brands are enumerated from core's BRANDS, never from meta.sources.
 //
 // Displayed counts are SOUTH AFRICAN roles only, so the ledger sums to the
 // same number as the header and the "Open vacancies in South Africa" list —
-// meta.sources[].count is all countries and would make the page contradict
-// itself. Liveness still comes from the all-countries count, so a source
-// whose SA count happens to be 0 stays a live row rather than "coming soon".
-const saCountBySource = new Map<string, number>();
+// an all-countries count would make the page contradict itself. Liveness still
+// comes from the all-countries count (the same predicate the /banks/ pages
+// use), so a brand whose SA count happens to be 0 stays a live row with a real
+// page rather than silently disappearing.
+const saCountByBrand = new Map<string, number>();
 for (const job of sa) {
-  saCountBySource.set(job.source, (saCountBySource.get(job.source) ?? 0) + 1);
+  saCountByBrand.set(job.brand, (saCountByBrand.get(job.brand) ?? 0) + 1);
 }
-const liveBanks = meta.sources
-  .filter((s) => s.count > 0)
-  .map((s) => ({
-    name: bankName(s.id, s.name),
-    query: s.name,
-    count: saCountBySource.get(s.id) ?? 0,
+const liveBrands = new Set(allOpenJobs().map((j) => j.brand));
+const liveBanks = BRANDS.filter((b) => liveBrands.has(b))
+  .map((b) => ({
+    name: b,
+    slug: BANK_SLUGS[b],
+    count: saCountByBrand.get(b) ?? 0,
   }))
   .sort((a, b) => b.count - a.count);
 
-// Muted "coming soon" rows: any source with nothing live yet (e.g. GoTyme, whose
-// adapter is ready but whose feed is empty). Every bank we've built a connection
-// to is now a live source, so there are no hardcoded placeholders left.
+// Muted "coming soon" rows stay per SOURCE: "coming soon" is a statement about
+// a connection we're still building, and connections are per source, not per
+// brand (e.g. GoTyme, whose adapter is ready but whose feed is empty).
 const comingSoon = meta.sources
   .filter((s) => s.count === 0)
   .map((s) => bankName(s.id, s.name));
@@ -150,7 +156,7 @@ const description =
       <h2 id="coverage-h" class="sec-title">The banks on the statement</h2>
       {
         liveBanks.map((bank) => (
-          <a class="bank-line" href={`/search?q=${encodeURIComponent(bank.query)}`}>
+          <a class="bank-line" href={`/banks/${bank.slug}/`}>
             <span class="name">{bank.name}</span>
             <span class="dots" />
             <span class="count">
