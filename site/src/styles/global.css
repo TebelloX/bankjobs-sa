@@ -862,6 +862,61 @@ a.pager-link:hover {
 .search-controls input::placeholder {
   color: #7d8f87;
 }
+/* Filter selects — they wrap under the search input and stay quiet: mono ink on
+   paper inside a 1px ledger rule, the same chip idiom as .share-btn. No stamp
+   red; these are working controls, not a signature. The `.search-controls
+   label` rule above is more specific than a bare `.filter`, hence the compound
+   selector — otherwise the labels inherit its block/600/margin. */
+.search-controls .filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 12px;
+  margin-top: 14px;
+  max-width: 640px;
+}
+.search-controls .filter {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 0;
+  font-weight: 400;
+}
+.filter-label {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+}
+.filter select {
+  min-height: 40px;
+  max-width: 100%;
+  padding: 8px 12px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-radius: 0;
+  cursor: pointer;
+}
+.filter select:hover {
+  border-color: var(--ink);
+}
+/* Shown only while a province is selected — it explains why the international
+   toggle is disabled, and it is what that checkbox's aria-describedby points
+   at. Authoring `display` here would out-specify the UA's [hidden] rule, so the
+   hidden state is restated (same reason as .share-btn[hidden]). */
+.filter-note {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--ink-soft);
+}
+.filter-note[hidden] {
+  display: none;
+}
 .checkbox {
   display: inline-flex;
   align-items: center;
@@ -974,6 +1029,14 @@ a.pager-link:hover {
   /* Full 44px touch targets on phones — where the share block gets used most. */
   .share-btn {
     min-height: 44px;
+  }
+  /* Same for the search filters; each select also gets the row to itself so a
+     long bank name is not truncated at 320px. */
+  .filter select {
+    min-height: 44px;
+  }
+  .search-controls .filter {
+    flex: 1 1 100%;
   }
   .hero {
     padding: 40px 0 36px;

@@ -68,10 +68,24 @@ export interface ApiJobsResponse {
   jobs: ApiJobRow[];
 }
 
-/** UI state the search island maps onto Worker `/api/jobs` params in 'api' mode. */
+/**
+ * UI state the search island maps onto Worker `/api/jobs` params in 'api' mode.
+ *
+ * The three filter fields carry CANONICAL API values, not URL slugs: the search
+ * page renders them into each `<option data-api>` at build time and the island
+ * reads them back off the selected option. Every param name below is on the
+ * edge-cache-key allowlist in packages/api/src/cache.ts — a filter that is not
+ * on that list would let two different result sets collide on one cache entry.
+ */
 export interface SearchQuery {
   /** Free-text query; '' lists everything in scope (the API falls back to a listing). */
   q: string;
+  /** Canonical brand name exactly as stored on jobs.brand ('Standard Bank'); omit for all banks. */
+  brand?: string;
+  /** Category slug ('risk-compliance') or canonical name — the API resolves both; omit for all. */
+  category?: string;
+  /** Canonical province name ('Western Cape'); omit for all provinces. */
+  province?: string;
   /** ISO alpha-2 to restrict to one country ('ZA' = SA-only); omit for all countries. */
   country?: string;
   /** Page size (the API caps this at 50). */
@@ -83,12 +97,17 @@ export interface SearchQuery {
 /**
  * Build the Worker query URL for a search. 'static' mode never calls this — it
  * fetches SEARCH_DATA_URL once and filters locally, so the query is irrelevant
- * there; 'api' mode maps the UI state (query, country scope, paging) onto the
- * `/api/jobs` params.
+ * there; 'api' mode maps the UI state (query, filters, country scope, paging)
+ * onto the `/api/jobs` params. Empty/undefined values are omitted rather than
+ * sent blank: the Worker treats a missing param as "no constraint", and the
+ * cache key drops empty params anyway.
  */
 export function buildSearchUrl(params: SearchQuery): string {
   const url = new URL(`${PUBLIC_API_BASE}/api/jobs`);
   if (params.q) url.searchParams.set('q', params.q);
+  if (params.brand) url.searchParams.set('brand', params.brand);
+  if (params.category) url.searchParams.set('category', params.category);
+  if (params.province) url.searchParams.set('province', params.province);
   if (params.country) url.searchParams.set('country', params.country);
   url.searchParams.set('limit', String(params.limit));
   url.searchParams.set('offset', String(params.offset));

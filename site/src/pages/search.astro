@@ -1,10 +1,52 @@
 ---
 import Base from '../layouts/Base.astro';
-import { CATEGORY_SLUGS } from '@bankjobs/core';
-import type { Category } from '@bankjobs/core';
+import { CATEGORY_SLUGS, PROVINCES } from '@bankjobs/core';
+import type { Category, Province } from '@bankjobs/core';
+import { allOpenJobs, saJobs } from '../lib/data';
+import { BANK_SLUGS } from '../lib/banks';
+import { PROVINCE_SLUGS } from '../lib/provinces';
 import { PUBLIC_SEARCH_MODE } from '../lib/searchClient';
 
 const categories = Object.entries(CATEGORY_SLUGS) as Array<[Category, string]>;
+
+// ---- filter options -------------------------------------------------------
+// Rendered SERVER-side, here in the frontmatter, so the island needs no data
+// imports of its own: each <option> carries both the URL slug (`value`, what
+// ?brand=/?category=/?province= hold) and the canonical value the API and the
+// static filter match on (`data-api`). The island reads `data-api` straight off
+// the selected option — it must never import lib/data.ts, banks.ts or
+// provinces.ts, which would drag the gitignored build snapshots (or their
+// dependencies) into the client bundle.
+
+// Banks: every brand with at least one open job in any country — the same
+// predicate the /banks/ landing pages use — in ALPHABETICAL order. Never
+// count-ordered: counts change on every rebuild and would reshuffle the list
+// under returning visitors. data-api is the canonical jobs.brand value; the API
+// resolves it case-insensitively, the lean rows compare it exactly.
+const bankOptions = [...new Set(allOpenJobs().map((j) => j.brand))]
+  .sort((a, b) => a.localeCompare(b))
+  .map((name) => ({ slug: BANK_SLUGS[name], api: name, label: name }));
+
+// Categories: all ten, in canonical core order. The API's resolveCategory
+// accepts the slug as well as the display name, and the lean rows carry
+// `categorySlug`, so the slug is both the URL value and the canonical one.
+const categoryOptions = categories.map(([name, slug]) => ({ slug, api: slug, label: name }));
+
+// Provinces: the nine, filtered to those with open SA jobs, using locations[0]
+// — the same first-location rule the /vacancies/<province>/ pages use and
+// exactly what the lean row's `province` field carries, so every option listed
+// here has rows in static mode too. (The API matches ANY of a job's locations,
+// a superset — see the island's static filter for that documented delta.)
+const provincesWithJobs = new Set(
+  saJobs()
+    .map((j) => j.locations[0]?.province)
+    .filter((p): p is Province => Boolean(p)),
+);
+const provinceOptions = PROVINCES.filter((name) => provincesWithJobs.has(name)).map((name) => ({
+  slug: PROVINCE_SLUGS[name],
+  api: name,
+  label: name,
+}));
 
 const description =
   "Search every official South African bank vacancy by title, bank, category or location. Apply on the bank's own site.";
@@ -30,11 +72,56 @@ const loadingLabel =
       placeholder="Try “teller”, “developer”, “credit analyst”…"
       autocomplete="off"
     />
+    <div class="filters">
+      <label class="filter">
+        <span class="filter-label">bank</span>
+        <select id="filter-bank">
+          <option value="">any bank</option>
+          {
+            bankOptions.map((o) => (
+              <option value={o.slug} data-api={o.api}>
+                {o.label}
+              </option>
+            ))
+          }
+        </select>
+      </label>
+      <label class="filter">
+        <span class="filter-label">category</span>
+        <select id="filter-category">
+          <option value="">any category</option>
+          {
+            categoryOptions.map((o) => (
+              <option value={o.slug} data-api={o.api}>
+                {o.label}
+              </option>
+            ))
+          }
+        </select>
+      </label>
+      <label class="filter">
+        <span class="filter-label">province</span>
+        <select id="filter-province">
+          <option value="">any province</option>
+          {
+            provinceOptions.map((o) => (
+              <option value={o.slug} data-api={o.api}>
+                {o.label}
+              </option>
+            ))
+          }
+        </select>
+      </label>
+    </div>
+
     <div>
       <label class="checkbox">
         <input type="checkbox" id="include-intl" />
         Include international roles
       </label>
+      <span id="intl-note" class="filter-note" hidden
+        >a province filter covers South Africa only</span
+      >
     </div>
   </div>
 
@@ -64,6 +151,10 @@ const loadingLabel =
 
     const input = document.getElementById('search-input') as HTMLInputElement | null;
     const intl = document.getElementById('include-intl') as HTMLInputElement | null;
+    const intlNote = document.getElementById('intl-note');
+    const bankSel = document.getElementById('filter-bank') as HTMLSelectElement | null;
+    const catSel = document.getElementById('filter-category') as HTMLSelectElement | null;
+    const provSel = document.getElementById('filter-province') as HTMLSelectElement | null;
     const list = document.getElementById('search-results') as HTMLUListElement | null;
     const count = document.getElementById('results-count');
     const more = document.getElementById('search-more');
@@ -129,21 +220,88 @@ const loadingLabel =
       // of 50 rows, then a "show more" button that reveals another 50 each click.
       const PAGE_SIZE = 50;
 
-      // Prefill from a shared ?q link (both modes).
-      input.value = new URLSearchParams(location.search).get('q') ?? '';
+      // ---- filters ------------------------------------------------------
+      // The three selects were rendered server-side with everything the island
+      // needs on each <option>: `value` is the URL slug, `data-api` is the
+      // canonical value the API (and the static row filter) matches on. Nothing
+      // here imports a mapping table — the DOM is the mapping table.
 
-      // Keep the address bar shareable: reflect the query into ?q (both modes).
+      /** Canonical value of a select's choice ('Standard Bank'), or undefined for "any". */
+      function apiValue(sel: HTMLSelectElement | null): string | undefined {
+        if (!sel || !sel.value) return undefined;
+        return sel.selectedOptions[0]?.dataset.api || undefined;
+      }
+
+      /** URL-state slug of a select's choice ('standard-bank'), '' for "any". */
+      function slugValue(sel: HTMLSelectElement | null): string {
+        return sel ? sel.value : '';
+      }
+
+      // A slug with no matching option (stale link, hand-typed junk) is ignored
+      // and the select stays on "any" — assigning it would blank the control.
+      function prefill(sel: HTMLSelectElement | null, slug: string | null): void {
+        if (!sel || !slug) return;
+        for (const opt of Array.from(sel.options)) {
+          if (opt.value === slug) {
+            sel.value = slug;
+            return;
+          }
+        }
+      }
+
+      // Prefill from a shared ?q=&brand=&category=&province= link (both modes).
+      const initial = new URLSearchParams(location.search);
+      input.value = initial.get('q') ?? '';
+      prefill(bankSel, initial.get('brand'));
+      prefill(catSel, initial.get('category'));
+      prefill(provSel, initial.get('province'));
+
+      // Keep the address bar shareable: reflect the query and the three filters
+      // (as slugs) into the URL, dropping any that are empty (both modes).
+      function setParam(url: URL, key: string, value: string): void {
+        if (value) url.searchParams.set(key, value);
+        else url.searchParams.delete(key);
+      }
+
       function updateUrl(): void {
         const url = new URL(location.href);
-        if (input!.value) url.searchParams.set('q', input!.value);
-        else url.searchParams.delete('q');
+        setParam(url, 'q', input!.value);
+        setParam(url, 'brand', slugValue(bankSel));
+        setParam(url, 'category', slugValue(catSel));
+        setParam(url, 'province', slugValue(provSel));
         history.replaceState(null, '', url);
       }
 
+      // A province filter is South-Africa-only by definition: the API's province
+      // clause and the lean rows' province field both only ever hold SA values.
+      // So while one is selected the international toggle is switched off,
+      // disabled and explained; clearing the province hands it back.
+      function syncIntl(): void {
+        const locked = slugValue(provSel) !== '';
+        if (intlNote) intlNote.hidden = !locked;
+        if (!intl) return;
+        if (locked) {
+          intl.checked = false;
+          intl.disabled = true;
+          intl.title = 'A province filter covers South Africa only.';
+          intl.setAttribute('aria-describedby', 'intl-note');
+        } else {
+          intl.disabled = false;
+          intl.removeAttribute('title');
+          intl.removeAttribute('aria-describedby');
+        }
+      }
+      syncIntl();
+
       // The "include international roles" toggle drives the country scope the
       // same way in both modes: unchecked = SA only (country ZA), checked = all.
+      // A selected province wins over the checkbox whatever its state.
+      function includeIntl(): boolean {
+        return !!(intl && intl.checked) && slugValue(provSel) === '';
+      }
+
       function scopeCountry(): string | undefined {
-        return intl && intl.checked ? undefined : 'ZA';
+        return includeIntl() ? undefined : 'ZA';
       }
 
       if (PUBLIC_SEARCH_MODE === 'api') {
@@ -186,6 +344,9 @@ const loadingLabel =
           const offset = reset ? 0 : rows.length;
           const url = buildSearchUrl({
             q: input!.value.trim(),
+            brand: apiValue(bankSel),
+            category: apiValue(catSel),
+            province: apiValue(provSel),
             country: scopeCountry(),
             limit: PAGE_SIZE,
             offset,
@@ -221,6 +382,17 @@ const loadingLabel =
         });
         if (intl) intl.addEventListener('change', () => search(true));
 
+        // Filters re-run the search from offset 0 — a narrowed result set has
+        // nothing to do with the page already loaded.
+        for (const sel of [bankSel, catSel, provSel]) {
+          if (!sel) continue;
+          sel.addEventListener('change', () => {
+            syncIntl();
+            updateUrl();
+            search(true);
+          });
+        }
+
         search(true);
       } else {
         // ---- static mode: fetch the snapshot once, filter client-side -------
@@ -232,8 +404,24 @@ const loadingLabel =
           if (reset) shown = PAGE_SIZE;
 
           const q = input!.value.trim().toLowerCase();
-          const includeIntl = !!(intl && intl.checked);
-          const pool = rows.filter((r) => includeIntl || r.country === 'ZA');
+          const intlOn = includeIntl();
+          const brand = apiValue(bankSel);
+          const category = apiValue(catSel);
+          const province = apiValue(provSel);
+          // The pool is the country scope narrowed by the filters; the free-text
+          // query then runs inside it, so the count line's denominator keeps
+          // meaning "vacancies you could be matching".
+          const pool = rows.filter((r) => {
+            if (!intlOn && r.country !== 'ZA') return false;
+            if (brand && r.brand !== brand) return false;
+            if (category && r.categorySlug !== category) return false;
+            // Lean rows carry the FIRST location's province; the API matches ANY
+            // of a job's locations. A multi-province job therefore shows up under
+            // fewer provinces here than in 'api' mode — an accepted delta, not a
+            // bug: the snapshot has no second-location data to filter on.
+            if (province && r.province !== province) return false;
+            return true;
+          });
           const matched = q
             ? pool.filter((r) => {
                 const hay =
@@ -283,6 +471,16 @@ const loadingLabel =
           }, 150);
         });
         if (intl) intl.addEventListener('change', () => render());
+
+        // Filters reset the reveal cap the same way a fresh query does.
+        for (const sel of [bankSel, catSel, provSel]) {
+          if (!sel) continue;
+          sel.addEventListener('change', () => {
+            syncIntl();
+            updateUrl();
+            render();
+          });
+        }
 
         fetch(SEARCH_DATA_URL)
           .then((r) => r.json())
