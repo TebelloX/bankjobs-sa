@@ -1,0 +1,124 @@
+---
+import Base from '../../layouts/Base.astro';
+import JobRow from '../../components/JobRow.astro';
+import { BRANDS, CATEGORY_SLUGS, isEarlyCareers } from '@bankjobs/core';
+import type { Category } from '@bankjobs/core';
+import { allOpenJobs } from '../../lib/data';
+import { BANK_SLUGS } from '../../lib/banks';
+
+// A STATIC route living beside the dynamic browse/[category] one, exactly as
+// browse/international.astro does: 'graduate-programmes' is not one of the ten
+// CATEGORY_SLUGS, so the dynamic route never emits this URL and there is
+// nothing to shadow. Early careers is deliberately not an eleventh category —
+// a graduate programme in engineering is still a Software & IT job, and the
+// categories partition the ledger.
+//
+// This is also the one page on the site generated even with zero rows.
+// Everywhere else an empty ledger means no page at all (the sitemap only lists
+// real ledgers), but bank intakes are annual, so a page that vanished between
+// cycles would be a dead link exactly when people start looking for next
+// year's. It stays put and says honestly which state it is in.
+const early = allOpenJobs().filter((job) => isEarlyCareers(job.title));
+const jobs = early.filter((job) => job.country === 'ZA');
+const intl = early.filter((job) => job.country !== 'ZA');
+
+const total = jobs.length;
+const kinds =
+  total === 1
+    ? 'graduate programme, learnership, internship or bursary'
+    : 'graduate programmes, learnerships, internships and bursaries';
+
+// Banks with an early-careers role open right now, in canonical core order —
+// the intakes cluster in a handful of banks, so this is a real shortcut to the
+// rest of that bank's ledger. Omitted when nothing is open.
+const banksHere = BRANDS.filter((name) => jobs.some((j) => j.brand === name)).map((name) => ({
+  name,
+  slug: BANK_SLUGS[name],
+}));
+
+// Every category, not just the ones represented above: the category pages all
+// exist regardless of their counts, and this row has to stay useful in the
+// months when the ledger above is empty.
+const categories = (Object.entries(CATEGORY_SLUGS) as Array<[Category, string]>).map(
+  ([name, slug]) => ({ name, slug }),
+);
+
+const headline =
+  total === 1
+    ? '1 graduate programme or learnership'
+    : `${total} graduate programmes & learnerships`;
+const title =
+  total > 0
+    ? `${headline} at SA banks — mybankjobs`
+    : 'Graduate programmes & learnerships at SA banks — mybankjobs';
+const description =
+  total > 0
+    ? `${total} ${kinds} open at South African banks — official listings straight from the banks' own career systems, updated a few times a day.`
+    : 'Graduate programmes, learnerships, internships and bursaries at South African banks. None are open right now — new intakes appear here as soon as the banks post them.';
+---
+
+<Base title={title} description={description}>
+  <a class="backlink" href="/">← All vacancies</a>
+  <p class="eyebrow">Early careers</p>
+  <h1>Graduate programmes &amp; learnerships <span class="mono muted">({total})</span></h1>
+  <p class="lede">
+    {
+      total > 0
+        ? `${total} ${kinds} open in South Africa at the banks we cover — updated three times a day.`
+        : 'Graduate programmes, learnerships, internships and bursaries at the banks we cover. None are open in South Africa right now.'
+    }
+  </p>
+
+  {
+    total > 0 ? (
+      <ul class="joblist">
+        {jobs.map((job) => (
+          <JobRow
+            slug={job.slug}
+            title={job.title}
+            brand={job.brand}
+            category={job.category}
+            primaryLocation={job.primaryLocation}
+            postedDate={job.postedDate}
+          />
+        ))}
+      </ul>
+    ) : (
+      <p class="list-empty">No graduate programmes or learnerships are open right now.</p>
+    )
+  }
+
+  <p class="banks-note">
+    Banks run these intakes in annual cycles rather than continuously, so this page is full some
+    months and thin in others. It lists whatever is open today and nothing else — an intake comes
+    down here when the bank takes it down. Applications go to the bank's own system, the same as
+    every other vacancy on the site.
+  </p>
+
+  {
+    intl.length > 0 && (
+      <p class="intl-link">
+        <a href="/browse/international">
+          {`${intl.length} international early-careers ${intl.length === 1 ? 'role' : 'roles'} at these banks →`}
+        </a>
+      </p>
+    )
+  }
+
+  <nav class="crosslinks" aria-label="Related listings">
+    {
+      banksHere.length > 0 && (
+        <p class="quick">
+          Banks hiring early careers:
+          {banksHere.map((b) => (
+            <a href={`/banks/${b.slug}/`}>{b.name}</a>
+          ))}
+        </p>
+      )
+    }
+    <p class="quick">
+      Browse by category:
+      {categories.map((c) => <a href={`/browse/${c.slug}/`}>{c.name}</a>)}
+    </p>
+  </nav>
+</Base>

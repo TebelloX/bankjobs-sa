@@ -1,5 +1,6 @@
 import type { Category, SourceId } from './job';
 import rulesData from './data/category-rules.json';
+import { keywordToRegex } from './keywords';
 
 interface Rule {
   category: string;
@@ -9,21 +10,6 @@ interface Rule {
 interface CompiledRule {
   category: Category;
   matchers: RegExp[];
-}
-
-function escapeRegex(input: string): string {
-  return input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-/**
- * Compile a keyword into a case-insensitive, word-boundary regex. Multi-word
- * keywords match as phrases (interior whitespace matches one-or-more spaces).
- * Boundaries use lookarounds on alphanumerics so keywords like `.net` and `IT`
- * still match without being swallowed by neighbouring word characters.
- */
-function keywordToRegex(keyword: string): RegExp {
-  const body = keyword.trim().split(/\s+/).map(escapeRegex).join('\\s+');
-  return new RegExp(`(?<![a-z0-9])${body}(?![a-z0-9])`, 'i');
 }
 
 function compile(rules: Rule[]): CompiledRule[] {

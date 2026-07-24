@@ -17,6 +17,8 @@ export type { NormalizedLocation } from './locations';
 
 export { categorize } from './categorize';
 
+export { isEarlyCareers } from './earlyCareers';
+
 export { cleanApplyUrl, assertAllowedApplyHost } from './applyUrl';
 
 export { countryCodeFor, countryName } from './country';

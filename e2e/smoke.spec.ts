@@ -71,6 +71,30 @@ test('bank landing page renders from the homepage coverage ledger', async ({ pag
   await expect(page.locator('.crosslinks a[href^="/banks/"]').first()).toBeVisible();
 });
 
+test('graduate & learnership hub renders a ledger or an honest empty state', async ({ page }) => {
+  await page.goto('/browse/graduate-programmes/');
+  await expect(page.locator('h1')).toContainText('Graduate programmes & learnerships');
+
+  // This hub is the one page generated even at zero matches — bank intakes are
+  // annual, so the ledger legitimately empties between cycles. Assert one state
+  // or the other rather than pinning rows the next fetch could remove.
+  const rows = page.locator('.joblist a[href^="/jobs/"]');
+  if ((await rows.count()) > 0) {
+    await expect(rows.first()).toBeVisible();
+  } else {
+    await expect(page.locator('.list-empty')).toBeVisible();
+  }
+
+  // The category cross-links are unconditional, so they hold in both states.
+  await expect(page.locator('.crosslinks a[href^="/browse/"]').first()).toBeVisible();
+});
+
+test('homepage popular row links to the graduate hub', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('.quick a[href^="/browse/graduate-programmes"]').click();
+  await expect(page.locator('h1')).toContainText('Graduate programmes & learnerships');
+});
+
 test('numeric vacancies pagination still resolves alongside the province routes', async ({
   page,
 }) => {
