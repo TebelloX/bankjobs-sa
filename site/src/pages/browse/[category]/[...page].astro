@@ -8,6 +8,7 @@ import type { Category, Province } from '@bankjobs/core';
 import { saJobs, internationalJobs } from '../../../lib/data';
 import type { FullJob } from '../../../lib/data';
 import { PROVINCE_SLUGS } from '../../../lib/provinces';
+import { categoryFeed } from '../../../lib/feeds';
 
 // One paginated route per category, 20 SA rows a page. `[...page]` keeps the
 // old bare URLs (/browse/sales/) as page 1 and adds /browse/sales/2/ …
@@ -52,9 +53,12 @@ const provinceLinks = isFirst
       saJobs().some((j) => j.categorySlug === slug && j.locations[0]?.province === p),
     ).map((p) => ({ name: p as Province, slug: PROVINCE_SLUGS[p] }))
   : [];
+
+// This category's feed — advertised in <head> and linked under the ledger.
+const feed = categoryFeed(name, slug);
 ---
 
-<Base title={title} description={description}>
+<Base title={title} description={description} feed={feed}>
   <a class="backlink" href="/">← All vacancies</a>
   <p class="eyebrow">Browse by category</p>
   <h1>{name} <span class="mono muted">— {total} open {noun}</span></h1>
@@ -79,6 +83,8 @@ const provinceLinks = isFirst
   }
 
   <Pager page={page} />
+
+  <p class="quick">Feed: <a href={feed.href}>rss</a></p>
 
   {
     provinceLinks.length > 0 && (

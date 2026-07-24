@@ -9,6 +9,7 @@
     "typecheck": "astro check"
   },
   "dependencies": {
+    "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.2.0",
     "@bankjobs/core": "workspace:*",
     "@fontsource-variable/archivo": "^5.3.0",

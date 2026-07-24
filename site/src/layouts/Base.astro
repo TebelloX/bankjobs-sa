@@ -2,6 +2,8 @@
 import '../styles/global.css';
 import { meta } from '../lib/data';
 import { formatUpdatedAbsolute } from '../lib/freshness';
+import { ALL_FEED } from '../lib/feeds';
+import type { FeedLink } from '../lib/feeds';
 
 interface Props {
   title: string;
@@ -10,9 +12,15 @@ interface Props {
   narrow?: boolean;
   /** Full-bleed main: the page manages its own .wrap per section (homepage). */
   bleed?: boolean;
+  /**
+   * A second, page-specific feed to advertise alongside the site-wide one —
+   * the bank and category ledgers pass their own. Build it with bankFeed() /
+   * categoryFeed() so the title matches the feed's own channel title.
+   */
+  feed?: FeedLink;
 }
 
-const { title, description, narrow = false, bleed = false } = Astro.props;
+const { title, description, narrow = false, bleed = false, feed } = Astro.props;
 const wrapClass = narrow ? 'wrap wrap--narrow' : 'wrap';
 
 // ONE absolute URL per page, shared by <link rel="canonical"> and og:url — a
@@ -75,6 +83,15 @@ const year = new Date().getFullYear();
     <link rel="icon" href="/favicon-16.png" type="image/png" sizes="16x16" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="sitemap" href="/sitemap-index.xml" />
+    {/* Feed autodiscovery. The site-wide feed is on EVERY page — a reader that
+        lands anywhere can subscribe — and pages with a narrower feed of their
+        own (a bank, a category) list that one second. */}
+    <link rel="alternate" type="application/rss+xml" title={ALL_FEED.title} href={ALL_FEED.href} />
+    {
+      feed && (
+        <link rel="alternate" type="application/rss+xml" title={feed.title} href={feed.href} />
+      )
+    }
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>

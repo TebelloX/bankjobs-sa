@@ -104,6 +104,13 @@ test('numeric vacancies pagination still resolves alongside the province routes'
   await expect(page.locator('a[href^="/jobs/"]').first()).toBeVisible();
 });
 
+test('the site-wide rss feed is served as xml', async ({ request }) => {
+  const response = await request.get('/feeds/all.xml');
+  expect(response.status()).toBe(200);
+  expect(response.headers()['content-type']).toContain('xml');
+  expect(await response.text()).toContain('<rss');
+});
+
 test('unknown URL shows the 404 page', async ({ page }) => {
   const response = await page.goto('/definitely-not-a-real-page');
   expect(response?.status()).toBe(404);

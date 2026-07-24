@@ -8,6 +8,7 @@ import type { Brand, Category } from '@bankjobs/core';
 import { allOpenJobs, saJobs, internationalJobs } from '../../../lib/data';
 import type { FullJob } from '../../../lib/data';
 import { BANK_SLUGS } from '../../../lib/banks';
+import { bankFeed } from '../../../lib/feeds';
 
 // One paginated landing page per brand, 20 SA rows a page. `[...page]` keeps
 // the bare URL (/banks/absa/) as page 1 and adds /banks/absa/2/ … FNB alone
@@ -88,9 +89,13 @@ const baseDesc =
         intlCount > 0 ? `, but ${intlCount} international ${intlNoun} are listed` : ''
       } — official listings straight from ${name}'s own career system, updated a few times a day.`;
 const description = isFirst ? baseDesc : `${baseDesc} — page ${page.currentPage}`;
+
+// This brand's feed — carries its international roles too, unlike the ledger
+// below. Advertised in <head> and linked under the ledger on every page.
+const feed = bankFeed(name, BANK_SLUGS[name]);
 ---
 
-<Base title={title} description={description}>
+<Base title={title} description={description} feed={feed}>
   <a class="backlink" href="/">← All vacancies</a>
   <p class="eyebrow">Vacancies by bank</p>
   <h1>{name} vacancies <span class="mono">({total})</span></h1>
@@ -122,6 +127,8 @@ const description = isFirst ? baseDesc : `${baseDesc} — page ${page.currentPag
   }
 
   <Pager page={page} />
+
+  <p class="quick">Feed: <a href={feed.href}>rss</a></p>
 
   {
     intlCount > 0 && (
