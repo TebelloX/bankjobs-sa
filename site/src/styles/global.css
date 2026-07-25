@@ -430,8 +430,12 @@ p {
 }
 
 /* ---- section rhythm ---- */
+/* padding-block, not the `padding` shorthand: .section and .wrap share an
+   element on the "how it works" band, and a shorthand here would reset that
+   element's horizontal padding to 0 (equal specificity, later rule wins),
+   running the copy into both screen edges on phones. */
 .section {
-  padding: 56px 0;
+  padding-block: 56px;
 }
 
 /* ---- banks ledger ---- */
@@ -1104,10 +1108,14 @@ a.pager-link:hover {
     padding: 40px 0 36px;
   }
   .section {
-    padding: 30px 0;
+    padding-block: 30px;
   }
+  /* minmax(0, …), not a bare 1fr: a grid column's automatic minimum is its
+     content's min-content width, which the search field pushes past the
+     viewport at 320px — the whole page then scrolls sideways by ~34px. The
+     explicit 0 floor lets the column shrink to the wrap instead. */
   .hero-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 36px;
   }
   .statement {
