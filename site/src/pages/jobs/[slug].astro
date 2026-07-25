@@ -131,17 +131,15 @@ const jsonLdString = JSON.stringify(jsonLd).replace(/</g, '\\u003c');
 
     {/* WhatsApp and email are plain anchors — they work with JavaScript off,
         which matters on the cheap/low-data handsets a lot of this audience
-        uses. The two button-driven channels ship `hidden` and are revealed by
-        the script below only where the browser actually supports them. */}
+        uses. The native-share button ships `hidden` and is revealed by the
+        script below only where the browser actually supports it. */}
     <div class="share" data-share-url={canonicalUrl} data-share-label={shareTitle}>
       <p class="share-title">share this vacancy</p>
       <div class="share-actions">
         <a class="share-btn" href={whatsappHref} target="_blank" rel="noopener nofollow">whatsapp</a>
         <a class="share-btn" href={emailHref}>email</a>
-        <button class="share-btn" type="button" data-share-copy hidden>copy link</button>
-        <button class="share-btn" type="button" data-share-native hidden>share&hellip;</button>
+        <button class="share-btn" type="button" data-share-native hidden>share</button>
       </div>
-      <span class="sr-only" role="status" data-share-status></span>
     </div>
   </div>
 
@@ -170,45 +168,17 @@ const jsonLdString = JSON.stringify(jsonLd).replace(/</g, '\\u003c');
   <script type="application/ld+json" set:html={jsonLdString} is:inline />
 
   <script>
-    // Progressive enhancement for the share block: the copy and native-share
-    // buttons render `hidden` and are only unhidden where the API exists, so a
-    // no-JS (or unsupported) visitor never sees a dead control. Bundled by
-    // Astro into an external same-origin file (assetsInlineLimit: 0), which
+    // Progressive enhancement for the share block: the native-share button
+    // renders `hidden` and is only unhidden where the API exists, so a no-JS
+    // (or unsupported) visitor never sees a dead control. Bundled by Astro
+    // into an external same-origin file (assetsInlineLimit: 0), which
     // script-src 'self' already allows — no inline script, no third-party SDK.
     const box = document.querySelector<HTMLElement>('.share');
     const url = box?.dataset.shareUrl;
     const label = box?.dataset.shareLabel;
 
     if (box && url && label) {
-      const status = box.querySelector<HTMLElement>('[data-share-status]');
-      const copyBtn = box.querySelector<HTMLButtonElement>('[data-share-copy]');
       const nativeBtn = box.querySelector<HTMLButtonElement>('[data-share-native]');
-
-      let revert: ReturnType<typeof setTimeout> | undefined;
-      /** Show `text` on the button for ~2s, then restore 'copy link'. */
-      function flash(btn: HTMLButtonElement, text: string, announced: string) {
-        if (revert !== undefined) clearTimeout(revert);
-        btn.textContent = text;
-        btn.classList.add('is-flashed');
-        if (status) status.textContent = announced;
-        revert = setTimeout(() => {
-          btn.textContent = 'copy link';
-          btn.classList.remove('is-flashed');
-          if (status) status.textContent = '';
-        }, 2000);
-      }
-
-      // navigator.clipboard is undefined outside secure contexts, so feature-
-      // detect the exact method we call rather than assuming it is there.
-      if (copyBtn && typeof navigator.clipboard?.writeText === 'function') {
-        copyBtn.hidden = false;
-        copyBtn.addEventListener('click', () => {
-          navigator.clipboard.writeText(url).then(
-            () => flash(copyBtn, 'copied', 'link copied'),
-            () => flash(copyBtn, 'copy failed', 'copy failed'),
-          );
-        });
-      }
 
       if (nativeBtn && typeof navigator.share === 'function') {
         nativeBtn.hidden = false;

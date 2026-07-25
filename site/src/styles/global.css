@@ -796,25 +796,19 @@ a.pager-link:hover {
   color: var(--ink);
   border-color: var(--ink);
 }
-/* The copy / native buttons ship with the `hidden` attribute and are unhidden
+/* The native-share button ships with the `hidden` attribute and is unhidden
    by the script only where the API exists — author `display` would otherwise
    out-specify the UA's [hidden] rule and show a dead control to no-JS users. */
 .share-btn[hidden] {
   display: none;
 }
-/* Post-click confirmation ("copied"), reverted by the script after ~2s. */
-.share-btn.is-flashed {
-  color: var(--ink);
-  border-color: var(--ink);
-  background: var(--paper-deep);
-}
 
 /* ---- save toggle (job detail) ----
    Wears the .share-btn chip wholesale — it sits in the same quiet band under the
    Apply button and has no business shouting louder than the share row. The saved
-   state borrows the .is-flashed treatment (ink border on deep paper), but
-   permanently: it is a state, not a two-second confirmation. No stamp red — this
-   is a control, and the stamp never appears on anything clickable. */
+   state is an ink border on deep paper — a persistent state, not a transient
+   confirmation. No stamp red — this is a control, and the stamp never appears
+   on anything clickable. */
 .saveline {
   margin-top: 16px;
 }
