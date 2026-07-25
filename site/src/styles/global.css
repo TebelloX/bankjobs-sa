@@ -470,18 +470,6 @@ a.bank-line:hover .name {
   text-underline-offset: 4px;
   text-decoration-thickness: 2px;
 }
-.bank-line.soon,
-.bank-line.soon .count {
-  color: var(--ink-soft);
-}
-/* The cross-border tally row: a real link, but visually quieter than the banks. */
-.bank-line.intl-total .name {
-  color: var(--ink-soft);
-  font-size: 15px;
-}
-.bank-line.intl-total .count {
-  color: var(--ink-soft);
-}
 .banks-note {
   margin-top: 16px;
   font-size: 13px;

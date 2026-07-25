@@ -23,24 +23,6 @@ const latest = sa.slice(0, 20);
 // absolute 'posted 23 Jul' rows as the no-JS fallback.
 const statementDate = sastStatementDate();
 
-// Display names for the muted "coming soon" rows below, which are still keyed
-// by SOURCE. Sub-brands are what job seekers recognise, so a dormant FirstRand
-// source would show as its franchises.
-const BANK_DISPLAY_NAMES: Record<string, string> = {
-  absa: 'Absa',
-  firstrand: 'FNB · RMB · WesBank',
-  standardbank: 'Standard Bank',
-  investec: 'Investec',
-  gotyme: 'GoTyme Bank',
-  nedbank: 'Nedbank',
-  discovery: 'Discovery Bank',
-  capitec: 'Capitec',
-  sarb: 'SARB',
-};
-function bankName(id: string, fallback: string): string {
-  return BANK_DISPLAY_NAMES[id] ?? fallback;
-}
-
 // Live rows: one per BRAND with open roles, largest ledger first, each linking
 // to its own /banks/<slug>/ landing page. Brands — not sources — because a
 // source can carry several: the firstrand source is FNB, RMB, WesBank and
@@ -66,12 +48,10 @@ const liveBanks = BRANDS.filter((b) => liveBrands.has(b))
   }))
   .sort((a, b) => b.count - a.count);
 
-// Muted "coming soon" rows stay per SOURCE: "coming soon" is a statement about
-// a connection we're still building, and connections are per source, not per
-// brand (e.g. GoTyme, whose adapter is ready but whose feed is empty).
-const comingSoon = meta.sources
-  .filter((s) => s.count === 0)
-  .map((s) => bankName(s.id, s.name));
+// The ledger lists only banks with roles open today. A source whose feed is
+// empty (GoTyme's adapter is built but its board is bare) is simply absent —
+// an earlier "coming soon" row advertised a bank that had nothing to click,
+// which read as a broken listing rather than an honest one.
 
 // Source line for a statement row: 'Absa · Category[ · City]'.
 function stSource(brand: string, category: string, city: string | null): string {
@@ -167,33 +147,6 @@ const description =
           </a>
         ))
       }
-      {
-        comingSoon.map((name) => (
-          <div class="bank-line soon" aria-disabled="true">
-            <span class="name">{name}</span>
-            <span class="dots" />
-            <span class="count">coming soon</span>
-          </div>
-        ))
-      }
-      {
-        meta.totalInternational > 0 && (
-          <a class="bank-line intl-total" href="/browse/international/">
-            <span class="name soft">Outside South Africa</span>
-            <span class="dots" />
-            <span class="count">
-              {meta.totalInternational}
-              <small>international roles</small>
-            </span>
-          </a>
-        )
-      }
-      <p class="banks-note">
-        Counts are South African roles; the banks' roles elsewhere in Africa and abroad are listed
-        separately. Counts update with every fetch. A bank listed as “coming soon” is one we're
-        still building a reliable, respectful connection to — we'd rather show nothing than show
-        stale jobs.
-      </p>
     </div>
   </section>
 
