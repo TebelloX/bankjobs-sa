@@ -1,0 +1,84 @@
+---
+import Base from '../../../layouts/Base.astro';
+import JobRow from '../../../components/JobRow.astro';
+import { countryName, isEarlyCareers } from '@bankjobs/core';
+import { internationalJobs } from '../../../lib/data';
+import type { FullJob } from '../../../lib/data';
+
+// The early-careers slice of the international ledger, one level under
+// /browse/graduate-programmes/. Like its parent this page is generated even
+// with zero rows: intakes are annual, and the parent's cross-link only renders
+// when something is open, so a bookmarked URL must not 404 between cycles.
+const jobs = internationalJobs().filter((job) => isEarlyCareers(job.title));
+const total = jobs.length;
+
+// Group by country display name, ordered by country name, date desc within —
+// the same shape as browse/international.astro.
+const groups = new Map<string, FullJob[]>();
+for (const job of jobs) {
+  const name = countryName(job.country);
+  const list = groups.get(name) ?? [];
+  list.push(job);
+  groups.set(name, list);
+}
+const orderedGroups = [...groups.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+
+const headline =
+  total === 1
+    ? '1 international graduate programme or learnership'
+    : `${total} international graduate programmes & learnerships`;
+const title =
+  total > 0
+    ? `${headline} — mybankjobs`
+    : 'International graduate programmes & learnerships — mybankjobs';
+const description =
+  total > 0
+    ? `${total} graduate programme${total === 1 ? '' : 's'}, learnership${total === 1 ? '' : 's'} and internship${total === 1 ? '' : 's'} open outside South Africa at the banks we cover — official listings, updated a few times a day.`
+    : 'Graduate programmes, learnerships and internships outside South Africa at the banks we cover. None are open right now — new intakes appear here as soon as the banks post them.';
+---
+
+<Base title={title} description={description}>
+  <a class="backlink" href="/browse/graduate-programmes/">← Graduate programmes &amp; learnerships</a>
+  <p class="eyebrow">Early careers · outside South Africa</p>
+  <h1>International early careers <span class="mono muted">({total})</span></h1>
+  <p class="lede">
+    {
+      total > 0
+        ? `${total} graduate ${total === 1 ? 'programme, learnership or internship' : 'programmes, learnerships and internships'} open outside South Africa at the banks we cover — updated three times a day.`
+        : 'Graduate programmes, learnerships and internships based outside South Africa at the banks we cover. None are open right now.'
+    }
+  </p>
+
+  {
+    orderedGroups.length > 0 ? (
+      orderedGroups.map(([country, list]) => (
+        <section class="country-group" aria-label={`${country} roles`}>
+          <h2>
+            {country} <span class="mono muted">({list.length})</span>
+          </h2>
+          <ul class="joblist">
+            {list.map((job) => (
+              <JobRow
+                slug={job.slug}
+                title={job.title}
+                brand={job.brand}
+                category={job.category}
+                primaryLocation={job.primaryLocation}
+                postedDate={job.postedDate}
+              />
+            ))}
+          </ul>
+        </section>
+      ))
+    ) : (
+      <p class="list-empty">No international graduate programmes or learnerships are open right now.</p>
+    )
+  }
+
+  <nav class="crosslinks" aria-label="Related listings">
+    <p class="quick">
+      <a href="/browse/international/">All international roles</a>
+      <a href="/browse/graduate-programmes/">South African early careers</a>
+    </p>
+  </nav>
+</Base>

@@ -13,11 +13,11 @@ import { BANK_SLUGS } from '../../lib/banks';
 // a graduate programme in engineering is still a Software & IT job, and the
 // categories partition the ledger.
 //
-// This is also the one page on the site generated even with zero rows.
-// Everywhere else an empty ledger means no page at all (the sitemap only lists
-// real ledgers), but bank intakes are annual, so a page that vanished between
-// cycles would be a dead link exactly when people start looking for next
-// year's. It stays put and says honestly which state it is in.
+// This page (and its /international sibling below) is generated even with
+// zero rows. Everywhere else an empty ledger means no page at all (the sitemap
+// only lists real ledgers), but bank intakes are annual, so a page that
+// vanished between cycles would be a dead link exactly when people start
+// looking for next year's. It stays put and says honestly which state it is in.
 const early = allOpenJobs().filter((job) => isEarlyCareers(job.title));
 const jobs = early.filter((job) => job.country === 'ZA');
 const intl = early.filter((job) => job.country !== 'ZA');
@@ -98,7 +98,7 @@ const description =
   {
     intl.length > 0 && (
       <p class="intl-link">
-        <a href="/browse/international">
+        <a href="/browse/graduate-programmes/international/">
           {`${intl.length} international early-careers ${intl.length === 1 ? 'role' : 'roles'} at these banks →`}
         </a>
       </p>
