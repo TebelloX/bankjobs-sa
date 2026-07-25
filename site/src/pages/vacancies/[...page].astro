@@ -8,6 +8,7 @@ import type { Province } from '@bankjobs/core';
 import { saJobs, meta } from '../../lib/data';
 import type { FullJob } from '../../lib/data';
 import { PROVINCE_SLUGS } from '../../lib/provinces';
+import { PAGE_CITIES } from '../../lib/cities';
 
 // One statement page of 20 rows per page. saJobs() is already sorted
 // postedDate desc (nulls last). `[...page]` gives page 1 the bare
@@ -42,6 +43,12 @@ const provinceLinks = isFirst
       slug: PROVINCE_SLUGS[p],
     }))
   : [];
+
+// Page 1 only, beside the province row: the city landing pages, which need the
+// same inbound links to rank. lib/cities.ts decides which cities earn a page (a
+// job floor keeps one-vacancy towns out) and hands them over biggest ledger
+// first, so this row leads with the metros a job seeker is most likely to want.
+const cityLinks = isFirst ? PAGE_CITIES : [];
 ---
 
 <Base title={title} description={description}>
@@ -76,6 +83,17 @@ const provinceLinks = isFirst
         By province:
         {provinceLinks.map((p) => (
           <a href={`/vacancies/${p.slug}/`}>{p.name}</a>
+        ))}
+      </p>
+    )
+  }
+
+  {
+    cityLinks.length > 0 && (
+      <p class="quick">
+        By city:
+        {cityLinks.map((c) => (
+          <a href={`/vacancies/${c.slug}/`}>{c.name}</a>
         ))}
       </p>
     )

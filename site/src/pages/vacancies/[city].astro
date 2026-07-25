@@ -1,0 +1,138 @@
+---
+import type { GetStaticPaths } from 'astro';
+import Base from '../../layouts/Base.astro';
+import JobRow from '../../components/JobRow.astro';
+import { CATEGORY_SLUGS } from '@bankjobs/core';
+import type { Category } from '@bankjobs/core';
+import { saJobs } from '../../lib/data';
+import { PROVINCE_SLUGS } from '../../lib/provinces';
+import { PAGE_CITIES } from '../../lib/cities';
+import type { PageCity } from '../../lib/cities';
+
+// One landing page per city carrying at least MIN_CITY_JOBS open SA roles.
+// lib/cities.ts owns that decision — it derives the list from the snapshot and
+// enforces the route-safety guard this file depends on. THREE dynamic routes sit
+// directly under /vacancies/: this one, [province].astro and [...page].astro
+// (numeric pagination). Nothing in Astro arbitrates between them; the only
+// reason they coexist is that their getStaticPaths sets are disjoint, which
+// cities.ts guarantees by never emitting a province slug, a numeric slug or an
+// empty one. Read that guard before adding a city by hand.
+//
+// `props: { ...city }` rather than `props: city`: Astro's GetStaticPathsItem
+// wants an index-signature-bearing type, which a PageCity interface value is
+// not — the spread hands it a plain object literal instead.
+export const getStaticPaths = (() => {
+  return PAGE_CITIES.map((city) => ({
+    params: { city: city.slug },
+    props: { ...city },
+  }));
+}) satisfies GetStaticPaths;
+
+type Props = PageCity;
+
+const { name, province } = Astro.props;
+
+// The parent province, ready to link. Null only for a city whose rows all failed
+// to parse a province — cities.ts allows that shape, so both cross-link rows that
+// need a province slug are conditional on it rather than assuming one.
+const parent = province ? { name: province, slug: PROVINCE_SLUGS[province] } : null;
+
+// The city ledger, newest first (saJobs() is already postedDate desc). Filtering
+// on locations[0].city — the PRIMARY location — is the same rule cities.ts
+// counted with, so this ledger and the count that earned the page always agree.
+const jobs = saJobs().filter((j) => j.locations[0]?.city === name);
+const total = jobs.length;
+const noun = total === 1 ? 'role' : 'roles';
+
+// "N banks" counts distinct sources — FirstRand's sub-brands count as one bank,
+// the same model the homepage coverage ledger uses.
+const bankCount = new Set(jobs.map((j) => j.source)).size;
+const bankNoun = bankCount === 1 ? 'bank' : 'banks';
+
+// City volumes are modest, so a single ledger with no pagination. Cap at 200
+// rows and say so when a metro runs long.
+const MAX_ROWS = 200;
+const capped = total > MAX_ROWS;
+const rows = capped ? jobs.slice(0, MAX_ROWS) : jobs;
+
+// Cross-links (discovery — orphan pages don't rank). Categories present in this
+// city point at the EXISTING category × province combo pages: no city combos are
+// generated, and none are needed here, because a combo page exists for every
+// (category, province) pair with at least one job and every job in this city is
+// also a job in its province — so any category on this page is guaranteed to
+// have a combo page in this city's province. The link text names the province for
+// that reason: the destination is province-wide, not city-scoped.
+const catsHere = (Object.entries(CATEGORY_SLUGS) as Array<[Category, string]>)
+  .filter(([, cslug]) => jobs.some((j) => j.categorySlug === cslug))
+  .map(([cname, cslug]) => ({ name: cname, slug: cslug }));
+
+const otherCities = PAGE_CITIES.filter((c) => c.name !== name);
+
+const title = `${total} bank vacancies in ${name} — mybankjobs`;
+const description = `${total} open bank ${noun} at ${bankCount} ${bankNoun} hiring in ${name} — official listings straight from the banks' own career systems, updated a few times a day.`;
+---
+
+<Base title={title} description={description}>
+  <a class="backlink" href="/vacancies/">← All vacancies</a>
+  <p class="eyebrow">Vacancies by city</p>
+  <h1>Bank vacancies in {name} <span class="mono">({total})</span></h1>
+  <p class="lede">
+    {total} open {noun} at {bankCount} {bankNoun} — updated three times a day.
+  </p>
+
+  <ul class="joblist">
+    {
+      rows.map((job) => (
+        <JobRow
+          slug={job.slug}
+          title={job.title}
+          brand={job.brand}
+          category={job.category}
+          primaryLocation={job.primaryLocation}
+          postedDate={job.postedDate}
+        />
+      ))
+    }
+  </ul>
+
+  {
+    capped && (
+      <p class="banks-note">
+        Showing the {MAX_ROWS} most recent of {total}. The category links below are province-wide, so
+        they widen the list rather than narrow it — search by city name to filter this ledger
+        further.
+      </p>
+    )
+  }
+
+  <nav class="crosslinks" aria-label="Related listings">
+    {
+      parent && (
+        <p class="quick">
+          {name} is in {parent.name}:
+          <a href={`/vacancies/${parent.slug}/`}>All vacancies in {parent.name}</a>
+        </p>
+      )
+    }
+    {
+      parent && catsHere.length > 0 && (
+        <p class="quick">
+          Categories hiring in {name}:
+          {catsHere.map((c) => (
+            <a href={`/browse/${c.slug}/${parent.slug}/`}>{`${c.name} in ${parent.name}`}</a>
+          ))}
+        </p>
+      )
+    }
+    {
+      otherCities.length > 0 && (
+        <p class="quick">
+          Other cities:
+          {otherCities.map((c) => (
+            <a href={`/vacancies/${c.slug}/`}>{c.name}</a>
+          ))}
+        </p>
+      )
+    }
+  </nav>
+</Base>

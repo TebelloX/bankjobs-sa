@@ -6,6 +6,7 @@ import { CATEGORY_SLUGS, PROVINCES } from '@bankjobs/core';
 import type { Category, Province } from '@bankjobs/core';
 import { saJobs } from '../../lib/data';
 import { PROVINCE_SLUGS } from '../../lib/provinces';
+import { PAGE_CITIES } from '../../lib/cities';
 
 // One landing page per province that has at least one open SA job. Provinces
 // with zero jobs are NOT generated — no thin pages, and the sitemap only ever
@@ -66,6 +67,12 @@ const otherProvinces = PROVINCES.filter((p) => p !== name && provincesWithJobs.h
   slug: PROVINCE_SLUGS[p],
 }));
 
+// Cities inside this province that have a landing page of their own — the
+// narrower ledger a job seeker in a metro actually wants. lib/cities.ts applies
+// the job floor, so a province whose towns are all below it (Northern Cape today)
+// simply drops the row rather than showing links to pages that don't exist.
+const citiesHere = PAGE_CITIES.filter((c) => c.province === name);
+
 const title = `${total} bank vacancies in ${name} — mybankjobs`;
 const description = `${total} open bank ${noun} at ${bankCount} ${bankNoun} hiring in ${name} — official listings straight from the banks' own career systems, updated a few times a day.`;
 ---
@@ -102,6 +109,16 @@ const description = `${total} open bank ${noun} at ${bankCount} ${bankNoun} hiri
   }
 
   <nav class="crosslinks" aria-label="Related listings">
+    {
+      citiesHere.length > 0 && (
+        <p class="quick">
+          Cities in {name}:
+          {citiesHere.map((c) => (
+            <a href={`/vacancies/${c.slug}/`}>{c.name}</a>
+          ))}
+        </p>
+      )
+    }
     {
       catsHere.length > 0 && (
         <p class="quick">

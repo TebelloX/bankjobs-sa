@@ -262,6 +262,16 @@ test('province landing page renders a ledger with the right heading', async ({ p
   await expect(page.locator('.joblist a[href^="/jobs/"]').first()).toBeVisible();
 });
 
+test('city landing page renders from the ledger "by city" row', async ({ page }) => {
+  // Which cities clear the job floor depends on the snapshot, so this walks the
+  // link row rather than naming a city — the row itself is what has to work.
+  await page.goto('/vacancies/');
+  const row = page.locator('p.quick', { hasText: 'By city:' });
+  await row.locator('a[href^="/vacancies/"]').first().click();
+  await expect(page.locator('h1')).toHaveText(/^Bank vacancies in .+ \(\d+\)$/);
+  await expect(page.locator('.joblist a[href^="/jobs/"]').first()).toBeVisible();
+});
+
 test('category × province combo page renders from a province cross-link', async ({ page }) => {
   await page.goto('/vacancies/gauteng/');
   // The "by category" cross-links point at the combo pages for this province.
