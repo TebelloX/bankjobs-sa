@@ -112,3 +112,27 @@ CREATE TABLE ingestion_runs (
   jobs_closed INTEGER,
   warning     TEXT
 );
+
+-- The two push tables below already exist in the prod D1: they were added there
+-- on 25 Jul 2026 by a separate idempotent (IF NOT EXISTS) migration, not by this
+-- file. This file stays fresh-database truth and is never re-run against a live
+-- database, so bare CREATE TABLE — same treatment as every table above.
+
+-- Web-push subscriptions. One row per browser subscription: the push-service
+-- endpoint URL plus the two client keys needed to encrypt payloads for it.
+-- Deliberately NOTHING else — no user id, no email, no user agent. endpoint is
+-- the natural primary key (each subscription's URL is unique) and the only
+-- handle a subscriber needs to delete themselves.
+CREATE TABLE push_subscriptions (
+  endpoint   TEXT PRIMARY KEY,
+  p256dh     TEXT NOT NULL,
+  auth       TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+
+-- Single-row state for the push sender (packages/ingest): the first_seen
+-- watermark that makes digest sends idempotent across re-runs.
+CREATE TABLE push_state (
+  key   TEXT PRIMARY KEY,
+  value TEXT NOT NULL
+);

@@ -1,6 +1,7 @@
 # @bankjobs/api — Cloudflare Worker read API
 
-Read-only, open-jobs-only search API over the D1 `jobs` database (plan §2.6). Built and
+Read-only, open-jobs-only search API over the D1 `jobs` database (plan §2.6), plus the two
+web-push subscription writes (`/api/push/*` — the only non-GET surface). Built and
 **locally proven against real workerd + D1**; the **remote D1 spike is REQUIRED before the first
 deploy** (see below).
 
@@ -41,7 +42,28 @@ All responses are JSON with `Access-Control-Allow-Origin: *`. Every query filter
   or its URL slug (`absa-r-1`). 404 JSON for unknown/non-open.
 - `GET /api/meta` — totals, per-source counts + `lastSuccessAt`, SA-only category/province rollups.
   Mirrors ingest's `meta.json` (`packages/ingest/src/snapshots.ts`).
-- Anything else → 404 JSON `{ error }`. Non-GET → 405 (`Allow: GET`).
+- Anything else → 404 JSON `{ error }`. Non-GET → 405 (`Allow: GET`), except `/api/push/*` below.
+
+### Web push (`src/push.ts`)
+
+The browser's `PushSubscription` is stored server-side so the sender (`packages/ingest`) can read it
+back; the rows carry the endpoint + the two keys and **nothing else** — no user id, email or user
+agent (`db/schema.sql`, `push_subscriptions`). The `applicationServerKey` clients subscribe with is
+`VAPID_PUBLIC_KEY` in `@bankjobs/core` (public by design; rotating it orphans every stored row).
+
+- `POST /api/push/subscribe` — body is `PushSubscription.toJSON()`:
+  `{ endpoint, expirationTime?, keys: { p256dh, auth } }`. Validated hard — body read through a
+  4096-byte cap; `endpoint` must be an absolute `https:` URL with no embedded credentials, ≤ 1024
+  chars; both keys must be unpadded base64url (`p256dh` 80–100 chars, `auth` 16–64). Anything else
+  → `400 { error }` and no write. Success → `201 { ok: true }`. Upsert on `endpoint`: a re-subscribe
+  refreshes the keys and keeps the original `created_at`.
+- `POST /api/push/unsubscribe` — body `{ endpoint }` (same endpoint validation). Deletes the row and
+  returns `200 { ok: true }` whether or not it existed (idempotent).
+- `OPTIONS /api/push/*` — preflight: `204` + `Access-Control-Allow-Methods: POST, OPTIONS`,
+  `Access-Control-Allow-Headers: Content-Type`, `Access-Control-Max-Age: 86400`. Costs no token.
+- Other methods on `/api/push/*` → 405 (`Allow: POST, OPTIONS`); unknown `/api/push/…` path → 404.
+- These POSTs bypass the cache entirely (`caches.default` is GET-only) and spend a rate-limit token
+  **before** any work; writes use the plain `env.DB` binding, not the read session.
 
 ## Free-tier discipline
 

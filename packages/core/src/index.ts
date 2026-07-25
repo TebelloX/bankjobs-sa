@@ -26,3 +26,5 @@ export { cleanApplyUrl, assertAllowedApplyHost } from './applyUrl';
 export { countryCodeFor, countryName } from './country';
 
 export { describeError } from './error';
+
+export { VAPID_PUBLIC_KEY } from './push';
