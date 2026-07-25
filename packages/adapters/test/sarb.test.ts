@@ -253,6 +253,22 @@ describe('sarbAdapter.normalize — mapping', () => {
 });
 
 // ---------------------------------------------------------------------------
+// (g) normalize — the qualifications fold. SARB posts its requirements block in
+// a separate Oracle field (ExternalQualificationsStr) that never appears in
+// ExternalDescriptionStr; normalize must fold it in, or this content never
+// reaches the DB (and the requirements-extraction snapshot starves).
+// ---------------------------------------------------------------------------
+
+describe('sarbAdapter.normalize — qualifications fold', () => {
+  it('1643 descriptionText includes text from ExternalQualificationsStr, not just ExternalDescriptionStr', () => {
+    const job = jobFor('1643');
+    // Distinctive phrase lifted from detail-1.json's ExternalQualificationsStr
+    // ("&nbsp;" collapses to a plain space through sanitizeDescription).
+    expect(job.descriptionText).toContain('Honours degree (NQF 8) in Information Technology');
+  });
+});
+
+// ---------------------------------------------------------------------------
 // applyUrl host guard (Oracle family). Like Workable, SARB's apply URL is BUILT
 // from its config host (SARB_ORACLE_CONFIG.host), not from feed data — a stronger
 // position, since a hijacked feed cannot move it. To prove normalize's wired guard

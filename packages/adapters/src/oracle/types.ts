@@ -79,6 +79,13 @@ export interface OracleListResponse {
 export interface OracleRequisitionDetail extends OracleListRequisition {
   /** Full rich HTML description. */
   ExternalDescriptionStr?: string;
+  /**
+   * Full rich HTML qualifications/requirements block — SARB posts these in a
+   * separate Oracle field rather than inlining them in ExternalDescriptionStr.
+   * USED: folded into the description at normalize time, or this content (e.g.
+   * degree/NQF level, years of experience) would never reach the DB.
+   */
+  ExternalQualificationsStr?: string;
   /** Full ISO-8601 posted timestamp; its date part is the canonical posted date. */
   ExternalPostedStartDate?: string;
   /** Expiry — IGNORED. */

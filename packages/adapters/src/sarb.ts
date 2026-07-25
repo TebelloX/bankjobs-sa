@@ -72,7 +72,17 @@ export const sarbAdapter: SourceAdapter<OracleRawPosting> = {
     const idPrefix = `(${id})`;
     const title = rawTitle.startsWith(idPrefix) ? rawTitle.slice(idPrefix.length).trim() : rawTitle;
 
-    const { html, text } = sanitizeDescription(detail.ExternalDescriptionStr ?? '');
+    // SARB posts its qualifications/requirements block (degree, NQF level, years
+    // of experience) in a separate Oracle field, ExternalQualificationsStr, never
+    // inlined into ExternalDescriptionStr. Fold both into one blob before
+    // sanitizing — otherwise the requirements text never reaches the DB, which
+    // starves both the job page and the requirements-extraction snapshot of that
+    // content. Expect a one-time content-hash update wave across the ~25 live
+    // SARB rows the run after this ships — that's this fold taking effect, not a
+    // regression.
+    const { html, text } = sanitizeDescription(
+      [detail.ExternalDescriptionStr, detail.ExternalQualificationsStr].filter(Boolean).join('\n'),
+    );
 
     // Location. SARB operates a single physical site — the Pretoria Head Office —
     // so every workLocation[] carries that address, even for roles advertised
