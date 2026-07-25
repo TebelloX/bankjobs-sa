@@ -30,6 +30,7 @@ const PER_SOURCE_RULES: Record<SourceId, CompiledRule[]> = {
   discovery: compile(rulesData.perSource.discovery as Rule[]),
   capitec: compile(rulesData.perSource.capitec as Rule[]),
   sarb: compile(rulesData.perSource.sarb as Rule[]),
+  postbank: compile(rulesData.perSource.postbank as Rule[]),
 };
 
 /**

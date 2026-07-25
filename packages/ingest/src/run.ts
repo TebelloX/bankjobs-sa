@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import type { CanonicalJob, SourceId } from '@bankjobs/core';
 import { describeError } from '@bankjobs/core';
@@ -7,6 +7,7 @@ import type {
   OracleDetailResponse,
   OracleListResponse,
   OracleRawPosting,
+  PostbankRawPosting,
   SfRawPosting,
   SfSitemapPosting,
   SrListResponse,
@@ -20,6 +21,7 @@ import type {
   WorkdayRawPosting,
 } from '@bankjobs/adapters';
 import {
+  advertHtmlFromPdf,
   extractCanonicalUrl,
   extractDatePosted,
   extractJobId,
@@ -27,6 +29,9 @@ import {
   extractSfCanonicalUrl,
   parseFeed,
   parseSitemapDetail,
+  parseVacancies,
+  partitionByClosingDate,
+  sastDate,
 } from '@bankjobs/adapters';
 import { repoRoot } from './db';
 import type { JobsDb } from './db';
@@ -242,8 +247,43 @@ function loadOracleFixtures(): OracleRawPosting[] {
   return pairs;
 }
 
+/**
+ * Postbank fixtures: careers.html is the verbatim listing and each committed
+ * `{slug}.pdf` is a verbatim advert. The listing is parsed and filtered by the
+ * SAME closing-date rule the live `fetchAll` applies — but against the capture
+ * date from manifest.json, NOT today.
+ *
+ * Pinning the clock is what makes this replayable. Every Postbank advert expires
+ * within weeks, so a fixture run judged against today's date would return zero
+ * jobs a fortnight after capture and trip the zero-jobs guardrail in CI on a
+ * green tree. Replaying a snapshot means replaying the day it was taken; the
+ * committed expired adverts are dropped here exactly as production drops them.
+ *
+ * `advertHtmlFromPdf` is async, so this loader is the one that returns a promise
+ * (the caller awaits every loader uniformly).
+ */
+async function loadPostbankFixtures(): Promise<PostbankRawPosting[]> {
+  const dir = join(repoRoot(), 'fixtures', 'postbank');
+  const manifest = JSON.parse(readFileSync(join(dir, 'manifest.json'), 'utf8')) as {
+    capturedAt: string;
+  };
+  const listUrl = 'https://www.postbank.co.za/careers.html';
+  const vacancies = parseVacancies(readFileSync(join(dir, 'careers.html'), 'utf8'), listUrl);
+  const { open } = partitionByClosingDate(vacancies, sastDate(new Date(manifest.capturedAt)));
+
+  const raws: PostbankRawPosting[] = [];
+  for (const vacancy of open) {
+    const pdfPath = join(dir, `${vacancy.slug}.pdf`);
+    if (!existsSync(pdfPath)) continue;
+    const advertHtml = await advertHtmlFromPdf(new Uint8Array(readFileSync(pdfPath)));
+    if (advertHtml === '') continue;
+    raws.push({ vacancy, advertHtml });
+  }
+  return raws;
+}
+
 /** Build raw postings from committed fixtures (offline dev + CI). */
-function loadFixtures(source: SourceId): unknown[] {
+function loadFixtures(source: SourceId): unknown[] | Promise<unknown[]> {
   if (source === 'standardbank') return loadSrFixtures();
   if (source === 'investec') return loadEarcuFixtures();
   if (source === 'gotyme') return loadWorkableFixtures();
@@ -251,6 +291,7 @@ function loadFixtures(source: SourceId): unknown[] {
   if (source === 'discovery') return loadDiscoveryFixtures();
   if (source === 'capitec') return loadCapitecFixtures();
   if (source === 'sarb') return loadOracleFixtures();
+  if (source === 'postbank') return loadPostbankFixtures();
   return loadWorkdayFixtures(source);
 }
 
@@ -328,7 +369,7 @@ export async function runIngest(opts: RunOptions): Promise<number> {
         log(`[${source}] ${dryRun ? 'dry-run ' : ''}${fixtures ? '(fixtures) ' : ''}starting…`);
 
         const raws = fixtures
-          ? loadFixtures(source)
+          ? await loadFixtures(source)
           : await adapter.fetchAll({ log: (m) => log(`  ${m}`) });
 
         const jobs: CanonicalJob[] = [];

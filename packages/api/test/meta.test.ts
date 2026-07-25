@@ -30,8 +30,8 @@ describe('GET /api/meta', () => {
     expect(body.totalSA).toBe(7);
     expect(body.totalInternational).toBe(1);
 
-    // Every sources row present (9), counts span all open jobs (SA + intl).
-    expect(body.sources.length).toBe(9);
+    // Every sources row present (10), counts span all open jobs (SA + intl).
+    expect(body.sources.length).toBe(10);
     const bySource = new Map(body.sources.map((s) => [s.id, s.count]));
     expect(bySource.get('absa')).toBe(3);
     expect(bySource.get('firstrand')).toBe(2);

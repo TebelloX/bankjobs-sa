@@ -113,6 +113,26 @@ export {
   SUCCESSFACTORS_UA,
 } from './successfactors/client';
 
+export type { PdfLine } from './pdf/client';
+export { extractPdfLines } from './pdf/client';
+
+export type { PostbankVacancy, PostbankRawPosting } from './postbank/types';
+
+export type { AdvertBlock, PostbankConfig, VacancyPartition } from './postbank/client';
+export {
+  advertBlocks,
+  advertHtmlFromPdf,
+  blocksToHtml,
+  careersUrl,
+  fetchAllPostbank,
+  parseClosingDate,
+  parseVacancies,
+  partitionByClosingDate,
+  resolveAdvertUrl,
+  sastDate,
+  POSTBANK_UA,
+} from './postbank/client';
+
 import { absaAdapter } from './absa';
 import { firstrandAdapter } from './firstrand';
 import { standardbankAdapter } from './standardbank';
@@ -122,6 +142,7 @@ import { nedbankAdapter } from './nedbank';
 import { discoveryAdapter } from './discovery';
 import { capitecAdapter } from './capitec';
 import { sarbAdapter } from './sarb';
+import { postbankAdapter } from './postbank';
 
 export { absaAdapter, ABSA_WORKDAY_CONFIG } from './absa';
 export { firstrandAdapter, FIRSTRAND_WORKDAY_CONFIG } from './firstrand';
@@ -132,6 +153,7 @@ export { nedbankAdapter, NEDBANK_SF_CONFIG } from './nedbank';
 export { discoveryAdapter, DISCOVERY_SF_CONFIG } from './discovery';
 export { capitecAdapter, CAPITEC_SF_CONFIG } from './capitec';
 export { sarbAdapter, SARB_ORACLE_CONFIG } from './sarb';
+export { postbankAdapter, POSTBANK_SITE_CONFIG } from './postbank';
 
 /** Adapter registry — one entry per live source. */
 export const adapters = {
@@ -144,4 +166,5 @@ export const adapters = {
   discovery: discoveryAdapter,
   capitec: capitecAdapter,
   sarb: sarbAdapter,
+  postbank: postbankAdapter,
 } as const;

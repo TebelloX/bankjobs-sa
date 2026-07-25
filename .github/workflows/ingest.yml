@@ -130,6 +130,14 @@ jobs:
           DRY_RUN_FLAG: ${{ inputs.dry_run == true && '--dry-run' || '' }}
         run: pnpm ingest -- --remote --source=sarb $DRY_RUN_FLAG
 
+      - name: Ingest postbank
+        id: postbank
+        if: ${{ inputs.only == '' || inputs.only == 'postbank' }}
+        continue-on-error: true
+        env:
+          DRY_RUN_FLAG: ${{ inputs.dry_run == true && '--dry-run' || '' }}
+        run: pnpm ingest -- --remote --source=postbank $DRY_RUN_FLAG
+
       # A step "failure" below includes guardrail warnings (the ingest CLI
       # exits 1 on those too, not just on crashes) — that's intentional: the
       # run goes red so a human looks, while continue-on-error above already

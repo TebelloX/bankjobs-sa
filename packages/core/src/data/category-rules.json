@@ -99,6 +99,17 @@
     "sarb": [
       { "category": "Risk & Compliance", "keywords": ["policy", "regulation"] },
       { "category": "Operations & Admin", "keywords": ["personal assistant"] }
+    ],
+    "postbank": [
+      {
+        "category": "Branch & Retail",
+        "keywords": ["customer services clerk", "team lead customer services"]
+      },
+      { "category": "Data & Analytics", "keywords": ["etl"] },
+      {
+        "category": "Software & IT",
+        "keywords": ["architect", "sap", "service desk", "desktop support"]
+      }
     ]
   }
 }

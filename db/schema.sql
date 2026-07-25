@@ -30,7 +30,14 @@ INSERT INTO sources (id, name, enabled) VALUES
   ('capitec', 'Capitec', 1),
   -- The SA Reserve Bank on Oracle Recruiting Cloud (Fusion HCM CE); a single
   -- Pretoria site, ~24 roles. Enabled.
-  ('sarb', 'SARB', 1);
+  ('sarb', 'SARB', 1),
+  -- The SA Postbank runs no ATS at all: a hand-maintained HTML table of PDF
+  -- adverts that NEVER drops a closed ad (64 rows listed, 2 still open on
+  -- 26 Jul 2026). The adapter's closing-date filter is what makes it usable, so
+  -- the open count is small and lumpy by nature: it can legitimately reach 0
+  -- between advertising rounds and trip the zero-jobs guardrail (warn + skip
+  -- closures — safe by design; do NOT weaken the guardrail for it). Enabled.
+  ('postbank', 'Postbank', 1);
 
 CREATE TABLE jobs (
   id               TEXT PRIMARY KEY,

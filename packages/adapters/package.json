@@ -10,6 +10,7 @@
     "capture": "tsx scripts/capture-fixtures.ts"
   },
   "dependencies": {
-    "@bankjobs/core": "workspace:*"
+    "@bankjobs/core": "workspace:*",
+    "unpdf": "^1.8.0"
   }
 }

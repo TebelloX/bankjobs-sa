@@ -10,7 +10,7 @@
  * committed fixtures offline. Default source is absa.
  */
 import { parseArgs } from 'node:util';
-import { writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -55,6 +55,17 @@ import {
 } from '../src/successfactors/client';
 import type { SuccessFactorsConfig } from '../src/successfactors/client';
 import type { SfFeedItem, SfSitemapPosting } from '../src/successfactors/types';
+import { POSTBANK_SITE_CONFIG } from '../src/postbank';
+import {
+  POSTBANK_UA,
+  advertHtmlFromPdf,
+  careersUrl,
+  parseVacancies,
+  partitionByClosingDate,
+  sastDate,
+} from '../src/postbank/client';
+import type { PostbankConfig } from '../src/postbank/client';
+import type { PostbankVacancy } from '../src/postbank/types';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const fixturesRoot = join(scriptDir, '../../../fixtures');
@@ -1111,6 +1122,125 @@ function writeManifest(fixturesDir: string, args: WorkdayManifestArgs): void {
 }
 
 // ---------------------------------------------------------------------------
+// Postbank — no ATS at all. One hand-maintained HTML table, one PDF advert per
+// row. Capture the listing verbatim plus a small set of adverts: EVERY row that
+// is still open on capture day (those are what an offline ingest run replays)
+// and two long-expired ones, kept deliberately so the closing-date filter has
+// real negatives to be tested against.
+// ---------------------------------------------------------------------------
+
+/** Expired rows worth committing, by advert slug: the shapes worth pinning. */
+const POSTBANK_EXPIRED_FIXTURES: readonly string[] = [
+  // Frontline in-store banking role: a province-only location cell, the
+  // 'Minimum Qualifications and Experience Required' heading variant, and a
+  // Matric-minimum requirements block (the min-taking safety property).
+  'advert-customer-services-clerk-western-cape',
+  // Same family, and its href carries the site's stray-space filename quirk
+  // ('vacancies\Advert _Team Lead Customer Services Western Cape.pdf') — proof
+  // that the percent-encoded URL we build actually resolves.
+  'advert-team-lead-customer-services-western-cape',
+];
+
+async function capturePostbank(cfg: PostbankConfig): Promise<void> {
+  const delayMs = cfg.delayMs ?? 400;
+  const fixturesDir = join(fixturesRoot, 'postbank');
+  const listUrl = careersUrl(cfg);
+
+  const pbFetch = (url: string, accept: string): Promise<Response> =>
+    fetch(url, { headers: { 'User-Agent': POSTBANK_UA, Accept: accept } });
+
+  // 1) The careers page — the enumeration source. Stored verbatim.
+  const listRes = await pbFetch(listUrl, 'text/html');
+  if (listRes.status !== 200) {
+    console.error(
+      `postbank careers page returned HTTP ${listRes.status} — shape may have drifted.`,
+    );
+    console.error(`Tried: GET ${listUrl}`);
+    process.exit(1);
+  }
+  const html = await listRes.text();
+  const vacancies = parseVacancies(html, listUrl);
+  if (vacancies.length === 0) {
+    console.error('postbank careers page parsed to zero vacancy rows — table markup has drifted.');
+    process.exit(1);
+  }
+  mkdirSync(fixturesDir, { recursive: true });
+  writeFileSync(join(fixturesDir, 'careers.html'), html);
+
+  const capturedAt = new Date();
+  const today = sastDate(capturedAt);
+  const { open, expired, unparsed } = partitionByClosingDate(vacancies, today);
+  console.log(
+    `Wrote careers.html (${vacancies.length} rows: ${open.length} open on ${today} SAST, ` +
+      `${expired.length} expired, ${unparsed.length} unreadable).`,
+  );
+
+  // 2) The adverts. Open rows are what an offline run replays; the two pinned
+  // expired ones are the filter's negatives.
+  const wanted = [
+    ...open,
+    ...POSTBANK_EXPIRED_FIXTURES.map((slug) => expired.find((v) => v.slug === slug)).filter(
+      (v): v is PostbankVacancy => v !== undefined,
+    ),
+  ];
+  if (wanted.length === open.length) {
+    console.warn(
+      'None of the pinned expired adverts are on the page any more — the filter fixtures are stale.',
+    );
+  }
+
+  const files: Record<string, string> = {
+    'careers.html': `The careers listing verbatim (${vacancies.length} rows, ${open.length} open on ${today} SAST) — the enumeration source and the only page fetched per run.`,
+  };
+
+  for (const vacancy of wanted) {
+    await sleep(delayMs);
+    const res = await pbFetch(vacancy.pdfUrl, 'application/pdf');
+    if (res.status !== 200) {
+      console.error(`  advert ${vacancy.slug} returned HTTP ${res.status} — skipping.`);
+      continue;
+    }
+    const bytes = new Uint8Array(await res.arrayBuffer());
+    writeFileSync(join(fixturesDir, `${vacancy.slug}.pdf`), bytes);
+    const advertHtml = await advertHtmlFromPdf(bytes);
+    const state = vacancy.closingDate !== null && vacancy.closingDate >= today ? 'OPEN' : 'EXPIRED';
+    files[`${vacancy.slug}.pdf`] =
+      `${vacancy.title} (${vacancy.rawLocation}) — closes ${vacancy.closingDateRaw} [${state}]; ` +
+      `${advertHtml.length} chars of block HTML extracted`;
+    console.log(`  Wrote ${vacancy.slug}.pdf (${bytes.length} bytes, ${state}).`);
+  }
+
+  const manifest = {
+    source: 'postbank',
+    capturedAt: capturedAt.toISOString(),
+    ats: 'none — a hand-maintained HTML table linking PDF adverts',
+    brand: 'Postbank',
+    endpoints: {
+      careers: `GET ${listUrl}`,
+      advert: `GET https://${cfg.host}/vacancies/{Advert filename}.pdf`,
+    },
+    totalAtCapture: vacancies.length,
+    openAtCapture: open.length,
+    expiredAtCapture: expired.length,
+    files,
+    notes: [
+      'No ATS, no API, no JSON: careers.html is a static server-rendered <table> under an <h3>Vacancies</h3> heading, three cells per row (position → PDF advert, location, closing date). The honest UA gets 200 on the page and on every PDF; robots.txt constrains only Googlebot, on unrelated paths.',
+      'CLOSED ADS ARE NEVER REMOVED — the table is a rolling archive of everything advertised this year. On capture day 64 rows were listed and only 2 were still open, so the closing-date filter (closing date >= today in SAST, keeping a role that closes today) IS the adapter. A row whose printed date does not parse is dropped and logged, never published.',
+      'Hrefs are WINDOWS paths written into the HTML — "vacancies\\Advert_Specialist Architect 2026.pdf" — with raw spaces, and some rows carry en-dashes ("– Electronic Payments"), ampersands ("IT Assets & Risk Officer"), double spaces and a stray space after "Advert". Normalising the backslashes and resolving through the WHATWG URL parser percent-encodes all of it exactly as the server expects.',
+      'The PDF advert IS the job ad; the table carries no description at all. The PDFs are text-based (never scans), 1–3 pages, laid out as floating text boxes — so PDF.js content-stream order hoists every section heading to the top of its page. The pdf/ client rebuilds reading order from the item geometry instead, which is what keeps "Minimum Requirements" attached to the qualifications block that core\'s heading-windowed requirements extractor reads.',
+      "Advert metadata block: JOB TITLE / JOB GRADING / REPORT(S) TO / BUSINESS UNIT / LOCATION / POSITION STATUS. LOCATION spells out what the table's 'HEAD OFFICE' means ('HEAD OFFICE: PRETORIA'), which is why the adapter resolves that label to Pretoria.",
+      'Location cells are free text in CAPS and several list more than one place: "JOHANNESBURG\\BLOEMFONTEIN" (backslash), "WESTERN CAPE AND KWAZULU NATAL X2" (headcount marker), and a six-province list. The adapter splits them; provinces with no city resolve province-only.',
+      'No posted date exists anywhere — not on the page, not in the advert — so postedDate is null and the site falls back to firstSeen. The closing date is not stored either (the Job model has no expiry field); closure stays lastSeen-driven, as for every other source.',
+      'id = a slug of the PDF FILENAME, the only stable identifier this source has (no requisition numbers anywhere). A re-advertised role gets a new PDF, hence a new id — correct, since it is a new posting with a new closing date.',
+      'applyUrl = the advert PDF. There is no application form: each advert names the mailbox to send a CV to, so the PDF is both the ad and the official application channel.',
+      'Expired adverts are committed on purpose — the closing-date filter needs real negatives, and the ingest fixtures loader drops them exactly as fetchAll does.',
+    ],
+  };
+  writeFileSync(join(fixturesDir, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
+  console.log(`Wrote manifest.json to ${fixturesDir}.`);
+}
+
+// ---------------------------------------------------------------------------
 
 async function main(): Promise<void> {
   // pnpm's documented `pnpm run capture -- --source=X` form forwards the
@@ -1152,9 +1282,12 @@ async function main(): Promise<void> {
     case 'sarb':
       await captureOracle(SARB_ORACLE_CONFIG);
       return;
+    case 'postbank':
+      await capturePostbank(POSTBANK_SITE_CONFIG);
+      return;
     default:
       console.error(
-        `Unknown --source '${source}' (expected absa | firstrand | standardbank | investec | gotyme | nedbank | discovery | capitec | sarb).`,
+        `Unknown --source '${source}' (expected absa | firstrand | standardbank | investec | gotyme | nedbank | discovery | capitec | postbank | sarb).`,
       );
       process.exit(1);
   }

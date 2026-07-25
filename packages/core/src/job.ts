@@ -8,6 +8,7 @@ export const SOURCES = [
   'discovery',
   'capitec',
   'sarb',
+  'postbank',
 ] as const;
 export type SourceId = (typeof SOURCES)[number];
 
@@ -31,6 +32,7 @@ export const BRANDS = [
   'Discovery Bank',
   'Capitec',
   'SARB',
+  'Postbank',
 ] as const;
 export type Brand = (typeof BRANDS)[number];
 

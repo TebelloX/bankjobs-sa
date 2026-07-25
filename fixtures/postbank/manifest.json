@@ -1,0 +1,32 @@
+{
+  "source": "postbank",
+  "capturedAt": "2026-07-25T20:03:07.827Z",
+  "ats": "none — a hand-maintained HTML table linking PDF adverts",
+  "brand": "Postbank",
+  "endpoints": {
+    "careers": "GET https://www.postbank.co.za/careers.html",
+    "advert": "GET https://www.postbank.co.za/vacancies/{Advert filename}.pdf"
+  },
+  "totalAtCapture": 64,
+  "openAtCapture": 2,
+  "expiredAtCapture": 62,
+  "files": {
+    "careers.html": "The careers listing verbatim (64 rows, 2 open on 2026-07-25 SAST) — the enumeration source and the only page fetched per run.",
+    "advert-specialist-architect-2026.pdf": "SPECIALIST ARCHITECT (PRETORIA) — closes 03 August 2026 [OPEN]; 4795 chars of block HTML extracted",
+    "advert-sap-grc-specialist-2026.pdf": "SAP GRC SPECIALIST (PRETORIA) — closes 03 August 2026 [OPEN]; 5550 chars of block HTML extracted",
+    "advert-customer-services-clerk-western-cape.pdf": "CUSTOMER SERVICES CLERK (WESTERN CAPE) — closes 11 March 2026 [EXPIRED]; 6245 chars of block HTML extracted",
+    "advert-team-lead-customer-services-western-cape.pdf": "TEAM LEAD CUSTOMER SERVICES (WESTERN CAPE) — closes 11 March 2026 [EXPIRED]; 6189 chars of block HTML extracted"
+  },
+  "notes": [
+    "No ATS, no API, no JSON: careers.html is a static server-rendered <table> under an <h3>Vacancies</h3> heading, three cells per row (position → PDF advert, location, closing date). The honest UA gets 200 on the page and on every PDF; robots.txt constrains only Googlebot, on unrelated paths.",
+    "CLOSED ADS ARE NEVER REMOVED — the table is a rolling archive of everything advertised this year. On capture day 64 rows were listed and only 2 were still open, so the closing-date filter (closing date >= today in SAST, keeping a role that closes today) IS the adapter. A row whose printed date does not parse is dropped and logged, never published.",
+    "Hrefs are WINDOWS paths written into the HTML — \"vacancies\\Advert_Specialist Architect 2026.pdf\" — with raw spaces, and some rows carry en-dashes (\"– Electronic Payments\"), ampersands (\"IT Assets & Risk Officer\"), double spaces and a stray space after \"Advert\". Normalising the backslashes and resolving through the WHATWG URL parser percent-encodes all of it exactly as the server expects.",
+    "The PDF advert IS the job ad; the table carries no description at all. The PDFs are text-based (never scans), 1–3 pages, laid out as floating text boxes — so PDF.js content-stream order hoists every section heading to the top of its page. The pdf/ client rebuilds reading order from the item geometry instead, which is what keeps \"Minimum Requirements\" attached to the qualifications block that core's heading-windowed requirements extractor reads.",
+    "Advert metadata block: JOB TITLE / JOB GRADING / REPORT(S) TO / BUSINESS UNIT / LOCATION / POSITION STATUS. LOCATION spells out what the table's 'HEAD OFFICE' means ('HEAD OFFICE: PRETORIA'), which is why the adapter resolves that label to Pretoria.",
+    "Location cells are free text in CAPS and several list more than one place: \"JOHANNESBURG\\BLOEMFONTEIN\" (backslash), \"WESTERN CAPE AND KWAZULU NATAL X2\" (headcount marker), and a six-province list. The adapter splits them; provinces with no city resolve province-only.",
+    "No posted date exists anywhere — not on the page, not in the advert — so postedDate is null and the site falls back to firstSeen. The closing date is not stored either (the Job model has no expiry field); closure stays lastSeen-driven, as for every other source.",
+    "id = a slug of the PDF FILENAME, the only stable identifier this source has (no requisition numbers anywhere). A re-advertised role gets a new PDF, hence a new id — correct, since it is a new posting with a new closing date.",
+    "applyUrl = the advert PDF. There is no application form: each advert names the mailbox to send a CV to, so the PDF is both the ad and the official application channel.",
+    "Expired adverts are committed on purpose — the closing-date filter needs real negatives, and the ingest fixtures loader drops them exactly as fetchAll does."
+  ]
+}

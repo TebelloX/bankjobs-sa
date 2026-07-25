@@ -35,8 +35,9 @@ export function cleanApplyUrl(raw: string): string {
  * compromised upstream feed must never be able to slip a phishing link past it:
  * every host here is the REAL host that source's adapter produces, derived from
  * the committed fixtures + adapter config (Workday tenants, SmartRecruiters,
- * eArcu, Workable, SuccessFactors CSB and Oracle Recruiting Cloud respectively),
- * never guessed.
+ * eArcu, Workable, SuccessFactors CSB, Oracle Recruiting Cloud and — for
+ * Postbank — the bank's own careers site, whose PDF advert IS the application
+ * instruction), never guessed.
  *
  * Entries are EXACT hosts by deliberate choice — each source resolves to a single
  * known host today, so an exact match is the tightest guard. Suffix wildcards of
@@ -58,6 +59,7 @@ export const APPLY_HOST_ALLOWLIST: Record<SourceId, readonly string[]> = {
   discovery: ['careers.discovery.co.za'],
   capitec: ['careers.capitecbank.co.za'],
   sarb: ['fa-evra-saasfaprod1.fa.ocs.oraclecloud.com'],
+  postbank: ['www.postbank.co.za'],
 };
 
 /**

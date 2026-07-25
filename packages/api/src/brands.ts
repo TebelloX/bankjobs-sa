@@ -25,6 +25,7 @@ const BRAND_ALIASES: Record<string, string[]> = {
   WesBank: ['wesbank', 'wes bank'],
   Investec: ['investec'],
   Nedbank: ['nedbank'],
+  Postbank: ['postbank', 'post bank', 'south african postbank'],
   SARB: ['sarb', 'reserve bank', 'south african reserve bank'],
   'Standard Bank': ['standard bank', 'standardbank'],
   'GoTyme Bank': ['gotyme', 'gotyme bank', 'tymebank', 'tyme bank'],
