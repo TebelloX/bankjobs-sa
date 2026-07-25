@@ -223,6 +223,26 @@ const description =
         )
       }
 
+      {/* The other half of the visit-note story above: that line tells a
+          returning visitor what they missed, this one offers to tell them
+          without the return trip. Ships `hidden` — the same
+          feature-detect-then-reveal idiom as the share and save buttons on job
+          pages — and is revealed by the script below only when the browser can
+          actually do push AND this build knows a Worker to register the
+          subscription with. A static-search build (local dev, CI) has nowhere
+          to POST it, so the control never appears rather than dying on click. */}
+      <div class="push-line" data-push hidden>
+        <p class="push-copy">
+          New roles land here three times a day — get a notification when they do.
+        </p>
+        <div class="push-actions">
+          <button class="share-btn push-btn" type="button" data-push-toggle
+            >notify me of new vacancies</button
+          >
+          <span class="push-status" role="status" data-push-status></span>
+        </div>
+      </div>
+
       {
         meta.totalInternational > 0 && (
           <p class="intl-link">
@@ -283,6 +303,13 @@ const description =
   import { formatPostedRelative, sastStatementDate } from '../lib/freshness';
   import { getLocalStorage } from '../lib/savedJobs';
   import { recordVisit, sumAddedSince } from '../lib/visit';
+  import {
+    PUSH_API_BASE,
+    getSubscription,
+    pushSupported,
+    subscribe,
+    unsubscribe,
+  } from '../lib/push';
 
   const stDate = document.getElementById('st-date');
   if (stDate) stDate.textContent = sastStatementDate();
@@ -314,5 +341,82 @@ const description =
       noteLink.textContent = `${added} added since your last visit →`;
       note.hidden = false;
     }
+  }
+
+  // Push opt-in. The block ships `hidden` and is unhidden only once BOTH gates
+  // pass — the browser can actually do push, and this build carries a Worker
+  // origin to register the subscription with — so a control that could not work
+  // is never shown. The label is painted from the browser's REAL subscription
+  // state before the reveal, so a visitor who already turned notifications on
+  // never sees "notify me" flash first.
+  const pushBox = document.querySelector<HTMLElement>('[data-push]');
+  const pushBtn = pushBox?.querySelector<HTMLButtonElement>('[data-push-toggle]');
+  const pushStatus = pushBox?.querySelector<HTMLElement>('[data-push-status]');
+
+  if (pushBox && pushBtn && pushSupported() && PUSH_API_BASE) {
+    /** Label and pressed state always mirror what the browser is subscribed to. */
+    const paintPush = (on: boolean): void => {
+      pushBtn.textContent = on
+        ? 'notifications on — tap to turn off'
+        : 'notify me of new vacancies';
+      pushBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      pushBtn.classList.toggle('is-on', on);
+    };
+    const sayPush = (text: string): void => {
+      if (pushStatus) pushStatus.textContent = text;
+    };
+    /** Never leave the toggle disabled, whatever the attempt did. */
+    const releasePush = (): void => {
+      pushBtn.disabled = false;
+    };
+
+    getSubscription()
+      .then((subscription) => {
+        paintPush(subscription !== null);
+        // A browser-level block is worth saying up front: the button would
+        // otherwise look available and do nothing a visitor could see.
+        if (!subscription && Notification.permission === 'denied') {
+          sayPush('notifications are blocked in your browser settings');
+        }
+        pushBox.hidden = false;
+      })
+      .catch(() => {
+        // Cannot read the state, so cannot label the control honestly: leave it
+        // hidden rather than guess.
+      });
+
+    pushBtn.addEventListener('click', () => {
+      const wasOn = pushBtn.classList.contains('is-on');
+      pushBtn.disabled = true;
+      sayPush(wasOn ? 'turning notifications off…' : 'asking your browser…');
+
+      if (wasOn) {
+        unsubscribe(PUSH_API_BASE)
+          .then(() => {
+            paintPush(false);
+            sayPush('notifications off');
+          })
+          .catch(() => sayPush('could not turn notifications off — try again'))
+          .finally(releasePush);
+        return;
+      }
+
+      subscribe(PUSH_API_BASE)
+        .then((result) => {
+          paintPush(result === 'subscribed');
+          if (result === 'subscribed') sayPush('on — the next digest comes here');
+          else if (result === 'denied') {
+            // Dismissing the prompt and blocking the site are different
+            // answers, and only one of them is fixable in browser settings.
+            sayPush(
+              Notification.permission === 'denied'
+                ? 'notifications are blocked in your browser settings'
+                : 'nothing turned on — the prompt was dismissed',
+            );
+          } else sayPush('could not turn notifications on — try again');
+        })
+        .catch(() => sayPush('could not turn notifications on — try again'))
+        .finally(releasePush);
+    });
   }
 </script>

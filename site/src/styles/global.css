@@ -603,6 +603,49 @@ a.bank-line:hover .name {
   display: none;
 }
 
+/* ---- push opt-in (homepage, under the ledger) ----
+   The quiet end of the "new since your last visit" story, so it wears the same
+   register: one mono sentence and a .share-btn chip, set off from the ledger by
+   a dashed rule exactly like the share block on job pages. The ON state borrows
+   .save-btn.is-saved's treatment — ink border on deep paper — because it is the
+   same kind of thing: a state that persists, not a confirmation that fades. No
+   stamp red; the stamp never appears on anything clickable.
+
+   The block ships with the `hidden` attribute and is unhidden by the homepage
+   script only where push actually works; authoring `display` here would
+   out-specify the UA's [hidden] rule and show a dead control to no-JS visitors
+   (same reason as .share-btn[hidden]). */
+.push-line {
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--rule);
+}
+.push-line[hidden] {
+  display: none;
+}
+.push-copy {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-bottom: 10px;
+}
+.push-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+.push-btn.is-on {
+  color: var(--ink);
+  border-color: var(--ink);
+  background: var(--paper-deep);
+}
+.push-status {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--ink-soft);
+}
+
 /* cross-link rows on the province / combo landing pages — .quick link rows set
    off from the ledger above by a single rule */
 .crosslinks {

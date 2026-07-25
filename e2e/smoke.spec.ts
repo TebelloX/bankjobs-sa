@@ -423,6 +423,44 @@ test('a returning visit flags new rows and totals them on the homepage', async (
   }
 });
 
+// ---- push notifications -----------------------------------------------------
+// The homepage toggle needs BOTH a browser that can do push and a build that
+// carries a Worker origin to register the subscription with. Chromium has the
+// APIs, but this e2e build is the plain `pnpm build` (see playwright.config.ts)
+// — no PUBLIC_API_BASE — so the second gate fails and the block must stay
+// hidden. That is the assertion below: in a PRODUCTION build
+// (PUBLIC_SEARCH_MODE=api PUBLIC_API_BASE=…) the same script reveals it, which
+// is verified by hand against the live API rather than here, because a real
+// subscribe writes a real row to the production database.
+
+test('the homepage push control ships hidden when the build has no API to register with', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const push = page.locator('[data-push]');
+  await expect(push).toHaveCount(1);
+  await expect(push).toBeHidden();
+  // Present in the markup, just never revealed — the same ships-hidden idiom as
+  // the share and save buttons.
+  await expect(page.locator('[data-push-toggle]')).toHaveCount(1);
+});
+
+test('the service worker is served and carries push handlers only', async ({ request }) => {
+  const response = await request.get('/sw.js');
+  expect(response.status()).toBe(200);
+  expect(response.headers()['content-type']).toContain('javascript');
+
+  const body = await response.text();
+  expect(body).toContain('push');
+  expect(body).toContain('notificationclick');
+  // A fetch handler here would let a cached response outlive a rebuild and show
+  // closed vacancies on a page still claiming to be fresh. Asserted on the
+  // registration line rather than the word 'fetch', which the file's own
+  // comments are free to use.
+  expect(body).not.toContain("addEventListener('fetch'");
+  expect(body).not.toContain('addEventListener("fetch"');
+});
+
 test('the site-wide rss feed is served as xml', async ({ request }) => {
   const response = await request.get('/feeds/all.xml');
   expect(response.status()).toBe(200);
