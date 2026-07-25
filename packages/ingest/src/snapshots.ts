@@ -1,7 +1,13 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { CATEGORY_SLUGS, jobSlug } from '@bankjobs/core';
-import type { Category, JobLocation, Province } from '@bankjobs/core';
+import {
+  CATEGORY_SLUGS,
+  REQUIREMENT_FIELD_RULES,
+  REQUIREMENT_RULES_VERSION,
+  extractRequirements,
+  jobSlug,
+} from '@bankjobs/core';
+import type { Category, JobLocation, JobRequirements, Province } from '@bankjobs/core';
 import type { JobsDb } from './db';
 import { emitInsights } from './insights';
 
@@ -96,6 +102,7 @@ function compareOutputOrder(a: JobRow, b: JobRow): number {
  *   {dir}/public/data/jobs.json           lean open-job list (client-fetchable)
  *   {dir}/public/data/meta.json           counts + source/category/province rollups
  *   {dir}/public/data/category/{slug}.json per-category lean lists (all 10 slugs)
+ *   {dir}/public/data/requirements.json   per-job extracted requirements for /fit/ (client-fetchable)
  *   {dir}/src/data/jobs-full.json         full records incl. descriptionHtml (SSG input)
  *   {dir}/src/data/insights.json          history aggregates for /insights/ (SSG input)
  */
@@ -165,6 +172,40 @@ export async function emitSnapshots(db: JobsDb, snapshotDir: string, now: string
     const rows = leanRows.filter((r) => r.categorySlug === slug);
     writeFileSync(join(categoryDir, `${slug}.json`), JSON.stringify(rows));
   }
+
+  // --- requirements.json (client-fetchable, /fit/ only) --------------------
+  // A SIDECAR to jobs.json rather than extra fields on the lean rows: jobs.json
+  // is fetched by every visitor who searches, requirements.json only by /fit/,
+  // and keeping them separate leaves jobs.json byte-identical (zero regression
+  // risk for search and saved jobs).
+  //
+  // Every open job gets an entry, including the ones that extracted nothing.
+  // The all-null entries are the point: /fit/ renders them as "we couldn't read
+  // requirements from this ad" instead of silently dropping them, and id-set
+  // equality with jobs.json becomes a testable invariant rather than a
+  // "whatever the extractor happened to find" set.
+  //
+  // The taxonomy ships INSIDE the artifact, keywords and all, so the client
+  // parses a typed qualification name ("BCom Accounting") against the exact
+  // rules version that indexed these jobs — a stale cached page can never match
+  // against a taxonomy the jobs were not indexed with. It also means the /fit/
+  // island never imports @bankjobs/core, which pulls in sanitize-html.
+  const requirements = {
+    version: REQUIREMENT_RULES_VERSION,
+    generatedAt: now,
+    taxonomy: REQUIREMENT_FIELD_RULES,
+    jobs: Object.fromEntries(
+      jobs.map((j): [string, JobRequirements] => [
+        j.id,
+        extractRequirements({
+          title: j.title,
+          descriptionText: j.description_text,
+          source: j.source,
+        }),
+      ]),
+    ),
+  };
+  writeFileSync(join(publicDataDir, 'requirements.json'), JSON.stringify(requirements));
 
   // --- meta.json ----------------------------------------------------------
   const totalOpen = jobs.length;

@@ -2,6 +2,7 @@ import { mkdtempSync, readFileSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { beforeAll, describe, expect, it } from 'vitest';
+import { REQUIREMENT_FIELD_RULES, REQUIREMENT_RULES_VERSION } from '@bankjobs/core';
 import type { CanonicalJob } from '@bankjobs/core';
 import { openLocalDb } from '../src/db';
 import { upsertJobs } from '../src/diff';
@@ -54,6 +55,14 @@ beforeAll(async () => {
         postedDate: '2026-07-08',
         primaryLocation: 'Cape Town, Western Cape',
         locations: [{ city: 'Cape Town', province: 'Western Cape', raw: 'Cape Town' }],
+        // The one seeded ad that states requirements, in Absa's real shape
+        // ("Education: NQF Level 7 (...)"), so requirements.json is asserted
+        // against a genuine extraction and not just its envelope. Every other
+        // seeded job keeps makeJob's signal-free 'Work here.' body, which is
+        // what makes the all-null half of the contract testable.
+        descriptionText:
+          'Education: NQF Level 7 (Bachelors Degree) in Information Technology or ' +
+          'Computer Science. Experience: 3 to 5 years of software development experience.',
       }),
       makeJob({
         id: 'absa:R-3',
@@ -84,6 +93,20 @@ function readJson<T>(...parts: string[]): T {
   return JSON.parse(readFileSync(join(dir, ...parts), 'utf8')) as T;
 }
 
+interface JobReq {
+  minQual: number | null;
+  minNqf: number | null;
+  fields: string[];
+  minYears: number | null;
+}
+
+interface RequirementsFile {
+  version: number;
+  generatedAt: string;
+  taxonomy: { field: string; label: string; keywords: string[] }[];
+  jobs: Record<string, JobReq>;
+}
+
 interface LeanRow {
   id: string;
   slug: string;
@@ -100,6 +123,7 @@ describe('emitSnapshots', () => {
   it('writes the full contracted file set', () => {
     expect(() => readFileSync(join(dir, 'public', 'data', 'jobs.json'))).not.toThrow();
     expect(() => readFileSync(join(dir, 'public', 'data', 'meta.json'))).not.toThrow();
+    expect(() => readFileSync(join(dir, 'public', 'data', 'requirements.json'))).not.toThrow();
     expect(() => readFileSync(join(dir, 'src', 'data', 'jobs-full.json'))).not.toThrow();
     expect(() => readFileSync(join(dir, 'src', 'data', 'insights.json'))).not.toThrow();
     const categoryFiles = readdirSync(join(dir, 'public', 'data', 'category'));
@@ -166,6 +190,60 @@ describe('emitSnapshots', () => {
     expect(first?.descriptionHtml).toContain('<p>');
     expect(first?.slug).toBe('absa-r-2');
     expect(first?.categorySlug).toBe('software-it');
+  });
+
+  it('stamps version, timestamp and the keyword-bearing taxonomy into requirements.json', () => {
+    const reqs = readJson<RequirementsFile>('public', 'data', 'requirements.json');
+
+    expect(reqs.version).toBe(REQUIREMENT_RULES_VERSION);
+    expect(reqs.generatedAt).toBe(NOW);
+
+    // The keywords have to travel with the taxonomy: /fit/ parses the free-text
+    // qualification name client-side against this copy, so a taxonomy stripped
+    // to field/label would silently disable that half of the page.
+    expect(reqs.taxonomy.length).toBe(REQUIREMENT_FIELD_RULES.length);
+    for (const entry of reqs.taxonomy) {
+      expect(typeof entry.field).toBe('string');
+      expect(entry.field.length).toBeGreaterThan(0);
+      expect(typeof entry.label).toBe('string');
+      expect(entry.label.length).toBeGreaterThan(0);
+      expect(Array.isArray(entry.keywords)).toBe(true);
+      expect(entry.keywords.length).toBeGreaterThan(0);
+    }
+    expect(reqs.taxonomy.map((t) => t.field)).toContain('it');
+  });
+
+  it('covers exactly the jobs.json id set, all-null entries included', () => {
+    const rows = readJson<LeanRow[]>('public', 'data', 'jobs.json');
+    const reqs = readJson<RequirementsFile>('public', 'data', 'requirements.json');
+
+    // Set equality, not subset: the page joins these two files by id, so a job
+    // the extractor found nothing in must still appear (as an all-null entry)
+    // rather than being dropped and rendered as a lookup miss.
+    expect(Object.keys(reqs.jobs).sort()).toEqual(rows.map((r) => r.id).sort());
+  });
+
+  it('extracts stated requirements and leaves signal-free ads all-null', () => {
+    const reqs = readJson<RequirementsFile>('public', 'data', 'requirements.json');
+
+    // 'Education: NQF Level 7 (Bachelors Degree) in Information Technology or
+    //  Computer Science. Experience: 3 to 5 years of software development
+    //  experience.' — NQF 7 and 'degree' both land on the degree tier (3), the
+    // field is read from inside the Education window only, and the range takes
+    // its minimum.
+    expect(reqs.jobs['absa:R-2']).toEqual({
+      minQual: 3,
+      minNqf: 7,
+      fields: ['it'],
+      minYears: 3,
+    });
+
+    expect(reqs.jobs['absa:R-1']).toEqual({
+      minQual: null,
+      minNqf: null,
+      fields: [],
+      minYears: null,
+    });
   });
 
   it('filters category files to their category', () => {
