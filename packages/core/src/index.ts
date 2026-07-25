@@ -19,6 +19,8 @@ export { categorize } from './categorize';
 
 export { isEarlyCareers } from './earlyCareers';
 
+export { isEntryLevel } from './entryLevel';
+
 export { cleanApplyUrl, assertAllowedApplyHost } from './applyUrl';
 
 export { countryCodeFor, countryName } from './country';

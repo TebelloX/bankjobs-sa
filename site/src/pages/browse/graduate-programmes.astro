@@ -13,11 +13,12 @@ import { BANK_SLUGS } from '../../lib/banks';
 // a graduate programme in engineering is still a Software & IT job, and the
 // categories partition the ledger.
 //
-// This page (and its /international sibling below) is generated even with
-// zero rows. Everywhere else an empty ledger means no page at all (the sitemap
-// only lists real ledgers), but bank intakes are annual, so a page that
-// vanished between cycles would be a dead link exactly when people start
-// looking for next year's. It stays put and says honestly which state it is in.
+// This page, its /international sibling and browse/entry-level.astro are the
+// pages generated even with zero rows. Everywhere else an empty ledger means no
+// page at all (the sitemap only lists real ledgers), but bank intakes are
+// annual, so a page that vanished between cycles would be a dead link exactly
+// when people start looking for next year's. It stays put and says honestly
+// which state it is in.
 const early = allOpenJobs().filter((job) => isEarlyCareers(job.title));
 const jobs = early.filter((job) => job.country === 'ZA');
 const intl = early.filter((job) => job.country !== 'ZA');
@@ -104,6 +105,12 @@ const description =
       </p>
     )
   }
+
+  <p class="intl-link">
+    <a href="/browse/entry-level/">
+      Looking for tellers, service consultants and other junior roles? They have their own page →
+    </a>
+  </p>
 
   <nav class="crosslinks" aria-label="Related listings">
     {
