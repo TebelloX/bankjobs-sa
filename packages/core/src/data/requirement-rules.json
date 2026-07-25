@@ -1,0 +1,197 @@
+{
+  "version": 1,
+  "windowChars": 450,
+  "headings": {
+    "global": [
+      "minimum qualification",
+      "essential qualification",
+      "preferred qualification",
+      "qualifications",
+      "qualification & experience",
+      "education",
+      "job requirements",
+      "minimum requirements",
+      "academic knowledge"
+    ],
+    "perSource": {
+      "capitec": ["qualifications (minimum)", "qualifications (ideal or preferred)"],
+      "nedbank": ["essential qualifications - nqf level"]
+    }
+  },
+  "qualTypes": {
+    "matric": ["matric", "grade 12", "national senior certificate", "nsc"],
+    "certificate": ["higher certificate", "national certificate", "certificate"],
+    "diploma": ["diploma", "national diploma", "ndip", "advanced certificate"],
+    "degree": [
+      "degree",
+      "bachelor",
+      "bachelors",
+      "bachelor's",
+      "bcom",
+      "b com",
+      "bsc",
+      "b sc",
+      "ba",
+      "beng",
+      "b eng",
+      "llb",
+      "btech",
+      "b tech",
+      "advanced diploma",
+      "first degree"
+    ],
+    "postgrad": [
+      "honours",
+      "hons",
+      "postgraduate",
+      "post graduate",
+      "post-graduate",
+      "masters",
+      "master's",
+      "mba",
+      "mcom",
+      "msc",
+      "phd",
+      "doctorate",
+      "cta",
+      "chartered accountant",
+      "ca(sa)",
+      "professional qualification"
+    ]
+  },
+  "fields": [
+    {
+      "field": "finance",
+      "label": "Finance / Investments / Banking",
+      "keywords": [
+        "finance",
+        "financial management",
+        "banking",
+        "investment",
+        "investments",
+        "treasury",
+        "financial markets",
+        "investment management"
+      ]
+    },
+    {
+      "field": "accounting",
+      "label": "Accounting / Tax / Audit",
+      "keywords": [
+        "accounting",
+        "accountancy",
+        "chartered accountant",
+        "ca(sa)",
+        "cima",
+        "saica",
+        "saipa",
+        "bcompt",
+        "taxation",
+        "tax",
+        "auditing",
+        "internal audit",
+        "audit"
+      ]
+    },
+    {
+      "field": "economics",
+      "label": "Economics",
+      "keywords": ["economics", "econometrics"]
+    },
+    {
+      "field": "business-commerce",
+      "label": "Business / Commerce / Management",
+      "keywords": [
+        "business administration",
+        "business management",
+        "commerce",
+        "bcom",
+        "b com",
+        "business science",
+        "generic management",
+        "management",
+        "entrepreneurship"
+      ]
+    },
+    {
+      "field": "it",
+      "label": "IT / Computer Science",
+      "keywords": [
+        "information technology",
+        "computer science",
+        "informatics",
+        "information systems",
+        "software engineering",
+        "software development",
+        "computing",
+        "IT"
+      ]
+    },
+    {
+      "field": "data-maths-stats",
+      "label": "Data / Maths / Statistics",
+      "keywords": [
+        "data science",
+        "statistics",
+        "mathematics",
+        "applied mathematics",
+        "mathematical sciences",
+        "analytics",
+        "quantitative",
+        "actuarial science"
+      ]
+    },
+    {
+      "field": "actuarial",
+      "label": "Actuarial Science",
+      "keywords": ["actuarial", "actuarial science", "actuary"]
+    },
+    {
+      "field": "engineering",
+      "label": "Engineering",
+      "keywords": [
+        "engineering",
+        "beng",
+        "b eng",
+        "industrial engineering",
+        "electrical engineering",
+        "mechanical engineering"
+      ]
+    },
+    {
+      "field": "law",
+      "label": "Law / Legal",
+      "keywords": ["law", "legal", "llb", "commercial law", "jurisprudence", "compliance"]
+    },
+    {
+      "field": "risk",
+      "label": "Risk Management",
+      "keywords": ["risk management", "risk", "credit management", "forensic"]
+    },
+    {
+      "field": "marketing",
+      "label": "Marketing / Communications",
+      "keywords": [
+        "marketing",
+        "communications",
+        "digital marketing",
+        "public relations",
+        "journalism",
+        "brand management"
+      ]
+    },
+    {
+      "field": "hr",
+      "label": "Human Resources / Psychology",
+      "keywords": [
+        "human resources",
+        "hr management",
+        "industrial psychology",
+        "organisational psychology",
+        "labour relations",
+        "people management",
+        "psychology"
+      ]
+    }
+  ]
+}

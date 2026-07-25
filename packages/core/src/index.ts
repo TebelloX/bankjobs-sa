@@ -21,6 +21,15 @@ export { isEarlyCareers } from './earlyCareers';
 
 export { isEntryLevel } from './entryLevel';
 
+export {
+  QUAL_LEVELS,
+  REQUIREMENT_FIELDS,
+  REQUIREMENT_FIELD_RULES,
+  REQUIREMENT_RULES_VERSION,
+  extractRequirements,
+} from './requirements';
+export type { QualType, JobRequirements } from './requirements';
+
 export { cleanApplyUrl, assertAllowedApplyHost } from './applyUrl';
 
 export { countryCodeFor, countryName } from './country';
