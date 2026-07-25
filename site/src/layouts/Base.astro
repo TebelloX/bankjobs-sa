@@ -115,15 +115,37 @@ const year = new Date().getFullYear();
     {/* The unaffiliated disclaimer + takedown contact live on /about — the
         footer keeps a link there so they stay one click away on every page. */}
     <script>
+      // The two passes a static page cannot bake, on every page: the header's
+      // relative freshness wording, and the "new since your last visit" flags.
+      // Bundled by Astro into an external same-origin file (assetsInlineLimit:
+      // 0), which script-src 'self' already allows.
+      //
+      // Every import here is dependency-free by design — none of them reaches
+      // lib/data.ts, so the gitignored job snapshot never lands in this bundle.
+      import { formatUpdatedLabel } from '../lib/freshness';
+      import { getLocalStorage } from '../lib/savedJobs';
+      import { isNewSince, recordVisit } from '../lib/visit';
+
       // Re-render the header freshness label relative to NOW ('today 19:58',
       // 'last night 19:58', 'yesterday 15:00'), replacing the baked absolute
-      // fallback. Bundled by Astro into an external same-origin file
-      // (assetsInlineLimit: 0), which script-src 'self' already allows.
-      import { formatUpdatedLabel } from '../lib/freshness';
-
+      // fallback.
       const el = document.getElementById('fr-updated');
       const generatedAt = el?.dataset.generatedAt;
       if (el && generatedAt) el.textContent = formatUpdatedLabel(generatedAt);
+
+      // Visit bookkeeping is SITE-WIDE: any page view is browsing activity, so
+      // the session clock cannot depend on which page was landed on. Rows that
+      // first appeared after the previous session get their flag unhidden;
+      // with no previous session (a first-ever visit, or storage we cannot
+      // write to) nothing is flagged at all.
+      const visit = recordVisit(getLocalStorage());
+      if (visit.prev) {
+        for (const row of document.querySelectorAll<HTMLElement>('[data-first-seen]')) {
+          if (isNewSince(row.dataset.firstSeen ?? null, visit.prev)) {
+            row.querySelector('.new-flag')?.removeAttribute('hidden');
+          }
+        }
+      }
     </script>
 
     <footer class="site-footer">

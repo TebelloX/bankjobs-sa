@@ -3,7 +3,9 @@ import { test, expect, type Page } from '@playwright/test';
 test('homepage renders the hero and links to the ledger', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('h1')).toContainText('bank vacancy in South Africa');
-  await expect(page.locator('a[href^="/vacancies"]').first()).toBeVisible();
+  // :visible — the "N added since your last visit" line links to the ledger too
+  // and ships hidden, so it is first in the DOM on a first-ever visit.
+  await expect(page.locator('a[href^="/vacancies"]:visible').first()).toBeVisible();
 });
 
 test('vacancies ledger lists jobs', async ({ page }) => {
@@ -371,6 +373,54 @@ test('homepage coverage ledger links to the insights page', async ({ page }) => 
   await page.goto('/');
   await page.locator('a[href="/insights/"]', { hasText: 'figures behind the statement' }).click();
   await expect(page.locator('h1')).toHaveText('Bank hiring, in figures');
+});
+
+// ---- new since your last visit ---------------------------------------------
+// Visit bookkeeping is localStorage-only (site/src/lib/visit.ts) and every test
+// gets its own browser context, so the first load in this test IS the
+// first-ever visit — the state in which nothing may be flagged.
+
+const VISIT_KEY = 'mybankjobs.visit.v1';
+
+test('a returning visit flags new rows and totals them on the homepage', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('.joblist .job-row').first()).toBeVisible();
+
+  // Nothing to be new since: no flag and no count line on a first visit.
+  await expect(page.locator('.new-flag:visible')).toHaveCount(0);
+  await expect(page.locator('.visit-note')).toBeHidden();
+
+  // Come back from a "previous session" older than the record itself. Every
+  // row's firstSeen postdates the day tracking began, so this holds whatever
+  // the snapshot carries — no date is pinned to a particular fetch.
+  await page.evaluate(
+    ([key, prev]) => {
+      window.localStorage.setItem(key!, JSON.stringify({ prev, last: new Date().toISOString() }));
+    },
+    [VISIT_KEY, '2026-01-01T00:00:00.000Z'],
+  );
+  await page.reload();
+
+  const flags = page.locator('.joblist .new-flag:visible');
+  await expect(flags.first()).toBeVisible();
+  await expect(flags.first()).toHaveText('new');
+
+  // The count line is totalled from the per-day block baked into the page, and
+  // the opening day is excluded from it — a snapshot whose whole post-opening
+  // record is quiet (a fixtures build, or the first day of tracking) has
+  // nothing to count, and saying nothing is the correct behaviour there.
+  const baked = await page.evaluate(() => {
+    const raw = document.getElementById('added-by-day')?.textContent ?? '{}';
+    return Object.values(JSON.parse(raw) as Record<string, number>).reduce((n, v) => n + v, 0);
+  });
+  const note = page.locator('.visit-note');
+  if (baked > 0) {
+    await expect(note).toBeVisible();
+    await expect(note).toHaveText(/^\d+ added since your last visit/);
+    await expect(note.locator('a')).toHaveAttribute('href', '/vacancies/');
+  } else {
+    await expect(note).toBeHidden();
+  }
 });
 
 test('the site-wide rss feed is served as xml', async ({ request }) => {

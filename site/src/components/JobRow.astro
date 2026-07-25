@@ -8,9 +8,16 @@ interface Props {
   category: string;
   primaryLocation: string | null;
   postedDate: string | null;
+  /**
+   * ISO timestamp of when the job first appeared on OUR statement — the date
+   * the "new since your last visit" flag is struck against. Every job has one
+   * (unlike postedDate, which a good number of sources never publish), which is
+   * why the flag reads off this and not the posted date.
+   */
+  firstSeen?: string | null;
 }
 
-const { slug, title, brand, category, primaryLocation, postedDate } = Astro.props;
+const { slug, title, brand, category, primaryLocation, postedDate, firstSeen } = Astro.props;
 
 // Source line: 'Absa · Branch & Retail · Lydenburg, Mpumalanga'
 const srcParts: string[] = [brand, category];
@@ -19,9 +26,13 @@ const src = srcParts.join(' · ');
 const when = postedDate ? `posted ${formatDate(postedDate)}` : '';
 ---
 
-<li class="job-row">
+{/* The flag ships in the markup on every row and HIDDEN — the site-wide script
+    in Base.astro unhides the ones that postdate the visitor's last visit. A
+    no-JS visitor, and every first-ever visitor, sees no flags at all rather
+    than a row of "new" on everything. Same [hidden] idiom as .share-btn. */}
+<li class="job-row" data-first-seen={firstSeen}>
   <span class="job-cell">
-    <a class="job-title" href={`/jobs/${slug}/`}>{title}</a>
+    <a class="job-title" href={`/jobs/${slug}/`}>{title}</a><span class="new-flag" hidden>new</span>
     <span class="src">{src}</span>
   </span>
   {when && <span class="when">{when}</span>}

@@ -535,6 +535,23 @@ a.bank-line:hover .name {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+/* "new since your last visit" — struck on rows that first appeared after the
+   visitor's previous session. Ink green, never the stamp red: the stamp is the
+   homepage statement card's signature and never labels a listing. Ships with
+   the `hidden` attribute and is unhidden by the script in Base.astro, so
+   authoring `display` here would out-specify the UA's [hidden] rule and show
+   "new" on every row to no-JS visitors (same reason as .share-btn[hidden]). */
+.new-flag {
+  margin-left: 8px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--focus);
+}
+.new-flag[hidden] {
+  display: none;
+}
 .job-row .src {
   display: block;
   margin-top: 2px;
@@ -562,6 +579,28 @@ a.bank-line:hover .name {
 }
 .intl-link a:hover {
   text-decoration-color: var(--ink);
+}
+
+/* "N added since your last visit" above the homepage ledger — the same quiet
+   mono register as the header's freshness line, wearing .intl-link's underline
+   idiom. Hidden until the browser has a previous visit to count from, and the
+   hidden state is restated for the reason .new-flag[hidden] is. */
+.visit-note {
+  margin-bottom: 10px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+.visit-note a {
+  text-decoration: underline;
+  text-decoration-color: var(--rule);
+  text-underline-offset: 3px;
+}
+.visit-note a:hover {
+  text-decoration-color: var(--ink);
+}
+.visit-note[hidden] {
+  display: none;
 }
 
 /* cross-link rows on the province / combo landing pages — .quick link rows set

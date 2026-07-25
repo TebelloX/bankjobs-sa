@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import JobRow from '../components/JobRow.astro';
 import TrustStrip from '../components/TrustStrip.astro';
 import { allOpenJobs, saJobs, meta, formatDate } from '../lib/data';
+import { insights } from '../lib/insights';
 import { sastStatementDate } from '../lib/freshness';
 import { BRANDS } from '@bankjobs/core';
 import { BANK_SLUGS } from '../lib/banks';
@@ -52,6 +53,29 @@ const liveBanks = BRANDS.filter((b) => liveBrands.has(b))
 // empty (GoTyme's adapter is built but its board is bare) is simply absent —
 // an earlier "coming soon" row advertised a bank that had nothing to click,
 // which read as a broken listing rather than an honest one.
+
+// Per-day SA additions, baked into the page for the client to total against
+// the visitor's own last visit — the whole "N added since your last visit"
+// line is reckoned in the browser, with no fetch and no server state.
+//
+// The OPENING DAY is excluded, the same exclusion windowSums makes on
+// /insights/: tracking began mid-life, so trackingSince's `added` is the import
+// of an existing ledger, not a day's hiring, and counting it would greet a
+// returning visitor with several hundred imaginary new roles. Days with no
+// additions are dropped (they add nothing to a sum) and only the last 30 days
+// are kept — this block ships to every homepage visitor, and a gap longer than
+// a month is not a "last visit" worth totalling.
+const addedByDay: Record<string, number> = Object.fromEntries(
+  insights.series
+    .filter((d) => d.day !== insights.trackingSince)
+    .slice(-30)
+    .filter((d) => d.added > 0)
+    .map((d) => [d.day, d.added]),
+);
+// ISO date keys and integer counts — no job data, no visitor data, nothing that
+// can carry a '<' — so unlike the ld+json block on job pages this needs no
+// escaping pass to stay inside its <script>.
+const addedByDayJson = JSON.stringify(addedByDay);
 
 // Source line for a statement row: 'Absa · Category[ · City]'.
 function stSource(brand: string, category: string, city: string | null): string {
@@ -161,6 +185,15 @@ const description =
     <div class="wrap">
       <p class="sec-eyebrow">Latest vacancies</p>
       <h2 id="jobs-h" class="sec-title">Latest vacancies in South Africa</h2>
+      {/* Data, not code: type="application/json" is not an executable script
+          type, so the CSP's script-src never governs it — the same reason the
+          ld+json block on job pages can be inline. is:inline keeps Astro's
+          bundler out of it. */}
+      <script type="application/json" id="added-by-day" set:html={addedByDayJson} is:inline />
+      {/* Filled and unhidden by the script below, only for a returning visitor
+          with something to count. Ships empty so no-JS visitors — and everyone
+          on their first visit — see no half-sentence. */}
+      <p class="visit-note" id="visit-note" hidden><a href="/vacancies/"></a></p>
       {
         sa.length > 0 ? (
           <ul class="joblist">
@@ -172,6 +205,7 @@ const description =
                 category={job.category}
                 primaryLocation={job.primaryLocation}
                 postedDate={job.postedDate}
+                firstSeen={job.firstSeen}
               />
             ))}
           </ul>
@@ -243,7 +277,12 @@ const description =
   // each row's 'posted 23 Jul' becomes 'posted today'/'posted 1d'. Bundled by
   // Astro into an external same-origin file (assetsInlineLimit: 0), which
   // script-src 'self' already allows.
+  //
+  // Same rule as every other client bundle here: nothing imported reaches
+  // lib/data.ts or lib/insights.ts, so no snapshot follows this to the browser.
   import { formatPostedRelative, sastStatementDate } from '../lib/freshness';
+  import { getLocalStorage } from '../lib/savedJobs';
+  import { recordVisit, sumAddedSince } from '../lib/visit';
 
   const stDate = document.getElementById('st-date');
   if (stDate) stDate.textContent = sastStatementDate();
@@ -251,5 +290,29 @@ const description =
   for (const el of document.querySelectorAll<HTMLElement>('.st-row .when[data-posted-date]')) {
     const rel = formatPostedRelative(el.dataset.postedDate ?? null);
     if (rel) el.textContent = `posted ${rel}`;
+  }
+
+  // "N added since your last visit" — totalled here, in the browser, from the
+  // per-day counts baked into the page above. The figure is SOUTH AFRICAN
+  // additions (the insights series is SA-scoped), like every other count on
+  // this page. recordVisit is idempotent inside the session gap, so calling it
+  // again after Base.astro's script has stamped this page view reads back the
+  // same record rather than moving the clock.
+  const note = document.getElementById('visit-note');
+  const noteLink = note?.querySelector('a');
+  const baked = document.getElementById('added-by-day')?.textContent;
+  if (note && noteLink && baked) {
+    let addedByDay: Record<string, number> = {};
+    try {
+      addedByDay = JSON.parse(baked) as Record<string, number>;
+    } catch {
+      addedByDay = {};
+    }
+    const added = sumAddedSince(addedByDay, recordVisit(getLocalStorage()).prev);
+    if (added > 0) {
+      // 'added' needs no plural form, so 1 and 200 read the same way.
+      noteLink.textContent = `${added} added since your last visit →`;
+      note.hidden = false;
+    }
   }
 </script>
