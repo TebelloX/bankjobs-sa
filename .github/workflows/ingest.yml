@@ -6,9 +6,11 @@
 # See the README's "Scheduled ingestion" section for the one-time setup
 # checklist (API token scope, gh secret set, a dry-run dispatch first).
 #
-# Required secret: CLOUDFLARE_API_TOKEN (D1:Edit, scoped to the account
-# below). CLOUDFLARE_ACCOUNT_ID / CLOUDFLARE_D1_DATABASE_ID are identifiers,
-# not credentials, so they're inlined rather than stored as secrets.
+# Required secrets: CLOUDFLARE_API_TOKEN (D1:Edit, scoped to the account
+# below) and VAPID_PRIVATE_KEY (the push sender's signing key; its public half
+# lives in @bankjobs/core). CLOUDFLARE_ACCOUNT_ID / CLOUDFLARE_D1_DATABASE_ID
+# are identifiers, not credentials, so they're inlined rather than stored as
+# secrets.
 #
 # Each bank runs as its own step with continue-on-error: true, so one
 # source's outage can't block the others from running. The final step rolls
@@ -210,3 +212,13 @@ jobs:
       # deploy from a "dirty" git state.
       - name: Deploy to Cloudflare Pages
         run: pnpm --filter @bankjobs/api exec wrangler pages deploy ../../site/dist --project-name=bankjobs-sa --commit-dirty=true
+
+      # One digest push per run, only when this run's D1 state contains SA jobs
+      # newer than the last-notified watermark — at most three a day, zero when
+      # nothing landed. Failures are logged, never fatal: a push outage must not
+      # block (or re-run) the site publish. Skipped on dry-run dispatches.
+      - name: Notify push subscribers
+        if: ${{ inputs.dry_run != true }}
+        run: pnpm --filter @bankjobs/ingest run push-notify -- --remote
+        env:
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}

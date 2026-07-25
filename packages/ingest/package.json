@@ -4,10 +4,15 @@
   "type": "module",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "ingest": "NODE_OPTIONS=--disable-warning=ExperimentalWarning tsx src/cli.ts"
+    "ingest": "NODE_OPTIONS=--disable-warning=ExperimentalWarning tsx src/cli.ts",
+    "push-notify": "NODE_OPTIONS=--disable-warning=ExperimentalWarning tsx src/pushNotifyCli.ts"
   },
   "dependencies": {
     "@bankjobs/adapters": "workspace:*",
-    "@bankjobs/core": "workspace:*"
+    "@bankjobs/core": "workspace:*",
+    "web-push": "^3.6.7"
+  },
+  "devDependencies": {
+    "@types/web-push": "^3.6.4"
   }
 }
