@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { CATEGORY_SLUGS, jobSlug } from '@bankjobs/core';
 import type { Category, JobLocation, Province } from '@bankjobs/core';
 import type { JobsDb } from './db';
+import { emitInsights } from './insights';
 
 interface JobRow {
   id: string;
@@ -96,6 +97,7 @@ function compareOutputOrder(a: JobRow, b: JobRow): number {
  *   {dir}/public/data/meta.json           counts + source/category/province rollups
  *   {dir}/public/data/category/{slug}.json per-category lean lists (all 10 slugs)
  *   {dir}/src/data/jobs-full.json         full records incl. descriptionHtml (SSG input)
+ *   {dir}/src/data/insights.json          history aggregates for /insights/ (SSG input)
  */
 export async function emitSnapshots(db: JobsDb, snapshotDir: string, now: string): Promise<void> {
   // Read the open jobs in rowid-ordered pages (see readAllByRowid / the chunk
@@ -251,4 +253,10 @@ export async function emitSnapshots(db: JobsDb, snapshotDir: string, now: string
     };
   });
   writeFileSync(join(srcDataDir, 'jobs-full.json'), JSON.stringify(full));
+
+  // --- insights.json (SSG input) ------------------------------------------
+  // Last, and from here rather than from the CLI, so every path that emits
+  // snapshots emits this too: local ingest, --fixtures and --snapshot-only
+  // --remote alike.
+  await emitInsights(db, snapshotDir, now);
 }

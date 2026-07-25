@@ -1048,6 +1048,208 @@ a.pager-link:hover {
   text-decoration-color: var(--ink);
 }
 
+/* ---- insights ----
+   The figures page, in the same ledger idiom as everything else: a bar is a
+   ledger row whose middle column happens to be drawn, and the daily balance is a
+   statement table. Deliberate absences — one hue (--ink) for every bar, so there
+   is no legend to read; the count beside each label is the direct value, so there
+   is no tooltip to hover (this page ships no JavaScript at all, by design); and
+   no stamp red anywhere, since nothing here is a signature and outcome columns
+   carry glyphs, headers and numbers rather than colour. */
+.ins-since {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  margin-bottom: 0;
+}
+
+/* ---- bar rows (InsightBar.astro) ---- */
+.ins-rows {
+  list-style: none;
+}
+/* Mirrors .bank-line, down to the rules that open and close the ledger. Baseline
+   alignment is what puts the bar's bottom edge on the row's text baseline, so the
+   bars sit on the ruling line rather than floating mid-row. */
+.ins-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 14px;
+  align-items: baseline;
+  padding: 13px 2px;
+  border-bottom: 1px solid var(--rule);
+}
+.ins-row:first-of-type {
+  border-top: 2px solid var(--ink);
+}
+.ins-row .name {
+  font-family: var(--display);
+  font-stretch: 125%;
+  font-weight: 800;
+  font-size: 15px;
+}
+.ins-row a.name:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 2px;
+}
+/* The dotted leader, for the rows that carry a time instead of a bar. */
+.ins-row .dots {
+  border-bottom: 1px dotted var(--rule);
+  transform: translateY(-4px);
+}
+.ins-row .count {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 13.5px;
+  white-space: nowrap;
+}
+.ins-row .count small {
+  color: var(--ink-soft);
+  font-size: 11.5px;
+  margin-left: 8px;
+}
+.ins-bar {
+  display: block;
+  width: 100%;
+  height: 10px;
+}
+.ins-bar rect {
+  fill: var(--ink);
+}
+
+/* ---- statement summary tiles ---- */
+.ins-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  border-top: 2px solid var(--ink);
+  padding-top: 20px;
+}
+.ins-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+/* Proportional figures on purpose — no tabular-nums here. Equal-width digits
+   make a standalone 415 look loose at display size; the numbers that must line up
+   vertically are in the statement tables below, and those are tabular. */
+.ins-tile .n {
+  font-weight: 900;
+  font-size: clamp(34px, 4.6vw, 46px);
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+.ins-tile .k {
+  font-size: 12.5px;
+}
+.ins-tile .w {
+  font-size: 11.5px;
+  color: var(--ink-soft);
+}
+
+/* ---- two-column mix ---- */
+/* minmax(0, …) for the same reason as .hero-grid: a bare 1fr floors at the
+   content's min-content width and a long category name would push the row wide. */
+.ins-cols {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 32px;
+}
+.ins-cols h3 {
+  margin: 0 0 12px;
+  font-size: 15px;
+}
+
+/* ---- the daily balance table ---- */
+.ins-statement {
+  width: 100%;
+  border-collapse: collapse;
+}
+.ins-statement th,
+.ins-statement td {
+  padding: 10px 4px;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+  font-weight: 400;
+  text-align: right;
+  white-space: nowrap;
+}
+.ins-statement thead th {
+  border-bottom: 2px solid var(--ink);
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.ins-statement th:first-child,
+.ins-statement td:first-child {
+  text-align: left;
+}
+/* The closing rule: a statement's last line is ruled off, like .st-row's. */
+.ins-statement tbody tr:last-child > * {
+  border-bottom: 2px solid var(--ink);
+}
+/* The continuation marker standing in for the days between the opening balance
+   and the fortnight shown. */
+.ins-gap td {
+  text-align: left;
+  font-size: 11.5px;
+  color: var(--ink-soft);
+}
+
+/* ---- the trend sparkline (hidden until the series is 14 days long) ---- */
+.ins-figure {
+  margin-bottom: 22px;
+}
+.ins-spark {
+  display: block;
+  width: 100%;
+  height: 64px;
+}
+.ins-spark polyline {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.ins-spark .base {
+  stroke: var(--rule);
+  stroke-width: 1;
+}
+.ins-scale {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 11.5px;
+  color: var(--ink-soft);
+}
+
+/* ---- notes and prose ---- */
+/* The one sentence that carries the fetch totals. Not .lede: that measure (46ch)
+   breaks a sentence of four figures across three lines, and this line is ink
+   rather than the lede's softer grey — it is a figure, not an introduction. */
+.ins-headline {
+  font-size: 17.5px;
+  max-width: 58ch;
+  margin-bottom: 24px;
+}
+.ins-note {
+  margin: 18px 0 0;
+  font-size: 14.5px;
+  color: var(--ink-soft);
+  max-width: 62ch;
+}
+.ins-prose {
+  max-width: 66ch;
+}
+.how .ins-sub {
+  margin-top: 30px;
+}
+
 /* ---- responsive: single breakpoint like the mockup ---- */
 @media (max-width: 860px) {
   /* Phone widths stack the bar: wordmark over the freshness line, both
@@ -1123,6 +1325,40 @@ a.pager-link:hover {
   .how-grid {
     grid-template-columns: 1fr;
     gap: 24px;
+  }
+  /* Insights: the bar row breaks in two. At 320px an `auto` label column leaves
+     "Discovery Bank" a 10px stub of a bar — worse than no bar — so the label
+     takes the first line and the bar runs the full width beneath it, with the
+     count still hard right. The rows that carry a dotted leader and a timestamp
+     restack the same way. */
+  .ins-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 5px 12px;
+  }
+  .ins-row .name {
+    grid-column: 1 / -1;
+  }
+  .ins-bar,
+  .ins-row .dots {
+    grid-column: 1;
+  }
+  .ins-row .count {
+    grid-column: 2;
+  }
+  /* Both grids stack, and the statement tables come down a notch so "Opening
+     balance" plus three numeric columns still fit at 320px. */
+  .ins-tiles {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+  .ins-cols {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 26px;
+  }
+  .ins-statement th,
+  .ins-statement td {
+    font-size: 12px;
+    padding: 9px 2px;
   }
 }
 

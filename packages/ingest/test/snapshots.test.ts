@@ -101,6 +101,7 @@ describe('emitSnapshots', () => {
     expect(() => readFileSync(join(dir, 'public', 'data', 'jobs.json'))).not.toThrow();
     expect(() => readFileSync(join(dir, 'public', 'data', 'meta.json'))).not.toThrow();
     expect(() => readFileSync(join(dir, 'src', 'data', 'jobs-full.json'))).not.toThrow();
+    expect(() => readFileSync(join(dir, 'src', 'data', 'insights.json'))).not.toThrow();
     const categoryFiles = readdirSync(join(dir, 'public', 'data', 'category'));
     expect(categoryFiles.length).toBe(10);
     expect(categoryFiles).toContain('software-it.json');

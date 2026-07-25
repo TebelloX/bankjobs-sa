@@ -1,0 +1,46 @@
+---
+interface Props {
+  label: string;
+  count: number;
+  /** The largest count in this list — the bar's full width. */
+  max: number;
+  /** Where the label points, when the figure has a ledger of its own. */
+  href?: string;
+  /** The unit beside the count. Defaults to role/roles; pass '' for none. */
+  note?: string;
+}
+
+const { label, count, max, href, note } = Astro.props;
+
+// The default unit agrees with its number — a bank with one vacancy said "1
+// roles" before this. An explicitly passed note is printed verbatim.
+const unit = note ?? (count === 1 ? 'role' : 'roles');
+
+// The bar is one ledger row: the LABEL and the COUNT are the data — real text,
+// selectable, readable by anything — and the bar is decoration that repeats them
+// as a length. Hence aria-hidden: a screen reader that read it too would hear
+// every figure twice, and there is no tooltip to miss because nothing is hidden
+// behind one.
+//
+// CSP-CRITICAL: the width is an SVG PRESENTATION ATTRIBUTE, never style="width:…".
+// Production serves style-src 'self' with no hashes (site/public/_headers), which
+// blocks inline style attributes outright — and invisibly to CI, which tests
+// without the Pages headers. With viewBox="0 0 100 10" and
+// preserveAspectRatio="none", the rect's width IS the percentage.
+//
+// Square ends, no rounded data-end: the viewBox is stretched horizontally to the
+// column width, so a corner radius in user units would come out an ellipse of
+// whatever eccentricity the reader's viewport happened to impose.
+const width = max > 0 ? Math.round((count / max) * 10000) / 100 : 0;
+---
+
+<li class="ins-row">
+  {href ? <a class="name" href={href}>{label}</a> : <span class="name">{label}</span>}
+  <svg class="ins-bar" aria-hidden="true" preserveAspectRatio="none" viewBox="0 0 100 10">
+    <rect x="0" y="0" width={width} height="10"></rect>
+  </svg>
+  <span class="count">
+    {count}
+    {unit && <small>{unit}</small>}
+  </span>
+</li>

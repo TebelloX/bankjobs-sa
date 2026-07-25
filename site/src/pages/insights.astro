@@ -1,0 +1,456 @@
+---
+import Base from '../layouts/Base.astro';
+import InsightBar from '../components/InsightBar.astro';
+import { BRANDS, CATEGORY_SLUGS, PROVINCES } from '@bankjobs/core';
+import type { Category, Province } from '@bankjobs/core';
+import { allOpenJobs, meta, saJobs } from '../lib/data';
+import { insights } from '../lib/insights';
+import {
+  formatDayLong,
+  formatDayShort,
+  medianFromHistogram,
+  postedMonthBuckets,
+  showDurations,
+  showSparkline,
+  sparkPoints,
+  windowSums,
+} from '../lib/insightsView';
+import { BANK_SLUGS } from '../lib/banks';
+import { PROVINCE_SLUGS } from '../lib/provinces';
+import { formatUpdatedAbsolute } from '../lib/freshness';
+
+// A FLAT static route beside about.astro — the figures behind the statement.
+//
+// Two rules hold this page together:
+//
+// 1. Every chart is a ledger row or a statement table FIRST. The label and the
+//    number are real text; the inline SVG beside them repeats the number as a
+//    length and is aria-hidden. Nothing is reachable only by hovering, because
+//    this page ships NO client JavaScript at all — which is also why there are
+//    no tooltips, no legends and no toggles. A figure you cannot read without
+//    JS is a figure we would rather not draw.
+// 2. Every figure is SOUTH AFRICAN, so the page reconciles with the masthead's
+//    open-vacancy count and with the ledgers it links to. An all-countries
+//    figure anywhere here would make the site contradict itself.
+const sa = saJobs();
+const { openToday, series, trackingSince } = insights;
+
+// The build day, taken from the snapshot rather than `new Date()`: it is the day
+// the series ends on, so every gate and bucket below is reckoned against the
+// same day the figures were counted on.
+const today = insights.generatedAt.slice(0, 10);
+const since = formatDayLong(trackingSince);
+
+// Additions and closures over the last seven days, opening day excluded — see
+// windowSums. Until a full week of post-opening days exists the tiles date the
+// figure rather than claiming a week that has not happened, and they date it from
+// the day AFTER the opening balance: that is the first day the sum covers, and
+// "since 20 Jul" beside an opening balance struck on the 20th would read as if
+// the import were part of the week's hiring.
+const week = windowSums(series, trackingSince);
+const windowStart = series[1]?.day;
+const windowLabel = week.isFullWindow
+  ? 'last 7 days'
+  : windowStart
+    ? `since ${formatDayShort(windowStart)}`
+    : 'since the opening balance';
+
+// Bank rows, exactly as the homepage coverage ledger computes them: live brands
+// (any country — a brand hiring only abroad is still a real bank with a real
+// page) with their SOUTH AFRICAN counts, largest first. Row for row, this is the
+// same ledger the homepage shows, so the two can never disagree.
+const saCountByBrand = new Map<string, number>();
+for (const job of sa) saCountByBrand.set(job.brand, (saCountByBrand.get(job.brand) ?? 0) + 1);
+const liveBrands = new Set(allOpenJobs().map((j) => j.brand));
+const bankRows = BRANDS.filter((b) => liveBrands.has(b))
+  .map((b) => ({ name: b, slug: BANK_SLUGS[b], count: saCountByBrand.get(b) ?? 0 }))
+  .sort((a, b) => b.count - a.count);
+
+// Categories come from meta.json's SA rollup, which is counted on exactly the
+// predicate /browse/<slug>/ pages use, so each bar's number is the number the
+// reader finds after clicking. All ten are listed, including the empty ones — a
+// category we cover and have nothing in today is a figure, not an omission.
+const categoryRows = (Object.entries(CATEGORY_SLUGS) as Array<[Category, string]>)
+  .map(([name, slug]) => ({ name, slug, count: meta.categories[slug] ?? 0 }))
+  .sort((a, b) => b.count - a.count);
+
+// Provinces are counted on the PRIMARY location (locations[0].province) rather
+// than meta.provinces, which counts a role once per province it lists. That
+// keeps two promises: the bar's number equals the count on the /vacancies/<slug>/
+// page it links to, and only provinces that HAVE such a page are listed (the
+// route is generated on the same predicate). meta.provinces would print 95 for a
+// province whose own ledger says 94.
+const provinceCount = new Map<Province, number>();
+for (const job of sa) {
+  const province = job.locations[0]?.province;
+  if (province) provinceCount.set(province, (provinceCount.get(province) ?? 0) + 1);
+}
+const provinceRows = PROVINCES.filter((p) => (provinceCount.get(p) ?? 0) > 0)
+  .map((p) => ({ name: p, slug: PROVINCE_SLUGS[p], count: provinceCount.get(p) ?? 0 }))
+  .sort((a, b) => b.count - a.count);
+
+// The largest count in each list is the bar's full width — one scale per list,
+// never a shared one: 206 Gauteng roles would flatten every category bar to a
+// stub if the two lists shared a maximum.
+const barMax = (rows: Array<{ count: number }>): number =>
+  rows.reduce((max, r) => Math.max(max, r.count), 0);
+
+// The statement: the opening balance always, then the most recent fortnight. The
+// days in between are acknowledged by a continuation row rather than silently
+// dropped.
+const STATEMENT_DAYS = 14;
+const opening = series[0];
+const afterOpening = series.slice(1);
+const recent = afterOpening.slice(-STATEMENT_DAYS);
+const olderDays = afterOpening.length - recent.length;
+
+// The trend line, gated until the series is a fortnight long (showSparkline).
+// Today it does not render; the code path is built so it appears on its own the
+// day the record is long enough to mean something.
+//
+// The viewBox is stretched to the column width (preserveAspectRatio="none"), so
+// every stroke carries vector-effect="non-scaling-stroke" — without it a phone's
+// 0.35 horizontal scale would render the vertical segments hairline-thin. For the
+// same reason the min/max labels are HTML beside the SVG, not <text> inside it:
+// the stretch would squash the glyphs.
+const SPARK_W = 1000;
+const SPARK_H = 64;
+const spark = showSparkline(series) ? sparkPoints(series, SPARK_W, SPARK_H) : null;
+
+// When the roles open TODAY were posted. A composition of the current ledger —
+// never a posting rate: roles posted in a given month that have since closed are
+// not on this statement to be counted.
+const postedRows = postedMonthBuckets(
+  sa.map((j) => j.postedDate),
+  today,
+);
+
+const runs = insights.runs;
+const runOther = runs.total - runs.success;
+
+// "Last confirmed" per source, in SAST, from the same absolute formatter the
+// masthead falls back to. A source with no successful fetch on record says so.
+const sources = meta.sources.map((s) => ({
+  name: s.name,
+  confirmed: s.lastSuccessAt ? formatUpdatedAbsolute(s.lastSuccessAt) : 'no fetch on record',
+}));
+
+// How long roles stand, held back until there are both enough closures and
+// enough history for the figure not to be biased low by right-censoring (see
+// showDurations). Both branches are built; the gate flips on its own.
+const closedTotal = insights.closedRoles.total;
+const closedNoun = closedTotal === 1 ? 'role has' : 'roles have';
+const medianDays = showDurations(closedTotal, trackingSince, today)
+  ? medianFromHistogram(insights.closedRoles.daysOpenHistogram)
+  : null;
+
+const title = 'Bank hiring in South Africa, in figures — mybankjobs';
+const description = `${meta.totalSA} open vacancies across South Africa's banks — who's hiring, where, and for what. Counted straight from the banks' own career systems and tracked daily since ${since}.`;
+---
+
+<Base title={title} description={description} bleed>
+  <section class="section">
+    <div class="wrap">
+      <a class="backlink" href="/">← All vacancies</a>
+      <p class="eyebrow">Insights</p>
+      <h1>Bank hiring, in figures</h1>
+      <p class="lede">
+        What the ledger says about who's hiring, where, and for what — counted straight from the
+        banks' own listings. Nothing modelled, nothing guessed: if a figure needs more history than
+        we have, it waits.
+      </p>
+      <p class="ins-since mono">On the record since {since}</p>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="balance-h">
+    <div class="wrap">
+      <p class="sec-eyebrow">The balance</p>
+      <h2 id="balance-h" class="sec-title">Where the statement stands</h2>
+      <div class="ins-tiles">
+        <div class="ins-tile">
+          <span class="n display">{openToday}</span>
+          <span class="k mono">open in South Africa</span>
+          <span class="w mono">balance today</span>
+        </div>
+        <div class="ins-tile">
+          <span class="n display">+{week.added}</span>
+          <span class="k mono">added</span>
+          <span class="w mono">{windowLabel}</span>
+        </div>
+        <div class="ins-tile">
+          <span class="n display">−{week.closed}</span>
+          <span class="k mono">closed</span>
+          <span class="w mono">{windowLabel}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="banks-h">
+    <div class="wrap">
+      <p class="sec-eyebrow">By bank</p>
+      <h2 id="banks-h" class="sec-title">Open roles, bank by bank</h2>
+      <ul class="ins-rows">
+        {
+          bankRows.map((bank) => (
+            <InsightBar
+              label={bank.name}
+              count={bank.count}
+              max={barMax(bankRows)}
+              href={`/banks/${bank.slug}/`}
+            />
+          ))
+        }
+      </ul>
+      <p class="banks-note">
+        Brands, not fetches: FirstRand's one feed carries FNB, RMB, WesBank and FirstRand itself, and
+        each gets its own row — a teller looking for FNB should not have to know that.
+      </p>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="mix-h">
+    <div class="wrap">
+      <p class="sec-eyebrow">The mix</p>
+      <h2 id="mix-h" class="sec-title">What the work is, and where it is</h2>
+      <div class="ins-cols">
+        <div>
+          <h3>By category</h3>
+          <ul class="ins-rows">
+            {
+              categoryRows.map((category) => (
+                <InsightBar
+                  label={category.name}
+                  count={category.count}
+                  max={barMax(categoryRows)}
+                  href={`/browse/${category.slug}/`}
+                />
+              ))
+            }
+          </ul>
+        </div>
+        <div>
+          <h3>By province</h3>
+          <ul class="ins-rows">
+            {
+              provinceRows.map((province) => (
+                <InsightBar
+                  label={province.name}
+                  count={province.count}
+                  max={barMax(provinceRows)}
+                  href={`/vacancies/${province.slug}/`}
+                />
+              ))
+            }
+          </ul>
+          <p class="banks-note">
+            Counted on each role's first listed location — the same basis as the province ledgers
+            these rows link to. A handful of roles name no province at all, so they appear in no row
+            here.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="daily-h">
+    <div class="wrap">
+      <p class="sec-eyebrow">The daily balance</p>
+      <h2 id="daily-h" class="sec-title">What came on, what came off</h2>
+      <p class="lede">
+        Every statement starts with an opening balance. Ours was struck on {since} — the day we began
+        keeping the record — so the first line below is the ledger as we found it, not a day's
+        hiring.
+      </p>
+
+      {
+        spark && (
+          <figure class="ins-figure">
+            <svg
+              class="ins-spark"
+              role="img"
+              aria-label={`Open vacancies per day since ${since}, lowest ${spark.min}, highest ${spark.max}`}
+              viewBox={`0 0 ${SPARK_W} ${SPARK_H}`}
+              preserveAspectRatio="none"
+            >
+              <line
+                class="base"
+                x1="0"
+                y1={SPARK_H}
+                x2={SPARK_W}
+                y2={SPARK_H}
+                vector-effect="non-scaling-stroke"
+              />
+              <polyline points={spark.points} vector-effect="non-scaling-stroke" />
+            </svg>
+            <figcaption class="ins-scale mono">
+              <span>low {spark.min}</span>
+              <span>high {spark.max}</span>
+            </figcaption>
+          </figure>
+        )
+      }
+
+      <table class="ins-statement">
+        <thead>
+          <tr>
+            <th scope="col">Date</th>
+            <th scope="col">Added</th>
+            <th scope="col">Closed</th>
+            <th scope="col">Balance</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            opening && (
+              <tr>
+                <th scope="row">Opening balance</th>
+                <td>—</td>
+                <td>—</td>
+                <td>{opening.open}</td>
+              </tr>
+            )
+          }
+          {
+            olderDays > 0 && (
+              <tr class="ins-gap">
+                <td colspan="4">…and {olderDays} older days in the record</td>
+              </tr>
+            )
+          }
+          {
+            recent.map((day) => (
+              <tr>
+                <th scope="row">{formatDayShort(day.day)}</th>
+                <td>{day.added > 0 ? `+${day.added}` : '—'}</td>
+                <td>{day.closed > 0 ? `−${day.closed}` : '—'}</td>
+                <td>{day.open}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="posted-h">
+    <div class="wrap">
+      <p class="sec-eyebrow">Posting dates</p>
+      <h2 id="posted-h" class="sec-title">When today's roles were posted</h2>
+      <ul class="ins-rows">
+        {
+          postedRows.map((row) => (
+            <InsightBar label={row.label} count={row.count} max={barMax(postedRows)} />
+          ))
+        }
+      </ul>
+      <p class="banks-note">
+        Investec and most Nedbank listings carry no posting date in the banks' own systems — they're
+        counted here as undated rather than guessed. This is the shape of today's open ledger, not a
+        record of how much each month was advertised: roles posted in June that have since closed are
+        no longer here to be counted.
+      </p>
+    </div>
+  </section>
+
+  <section class="how" aria-labelledby="fetch-h">
+    <div class="wrap section">
+      <p class="sec-eyebrow">The fetch record</p>
+      <h2 id="fetch-h" class="sec-title">Every fetch, counted</h2>
+      <p class="ins-headline">
+        {runs.total} fetches since {since} — {runs.success} clean, {runOther} cautioned or failed.
+      </p>
+
+      {
+        runs.days.length > 0 ? (
+          <table class="ins-statement ins-runs">
+            <thead>
+              <tr>
+                <th scope="col">Date</th>
+                <th scope="col">
+                  <span aria-hidden="true">✓</span> clean
+                </th>
+                <th scope="col">
+                  <span aria-hidden="true">⚠</span> cautioned
+                </th>
+                <th scope="col">
+                  <span aria-hidden="true">✕</span> failed
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {runs.days.map((day) => (
+                <tr>
+                  <th scope="row">{formatDayShort(day.day)}</th>
+                  <td>{day.success > 0 ? day.success : '—'}</td>
+                  <td>{day.warning > 0 ? day.warning : '—'}</td>
+                  <td>{day.failure > 0 ? day.failure : '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p class="list-empty">No fetches in the last fourteen days.</p>
+        )
+      }
+
+      <p class="ins-note">
+        A cautioned fetch is the guardrail doing its job: when a bank's feed looks odd, we hold back
+        closures rather than guess. Nothing is closed here on one bad reading.
+      </p>
+
+      <h3 class="ins-sub">Last confirmed, bank by bank</h3>
+      <ul class="ins-rows">
+        {
+          sources.map((source) => (
+            <li class="ins-row">
+              <span class="name">{source.name}</span>
+              <span class="dots" />
+              <span class="count">{source.confirmed}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="method-h">
+    <div class="wrap">
+      <p class="sec-eyebrow">Method</p>
+      <h2 id="method-h" class="sec-title">How these figures are made</h2>
+      {/* Two branches, and the FIRST paragraph has to switch with the second: the
+          day the duration gate opens, a page still saying "what you won't find
+          yet: how long roles stay open" would contradict the median sentence
+          directly beneath it. */}
+      {
+        medianDays === null ? (
+          <p class="ins-prose">
+            These figures are counted from the same records as every page on this site. What you
+            won't find yet: how long roles stay open, or how hiring moves with the seasons — a role
+            has to close before we can say how long it stood, and a season has to pass before we can
+            compare it. We'd rather show you four honest days than four imaginary months. The record
+            lengthens three times a day.
+          </p>
+        ) : (
+          <p class="ins-prose">
+            These figures are counted from the same records as every page on this site. What you
+            won't find yet: how hiring moves with the seasons — a season has to pass before we can
+            compare it. We'd rather show you the record we have than months we don't. The record
+            lengthens three times a day.
+          </p>
+        )
+      }
+      <p class="ins-prose">
+        {
+          medianDays === null
+            ? `Since ${since}, ${closedTotal} ${closedNoun} come off the statement. When enough have, this page will start reporting how long roles typically stay open.`
+            : `Since ${since}, ${closedTotal} ${closedNoun} come off the statement. Half of them stood for ${medianDays} days or fewer.`
+        }
+      </p>
+      <p class="intl-link">
+        <a href="/about/">More on where the listings come from and how they're kept honest →</a>
+      </p>
+    </div>
+  </section>
+</Base>

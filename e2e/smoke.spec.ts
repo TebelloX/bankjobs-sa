@@ -346,6 +346,33 @@ test('numeric vacancies pagination still resolves alongside the province routes'
   await expect(page.locator('a[href^="/jobs/"]').first()).toBeVisible();
 });
 
+// ---- insights ---------------------------------------------------------------
+// Snapshot-agnostic: which bank leads the bar list and how many days the record
+// holds both change with every fetch, so these assert the page's structure — the
+// opening-balance row and a working bar link — rather than any figure.
+
+test('insights page renders the statement, opening balance first', async ({ page }) => {
+  await page.goto('/insights/');
+  await expect(page.locator('h1')).toHaveText('Bank hiring, in figures');
+
+  // Tracking began mid-life, so day one is an opening balance, never a day's
+  // hiring — that first row is the honesty this page turns on.
+  const rows = page.locator('table.ins-statement').first().locator('tbody tr');
+  await expect(rows.first()).toContainText('Opening balance');
+});
+
+test('an insights bar row links through to a bank ledger', async ({ page }) => {
+  await page.goto('/insights/');
+  await page.locator('.ins-row a[href^="/banks/"]').first().click();
+  await expect(page.locator('h1')).toContainText('vacancies');
+});
+
+test('homepage coverage ledger links to the insights page', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('a[href="/insights/"]', { hasText: 'figures behind the statement' }).click();
+  await expect(page.locator('h1')).toHaveText('Bank hiring, in figures');
+});
+
 test('the site-wide rss feed is served as xml', async ({ request }) => {
   const response = await request.get('/feeds/all.xml');
   expect(response.status()).toBe(200);
