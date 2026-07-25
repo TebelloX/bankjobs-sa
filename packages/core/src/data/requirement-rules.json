@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "windowChars": 450,
   "headings": {
     "global": [
@@ -109,7 +109,7 @@
         "b com",
         "business science",
         "generic management",
-        "management",
+        "management studies",
         "entrepreneurship"
       ]
     },
@@ -124,7 +124,13 @@
         "software engineering",
         "software development",
         "computing",
-        "IT"
+        "bsc it",
+        "bcomm it",
+        "bcom it",
+        "it qualification",
+        "it related",
+        "it-related",
+        "in it"
       ]
     },
     {
@@ -161,19 +167,18 @@
     {
       "field": "law",
       "label": "Law / Legal",
-      "keywords": ["law", "legal", "llb", "commercial law", "jurisprudence", "compliance"]
+      "keywords": ["law", "legal", "llb", "commercial law", "jurisprudence"]
     },
     {
       "field": "risk",
       "label": "Risk Management",
-      "keywords": ["risk management", "risk", "credit management", "forensic"]
+      "keywords": ["risk management", "risk and compliance", "credit management", "forensic"]
     },
     {
       "field": "marketing",
       "label": "Marketing / Communications",
       "keywords": [
         "marketing",
-        "communications",
         "digital marketing",
         "public relations",
         "journalism",

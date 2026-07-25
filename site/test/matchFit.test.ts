@@ -87,6 +87,18 @@ describe('matchJob buckets', () => {
     expect(bucketOf(user, req({ minQual: DEGREE, fields: ['finance'] }))).toBe('stretch');
   });
 
+  it('does not call a BCom Finance graduate a strong fit for a cyber security engineer', () => {
+    // The regression pin for the reported bug. The requirements below are what
+    // rules v2 extracts from Capitec's Cyber Security Engineer ad; under v1 the
+    // ad also carried a spurious 'business-commerce', which "Bcom finance"
+    // matched, putting an IT role at the top of a finance graduate's strong
+    // list. Level cleared, no field in common, years short: possible.
+    const user = profile(DEGREE, ['finance', 'business-commerce'], 5);
+    expect(
+      bucketOf(user, req({ minQual: DEGREE, fields: ['it', 'engineering'], minYears: 2 })),
+    ).toBe('possible');
+  });
+
   it('is above when the ad asks for two or more levels more', () => {
     expect(bucketOf(profile(MATRIC), req({ minQual: DIPLOMA }))).toBe('above');
     expect(bucketOf(profile(DIPLOMA), req({ minQual: POSTGRAD }))).toBe('above');
@@ -332,8 +344,14 @@ describe('parseQualName', () => {
     expect(fields).toHaveLength(2);
   });
 
-  it('reads the short keyword out of "BSc IT"', () => {
+  it('reads the it field out of the three ways people type an IT qualification', () => {
+    // Rules v2 replaced the bare 'IT' keyword (which matched the English
+    // pronoun) with phrase keywords. Typed input must still reach the it field:
+    // 'bsc it' catches the first, 'in it' the second, 'information technology'
+    // the third.
     expect(parseQualName('BSc IT', TAXONOMY)).toContain('it');
+    expect(parseQualName('Diploma in IT', TAXONOMY)).toContain('it');
+    expect(parseQualName('National Diploma: Information Technology', TAXONOMY)).toContain('it');
   });
 
   it('is case- and spacing-insensitive', () => {
@@ -406,6 +424,8 @@ const CORPUS: readonly string[] = [
   'B.Sc (Hons) Computer Science; NQF 8',
   '  leading  and  trailing  whitespace  ',
   'informatics|computing^software development',
+  'access control and identity management',
+  'the people who make it happen',
   'no keywords at all in this sentence',
 ];
 
@@ -459,5 +479,13 @@ describe('keyword compiler parity with @bankjobs/core', () => {
     expect(probe('business administration', 'business  administration  degree')).toBe(true);
     expect(probe('ca(sa)', 'CA(SA) or CIMA')).toBe(true);
     expect(probe('law', 'flawless attention to detail')).toBe(false);
+
+    // The rules-v2 replacements. 'IT' above still describes the compiler
+    // correctly — it just is not a taxonomy keyword any more, because a
+    // two-letter word cannot tell a degree from a pronoun.
+    expect(probe('in it', 'BSc in IT')).toBe(true);
+    expect(probe('in it', 'the people who make it happen')).toBe(false);
+    expect(probe('management studies', 'business, commerce and management studies')).toBe(true);
+    expect(probe('bsc it', 'Preferred Qualification BSc IT or BComm IT')).toBe(true);
   });
 });

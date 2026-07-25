@@ -53,6 +53,12 @@ const cases: Case[] = [
     // fields of study as a slash-separated list. minYears comes from "1 to 2
     // years credit management experience"; "At least three years'" is words,
     // not digits, and is deliberately not parsed.
+    //
+    // 'business-commerce' is deliberately ABSENT, and that is the rules-v2 fix:
+    // under v1 the bare keyword 'management' matched inside "Credit Management"
+    // and mislabelled a credit qualification as a business/commerce one. Credit
+    // Management is a risk-family qualification, and the risk field still
+    // captures it through the 'credit management' keyword.
     name: 'absa education line (NQF 7 + bachelors + slash-separated fields)',
     source: 'absa',
     title: 'Specialist: Credit Officer - Credit Lending',
@@ -63,7 +69,7 @@ const cases: Case[] = [
     expected: {
       minQual: 3,
       minNqf: 7,
-      fields: ['finance', 'accounting', 'economics', 'business-commerce', 'risk'],
+      fields: ['finance', 'accounting', 'economics', 'risk'],
       minYears: 1,
     },
   },
@@ -131,6 +137,48 @@ const cases: Case[] = [
       'You will be an ideal candidate if you possess the following: A completed financial ' +
       'related qualification (NQF5 or higher) 1-2 years’ experience in Client Services Support',
     expected: { minQual: 1, minNqf: 5, fields: [], minYears: 1 },
+  },
+  {
+    // The reported bug, pinned. A visitor who typed "Bcom finance" (parsed to
+    // finance + business-commerce) was shown THIS ad as a STRONG fit, because
+    // v1's bare 'management' keyword fired on "Access control and identity
+    // management" — a security capability, not a degree — 450 chars deep in the
+    // window that "Qualifications" opened. Rules v2 drops that keyword, so the
+    // only fields left are the two the ad actually names.
+    name: 'capitec cyber security engineer (no business-commerce from "identity management")',
+    source: 'capitec',
+    title: 'Cyber Security Engineer',
+    text:
+      'Qualifications Minimum: A relevant tertiary qualification in AWS Foundation or Cloud ' +
+      "Computing Ideal or Preferred: Bachelor's Degree in Information Technology or Engineering " +
+      '– OtherRelevant certifications such as CISSP, CISM, CISA, or other security-related ' +
+      'certifications.AWS Data/Security certification Technical capabilities Strong ' +
+      'understanding of: Cloud security principles Data protection (encryption, masking, DLP) ' +
+      'Access control and identity management Experience with: Scripting (e.g. Bash, PowerShell, ' +
+      'Python) Infrastructure-as-Code (e.g. Terraform, Ansible, CloudFormation) DevOps ' +
+      'environments and practices Conditions of Employment Clear criminal and credit record',
+    expected: { minQual: 3, minNqf: null, fields: ['it', 'engineering'], minYears: null },
+  },
+  {
+    // FirstRand's advisor boilerplate, where the global heading 'education'
+    // matches MID-SENTENCE ("…experience and education to Private Wealth
+    // clients…") and opens a 450-char window over pure marketing copy. Under v1
+    // that window yielded business-commerce (from "Money Management") and it
+    // (from "make it happen" — the text is lowercased before matching, so the
+    // pronoun looked like the keyword 'IT'), tagging ~12 advisor ads as
+    // degree-in-IT roles. The window still opens under v2 — the heading match is
+    // real — but no v2 keyword fires inside it, so the honest answer is nothing.
+    name: 'firstrand advisor boilerplate (mid-sentence "education" window yields nothing)',
+    source: 'firstrand',
+    title: 'Wealth Manager',
+    text:
+      'Job Description To deliver exceptional experience and education to Private Wealth clients ' +
+      'on basic wealth creation, accumulation and overall protection tactics to increase ' +
+      'vertical sales index (VSI) and drive client retention and entrenchment through using ' +
+      'contextual Money Management principles. Welcome to FNB, the home of the #changeables . ' +
+      'We design for the shapeshifters and deliver products and services that make us ' +
+      'incredibly proud of the people who make it happen.',
+    expected: { minQual: null, minNqf: null, fields: [], minYears: null },
   },
 ];
 
