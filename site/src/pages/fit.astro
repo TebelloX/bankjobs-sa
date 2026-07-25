@@ -1,0 +1,511 @@
+---
+import Base from '../layouts/Base.astro';
+import { CATEGORY_SLUGS, QUAL_LEVELS, REQUIREMENT_FIELDS } from '@bankjobs/core';
+import type { Category, QualType } from '@bankjobs/core';
+
+const categories = Object.entries(CATEGORY_SLUGS) as Array<[Category, string]>;
+
+// ---- form options ---------------------------------------------------------
+// Rendered SERVER-side, here in the frontmatter, for the same reason
+// search.astro renders its filters here: the island must not import a data
+// module. On this page the rule is stricter still — the island must not import
+// @bankjobs/core either, because core's entry point reaches sanitize.ts and
+// would drag sanitize-html into a bundle whose only job is reading JSON. So
+// every number the matcher works in is BAKED INTO THE MARKUP: each <option>
+// carries the URL slug (`value`, what ?qual=/?field=/?years= hold) beside the
+// value the matcher needs (`data-level`, `data-years`), and the island reads
+// its mapping table straight off the selected option. The DOM is the mapping
+// table.
+
+/**
+ * Wording for each tier. QUAL_LEVELS' INDEX is the ordinal — a published
+ * contract, since requirements.json's minQual holds the same numbers — so
+ * data-level is derived from the array position and never hand-written.
+ */
+const QUAL_LABELS: Record<QualType, string> = {
+  matric: 'Matric (Grade 12)',
+  certificate: 'Higher certificate',
+  diploma: 'Diploma',
+  degree: "Bachelor's degree / Adv. diploma",
+  postgrad: 'Postgraduate (Honours+)',
+};
+const qualOptions = QUAL_LEVELS.map((slug, level) => ({ slug, level, label: QUAL_LABELS[slug] }));
+
+// Coarse bands rather than a number box, because both sides of the comparison
+// are coarse: an ad's years are parsed out of prose ("5-10 years' experience in
+// a related field"), and few people have a tidy single figure to type. The
+// placeholder "not saying" is NOT zero — the matcher only compares when both
+// sides actually named a number — which is why "none yet" exists as its own
+// option with data-years="0".
+const yearsOptions = [
+  { value: '0', label: 'none yet' },
+  { value: '1', label: '1 year' },
+  { value: '2', label: '2 years' },
+  { value: '3', label: '3 years' },
+  { value: '5', label: '5 years' },
+  { value: '7', label: '7 years' },
+  { value: '10', label: '10+ years' },
+];
+
+// The four result sections, in reading order. Each carries its own page size on
+// the element: the scored buckets reveal 20 at a time (they are the answer, and
+// a wall of 300 rows is not an answer), the unscored one 50, like the search
+// ledger it most resembles. Title, bucket name and page size stay together in
+// one table here rather than being half-declared again inside the island.
+//
+// The last title says what actually happened instead of implying a verdict.
+// Roughly a quarter of ads state their requirements in prose we cannot parse,
+// and quietly dropping those rows would turn "we could not read this one" into
+// "you do not qualify" — a lie the visitor has no way of catching.
+const sections = [
+  {
+    bucket: 'strong',
+    title: 'Strong fits',
+    pageSize: 20,
+    note: 'You clear the qualification bar and studied a field the ad names.',
+  },
+  {
+    bucket: 'possible',
+    title: 'Possible fits',
+    pageSize: 20,
+    note: 'You clear the qualification bar; the ad names a different field, or none at all.',
+  },
+  {
+    bucket: 'stretch',
+    title: 'Stretch roles',
+    pageSize: 20,
+    note: 'One level above your qualification — worth an application if the rest of you fits.',
+  },
+  {
+    bucket: 'unscored',
+    title: "We couldn't read the requirements in these ads",
+    pageSize: 50,
+    note: "The ad didn't state a qualification in a form we could read, so it is listed rather than hidden.",
+  },
+];
+
+const description =
+  'Tell us your highest qualification and what you studied, and see which open South African bank vacancies fit. Matched in your browser — nothing you type is sent anywhere.';
+---
+
+<Base title="Find your fit — mybankjobs" description={description}>
+  <p class="eyebrow">Find your fit</p>
+  <h1>Which roles fit your qualification?</h1>
+  <p class="lede">
+    Tell us how far you studied and what you studied. Every open vacancy is then sorted into what
+    fits, what might, and what's a stretch.
+  </p>
+  <p class="muted">
+    This runs entirely in your browser — nothing you type leaves this page or gets sent anywhere.
+    Your answers are remembered on this device only.
+  </p>
+
+  <div class="search-controls">
+    <label for="fit-name">Your qualification, in your own words (optional)</label>
+    {/* type="search" reuses the ledger's one input treatment verbatim — it is
+        also the honest type here: a free-text box whose contents are searched
+        for the subjects in the taxonomy. It only ever ADDS a field of study to
+        the profile; the level select below stays authoritative about how far
+        someone studied, because that is a closed list they picked from. */}
+    <input
+      type="search"
+      id="fit-name"
+      name="name"
+      placeholder="e.g. “BCom Accounting”"
+      autocomplete="off"
+    />
+
+    <div class="filters">
+      <label class="filter">
+        <span class="filter-label">highest qualification</span>
+        <select id="fit-qual">
+          <option value="">choose one</option>
+          {
+            qualOptions.map((o) => (
+              <option value={o.slug} data-level={String(o.level)}>
+                {o.label}
+              </option>
+            ))
+          }
+        </select>
+      </label>
+      <label class="filter">
+        <span class="filter-label">field of study</span>
+        <select id="fit-field">
+          <option value="">any / not sure</option>
+          {
+            REQUIREMENT_FIELDS.map((f) => (
+              <option value={f.field}>{f.label}</option>
+            ))
+          }
+        </select>
+      </label>
+      <label class="filter">
+        <span class="filter-label">years of experience</span>
+        <select id="fit-years">
+          <option value="">not saying</option>
+          {
+            yearsOptions.map((o) => (
+              <option value={o.value} data-years={o.value}>
+                {o.label}
+              </option>
+            ))
+          }
+        </select>
+      </label>
+    </div>
+
+    <div>
+      <label class="checkbox">
+        <input type="checkbox" id="fit-intl" />
+        Include international roles
+      </label>
+    </div>
+  </div>
+
+  {/* Doubles as the island's status line: it carries the loading wording and,
+      if a fetch fails, the honest failure — so nothing here is ever silent. */}
+  <p id="fit-count" class="results-count" aria-live="polite" role="status">Loading vacancies…</p>
+
+  {/* Roles asking for two or more levels above the visitor are counted, not
+      listed. Saying so in one line is the difference between a short list and
+      a short list that looks like the whole ledger. */}
+  <p id="fit-above" class="muted" hidden></p>
+
+  <p id="fit-empty" class="list-empty" hidden>
+    Pick your highest qualification to see matching roles.
+  </p>
+
+  {
+    sections.map((s) => (
+      <section
+        class="section"
+        data-fit-section={s.bucket}
+        data-page-size={String(s.pageSize)}
+        aria-labelledby={`fit-h-${s.bucket}`}
+        hidden
+      >
+        <h2 id={`fit-h-${s.bucket}`} class="sec-title">
+          {s.title}
+        </h2>
+        <p class="muted">{s.note}</p>
+        <ul class="joblist" data-fit-list={s.bucket} />
+        <div class="search-more" data-fit-more={s.bucket} />
+      </section>
+    ))
+  }
+
+  <noscript>
+    <p class="muted">
+      Matching runs in your browser, so it needs JavaScript — nothing is sent to us, which is why
+      there is no server-side version of this page. Browse by category instead:
+    </p>
+    <ul class="catlinks">
+      {
+        categories.map(([name, slug]) => (
+          <li>
+            <a href={`/browse/${slug}`}>{name}</a>
+          </li>
+        ))
+      }
+      <li><a href="/browse/international">International roles</a></li>
+    </ul>
+  </noscript>
+
+  <script>
+    // "Find your fit" island. Bundled by Astro into an external same-origin file
+    // (assetsInlineLimit: 0), so `script-src 'self'` needs no inline hashes.
+    //
+    // Two same-origin fetches and nothing else — that is the whole network
+    // footprint of this page, and it is the POPIA promise on /about kept by
+    // construction rather than by policy. The visitor's answers go into
+    // localStorage and into the address bar; they never go onto the wire.
+    //
+    // Every import here is dependency-free by design: none of them reaches
+    // lib/data.ts (which would drag the gitignored job snapshot into this
+    // bundle) and none reaches @bankjobs/core (which would drag in
+    // sanitize-html). The field taxonomy the matcher needs travels inside
+    // requirements.json instead, so the browser parses a typed qualification
+    // name against the exact rules version that indexed the jobs.
+    import { REQUIREMENTS_DATA_URL, bucketJobs, parseQualName } from '../lib/matchFit';
+    import type { BucketedJobs, FitBucket, JobReq, TaxonomyField } from '../lib/matchFit';
+    import { loadMatchPrefs, saveMatchPrefs } from '../lib/matchPrefs';
+    // The ledger row builder the search and saved islands use — same DOM, same
+    // classes, same markup as JobRow.astro.
+    import { createJobRow } from '../lib/jobRowDom';
+    import { getLocalStorage } from '../lib/savedJobs';
+    // The same same-origin snapshot the search and saved islands read — one
+    // constant, one URL, and `connect-src 'self'` already covers it.
+    import { SEARCH_DATA_URL } from '../lib/searchClient';
+    import type { SearchRow } from '../lib/searchClient';
+
+    /** requirements.json, exactly as packages/ingest emits it. */
+    interface RequirementsSnapshot {
+      version: number;
+      generatedAt: string;
+      taxonomy: TaxonomyField[];
+      jobs: Record<string, JobReq>;
+    }
+
+    const nameInput = document.getElementById('fit-name') as HTMLInputElement | null;
+    const qualSel = document.getElementById('fit-qual') as HTMLSelectElement | null;
+    const fieldSel = document.getElementById('fit-field') as HTMLSelectElement | null;
+    const yearsSel = document.getElementById('fit-years') as HTMLSelectElement | null;
+    const intl = document.getElementById('fit-intl') as HTMLInputElement | null;
+    const count = document.getElementById('fit-count');
+    const above = document.getElementById('fit-above');
+    const empty = document.getElementById('fit-empty');
+
+    /** One result bucket's three elements plus its own reveal state. */
+    interface Section {
+      bucket: FitBucket;
+      root: HTMLElement;
+      list: HTMLUListElement;
+      more: HTMLElement;
+      /** How many more rows each "show more" click reveals (from data-page-size). */
+      pageSize: number;
+      /** Current cap; a fresh match resets it to pageSize. */
+      shown: number;
+    }
+
+    // Read the four sections off the markup that declared them — bucket name,
+    // page size and elements all come from the same <section>, so adding or
+    // retitling a bucket is a frontmatter edit.
+    const sections: Section[] = [];
+    for (const root of document.querySelectorAll<HTMLElement>('[data-fit-section]')) {
+      const bucket = root.dataset.fitSection as FitBucket;
+      const list = root.querySelector<HTMLUListElement>('[data-fit-list]');
+      const more = root.querySelector<HTMLElement>('[data-fit-more]');
+      const pageSize = Number(root.dataset.pageSize);
+      if (!list || !more || !pageSize) continue;
+      sections.push({ bucket, root, list, more, pageSize, shown: pageSize });
+    }
+
+    if (nameInput && qualSel && fieldSel && yearsSel && count && above && empty && sections.length) {
+      const storage = getLocalStorage();
+
+      let rows: SearchRow[] = [];
+      let reqs: Record<string, JobReq> = {};
+      let taxonomy: TaxonomyField[] = [];
+      let loaded = false;
+      // The last match run, kept so a per-bucket "show more" can redraw its own
+      // section without re-bucketing all 551 rows.
+      let current: BucketedJobs<SearchRow> | null = null;
+
+      // ---- reading the form ---------------------------------------------
+      // Each answer comes off the SELECTED OPTION, never off a table in here:
+      // `value` is the URL slug, `data-level`/`data-years` are the numbers the
+      // matcher works in. The placeholder options deliberately carry neither,
+      // which is what makes "not chosen" and "chosen" distinguishable from
+      // "0" — matric is level 0 and "none yet" is 0 years, both real answers.
+
+      /** Chosen qualification as an ordinal (matric 0 … postgrad 4), or null. */
+      function qualLevel(): number | null {
+        const raw = qualSel!.selectedOptions[0]?.dataset.level;
+        return raw === undefined ? null : Number(raw);
+      }
+
+      /** Chosen experience in years, or null for "not saying" — which is not 0. */
+      function yearsValue(): number | null {
+        const raw = yearsSel!.selectedOptions[0]?.dataset.years;
+        return raw === undefined ? null : Number(raw);
+      }
+
+      /**
+       * Fields of study: the picker's choice UNIONED with whatever the free-text
+       * box named. Union, not either/or, so "not sure" plus a typed degree name
+       * still matches on subject, and a picked field is never overwritten by a
+       * box that happened to be empty.
+       */
+      function profileFields(): string[] {
+        const fields = new Set<string>();
+        if (fieldSel!.value) fields.add(fieldSel!.value);
+        for (const field of parseQualName(nameInput!.value, taxonomy)) fields.add(field);
+        return [...fields];
+      }
+
+      // ---- prefill --------------------------------------------------------
+      // A link's parameters win over remembered answers, and they win WHOLESALE:
+      // if the URL carries any of the four, the ones it omits come back empty
+      // rather than being filled in from this device's storage. Mixing the two
+      // would build a profile that is nobody's — a friend's shared ?qual=matric
+      // wearing your BCom — and then show fits for it.
+      const initial = new URLSearchParams(location.search);
+      const fromUrl = ['qual', 'field', 'name', 'years'].some((key) => initial.has(key));
+      const stored = fromUrl ? null : loadMatchPrefs(storage);
+
+      /** A slug with no matching option (stale link, hand-typed junk) is ignored
+       *  and the select stays on its placeholder — assigning it would blank the
+       *  control. Same tolerance as search.astro's prefill(). */
+      function prefill(sel: HTMLSelectElement, slug: string): void {
+        if (!slug) return;
+        for (const opt of Array.from(sel.options)) {
+          if (opt.value === slug) {
+            sel.value = slug;
+            return;
+          }
+        }
+      }
+
+      prefill(qualSel, fromUrl ? (initial.get('qual') ?? '') : (stored?.qual ?? ''));
+      prefill(fieldSel, fromUrl ? (initial.get('field') ?? '') : (stored?.field ?? ''));
+      prefill(yearsSel, fromUrl ? (initial.get('years') ?? '') : (stored?.years ?? ''));
+      nameInput.value = fromUrl ? (initial.get('name') ?? '') : (stored?.name ?? '');
+
+      // ---- url + storage --------------------------------------------------
+
+      function setParam(url: URL, key: string, value: string): void {
+        if (value) url.searchParams.set(key, value);
+        else url.searchParams.delete(key);
+      }
+
+      /** Keep the address bar shareable; empty answers are dropped, not sent blank. */
+      function updateUrl(): void {
+        const url = new URL(location.href);
+        setParam(url, 'qual', qualSel!.value);
+        setParam(url, 'field', fieldSel!.value);
+        setParam(url, 'name', nameInput!.value.trim());
+        setParam(url, 'years', yearsSel!.value);
+        history.replaceState(null, '', url);
+      }
+
+      /** Remember the answers on THIS DEVICE. The only sink in this island. */
+      function persist(): void {
+        saveMatchPrefs(storage, {
+          qual: qualSel!.value,
+          field: fieldSel!.value,
+          name: nameInput!.value.trim(),
+          years: yearsSel!.value,
+        });
+      }
+
+      // ---- rendering ------------------------------------------------------
+
+      function clear(el: Element): void {
+        while (el.firstChild) el.removeChild(el.firstChild);
+      }
+
+      /** Draw one bucket, capped at its current reveal. An empty bucket hides
+       *  its whole section — a heading over nothing reads as a verdict. */
+      function renderSection(sec: Section, bucketRows: SearchRow[]): void {
+        clear(sec.list);
+        for (const row of bucketRows.slice(0, sec.shown)) sec.list.appendChild(createJobRow(row));
+
+        clear(sec.more);
+        if (bucketRows.length > sec.shown) {
+          const remaining = bucketRows.length - sec.shown;
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'show-more';
+          btn.textContent = `Show ${sec.pageSize} more (${remaining} remaining)`;
+          btn.addEventListener('click', () => {
+            sec.shown += sec.pageSize;
+            if (current) renderSection(sec, current[sec.bucket]);
+          });
+          sec.more.appendChild(btn);
+        }
+
+        sec.root.hidden = bucketRows.length === 0;
+      }
+
+      /** Everything below the controls goes away — used before a qualification
+       *  is chosen and when a fetch has failed. */
+      function hideResults(): void {
+        current = null;
+        above!.hidden = true;
+        for (const sec of sections) {
+          clear(sec.list);
+          clear(sec.more);
+          sec.root.hidden = true;
+        }
+      }
+
+      function aboveLabel(n: number): string {
+        return n === 1
+          ? '1 role asks for a qualification more than one level above yours.'
+          : `${n} roles ask for a qualification more than one level above yours.`;
+      }
+
+      /** Match the whole snapshot against the form and redraw. */
+      function render(): void {
+        if (!loaded) return;
+
+        const level = qualLevel();
+        if (level === null) {
+          // Nothing to say yet, and no half-sentence pretending otherwise.
+          hideResults();
+          count!.hidden = true;
+          empty!.hidden = false;
+          return;
+        }
+        count!.hidden = false;
+        empty!.hidden = true;
+
+        // Default is South Africa only, like every other count on the site; the
+        // toggle widens the pool, and the pool is what the count line's "out of"
+        // denominator means.
+        const pool = intl && intl.checked ? rows : rows.filter((row) => row.country === 'ZA');
+        const buckets = bucketJobs(
+          { qualLevel: level, fields: profileFields(), years: yearsValue() },
+          pool,
+          reqs,
+        );
+        current = buckets;
+
+        for (const sec of sections) {
+          sec.shown = sec.pageSize; // a fresh match starts every bucket at page one
+          renderSection(sec, buckets[sec.bucket]);
+        }
+
+        count!.textContent =
+          `${buckets.strong.length} strong · ${buckets.possible.length} possible · ` +
+          `${buckets.stretch.length} stretch fits out of ${pool.length} open vacancies`;
+
+        above!.textContent = aboveLabel(buckets.aboveCount);
+        above!.hidden = buckets.aboveCount === 0;
+      }
+
+      /** A deliberate change by the visitor: reflect it, remember it, redraw. */
+      function apply(): void {
+        updateUrl();
+        persist();
+        render();
+      }
+
+      // Typing is debounced (a 12-character degree name is 12 re-matches of 551
+      // rows otherwise); picking from a select or flipping the toggle is a
+      // finished decision and lands immediately.
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      nameInput.addEventListener('input', () => {
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(apply, 150);
+      });
+      for (const sel of [qualSel, fieldSel, yearsSel]) sel.addEventListener('change', apply);
+      // The country scope is neither shareable state nor an answer about the
+      // visitor, so it moves no URL parameter and nothing into storage.
+      if (intl) intl.addEventListener('change', render);
+
+      // Both snapshots are needed before anything can be matched, so they load
+      // together and fail together. The prefilled form is NOT written back to
+      // the URL or to storage on load: arriving on a link must not overwrite
+      // what this device remembers until the visitor actually changes something.
+      Promise.all([
+        fetch(SEARCH_DATA_URL).then((r) => r.json()),
+        fetch(REQUIREMENTS_DATA_URL).then((r) => r.json()),
+      ])
+        .then(([jobRows, snapshot]: [SearchRow[], RequirementsSnapshot]) => {
+          rows = jobRows;
+          reqs = snapshot.jobs;
+          taxonomy = snapshot.taxonomy;
+          loaded = true;
+          render();
+        })
+        .catch(() => {
+          hideResults();
+          empty.hidden = true;
+          count.hidden = false;
+          count.textContent = 'Could not load vacancies. Please refresh the page.';
+        });
+    }
+  </script>
+</Base>

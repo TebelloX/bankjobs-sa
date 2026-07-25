@@ -423,6 +423,86 @@ test('a returning visit flags new rows and totals them on the homepage', async (
   }
 });
 
+// ---- find your fit ----------------------------------------------------------
+// The matcher is browser-only (site/src/lib/matchFit.ts) over two same-origin
+// snapshots, so these stay snapshot-agnostic the way the search tests are: a
+// fixtures build can legitimately leave every scored bucket empty (tiny, odd
+// job set), so they assert structure and accounting, never counts. Postgraduate
+// is the probe profile because it clears every stated bar — no role can land in
+// the counted-but-unlisted "above" tail, so the whole pool is on the page.
+
+/** The bucket accounting line, once a qualification has been chosen. */
+const FIT_LOADED = /^\d+ strong · \d+ possible · \d+ stretch fits out of \d+ open vacancies$/;
+
+test('fit page keeps its privacy promise visible and asks for a qualification first', async ({
+  page,
+}) => {
+  await page.goto('/fit/');
+  await expect(page.locator('h1')).toContainText('Which roles fit your qualification');
+
+  // The privacy line is the page's contract, rendered server-side — it is on
+  // the page before the visitor has answered anything.
+  await expect(
+    page.locator('p.muted', { hasText: 'nothing you type leaves this page' }),
+  ).toBeVisible();
+
+  // Once the snapshots land the island has nothing to reckon yet: the status
+  // line hides and the prompt shows. (During the fetch the status line reads
+  // "Loading vacancies…" — both assertions retry into the loaded state.)
+  await expect(page.locator('#fit-empty')).toBeVisible();
+  await expect(page.locator('#fit-count')).toBeHidden();
+});
+
+test('choosing a qualification reckons the buckets and writes a shareable URL', async ({
+  page,
+}) => {
+  await page.goto('/fit/');
+  // The prompt is the signal that the island is live and listeners are wired.
+  await expect(page.locator('#fit-empty')).toBeVisible();
+
+  await page.locator('#fit-qual').selectOption('postgrad');
+  await expect(page.locator('#fit-count')).toHaveText(FIT_LOADED);
+
+  // Postgraduate means no role can sit more than one level out of reach.
+  await expect(page.locator('#fit-above')).toBeHidden();
+
+  // For this profile every pooled row lands in a VISIBLE bucket — scored, or
+  // the honest couldn't-read one — so some row renders whatever the snapshot.
+  await expect(page.locator('[data-fit-list] a.job-title').first()).toBeVisible();
+
+  // An empty bucket hides its whole section; a shown one carries real job links.
+  for (const section of await page.locator('[data-fit-section]').all()) {
+    if (!(await section.isVisible())) continue;
+    const hrefs = await section
+      .locator('a.job-title')
+      .evaluateAll((els) => els.map((el) => el.getAttribute('href') ?? ''));
+    expect(hrefs.length).toBeGreaterThan(0);
+    for (const href of hrefs) {
+      expect(href).toMatch(/^\/jobs\/[^/]+\/$/);
+    }
+  }
+
+  expect(new URL(page.url()).searchParams.get('qual')).toBe('postgrad');
+});
+
+test('fit answers are remembered on this device and a bare revisit restores them', async ({
+  page,
+}) => {
+  await page.goto('/fit/');
+  await expect(page.locator('#fit-empty')).toBeVisible();
+
+  await page.locator('#fit-qual').selectOption('degree');
+  const count = page.locator('#fit-count');
+  await expect(count).toHaveText(FIT_LOADED);
+  const line = (await count.textContent())!;
+
+  // A bare revisit — no parameters — rebuilds the same profile from
+  // mybankjobs.match.v1 and lands on the identical reckoning.
+  await page.goto('/fit/');
+  await expect(page.locator('#fit-qual')).toHaveValue('degree');
+  await expect(count).toHaveText(line);
+});
+
 // ---- push notifications -----------------------------------------------------
 // The homepage toggle needs BOTH a browser that can do push and a build that
 // carries a Worker origin to register the subscription with. Chromium has the
