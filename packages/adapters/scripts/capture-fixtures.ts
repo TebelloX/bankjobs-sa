@@ -30,13 +30,7 @@ import type { WorkdayJobDetail, WorkdayListResponse } from '../src/workday/types
 import { SMARTRECRUITERS_UA } from '../src/smartrecruiters/client';
 import type { SmartRecruitersConfig } from '../src/smartrecruiters/client';
 import type { SrListResponse, SrPostingDetail } from '../src/smartrecruiters/types';
-import {
-  EARCU_UA,
-  cookieHeaderFrom,
-  extractDetailUrls,
-  extractJobPostingLd,
-  extractPagestamp,
-} from '../src/earcu/client';
+import { EARCU_UA, extractDetailUrls, extractJobPostingLd } from '../src/earcu/client';
 import type { EarcuConfig } from '../src/earcu/client';
 import type { EarcuJobPosting } from '../src/earcu/types';
 import { NEDBANK_SF_CONFIG } from '../src/nedbank';
@@ -320,48 +314,41 @@ async function captureSmartRecruiters(cfg: SmartRecruitersConfig): Promise<void>
 
 async function captureEarcu(cfg: EarcuConfig): Promise<void> {
   const delayMs = cfg.delayMs ?? 400;
-  const resultsPath = cfg.resultsPath ?? '/jobs/vacancy/find/results/';
+  const sitemapPath = cfg.sitemapPath ?? '/jobs/sitemap.xml';
   const origin = `https://${cfg.host}`;
   const fixturesDir = join(fixturesRoot, 'investec');
 
-  const eaFetch = (url: string, cookie?: string): Promise<Response> =>
-    fetch(url, {
-      headers: {
-        'User-Agent': EARCU_UA,
-        ...(cookie ? { Cookie: cookie, 'X-Requested-With': 'XMLHttpRequest' } : {}),
-      },
-    });
+  const eaFetch = (url: string): Promise<Response> =>
+    fetch(url, { headers: { 'User-Agent': EARCU_UA } });
 
-  // 1) results page → cookies + pagestamp (rotates per load; never cached).
-  const resultsUrl = `${origin}${resultsPath}`;
-  const resultsRes = await eaFetch(resultsUrl);
-  if (resultsRes.status !== 200) {
-    console.error(`investec results page returned HTTP ${resultsRes.status}.`);
-    console.error(`Tried: GET ${resultsUrl}`);
+  /** A WAF-aware status report (a challenge is a 202 with an empty body). */
+  const statusNote = (res: Response): string => {
+    const waf = res.headers.get('x-amzn-waf-action');
+    return waf ? `HTTP ${res.status} (x-amzn-waf-action: ${waf})` : `HTTP ${res.status}`;
+  };
+
+  // 1) The URL sitemap — one GET enumerates every vacancy. Stored verbatim as
+  // ground truth (it also pins the talentpool entries the parser must exclude).
+  const sitemapUrl = `${origin}${sitemapPath}`;
+  const sitemapRes = await eaFetch(sitemapUrl);
+  if (sitemapRes.status !== 200) {
+    console.error(`investec sitemap returned ${statusNote(sitemapRes)}.`);
+    console.error(`Tried: GET ${sitemapUrl}`);
     process.exit(1);
   }
-  const cookie = cookieHeaderFrom(resultsRes.headers.getSetCookie());
-  const pagestamp = extractPagestamp(await resultsRes.text());
-  if (!pagestamp) {
-    console.error('investec results page carried no pagestamp — page shape may have drifted.');
+  const sitemapXml = await sitemapRes.text();
+  const detailUrls = extractDetailUrls(sitemapXml, origin);
+  if (detailUrls.length === 0) {
+    console.error(
+      'investec sitemap parsed to zero vacancy URLs — parser or shape may have drifted.',
+    );
     process.exit(1);
   }
+  writeFileSync(join(fixturesDir, 'sitemap.xml'), sitemapXml);
+  const locCount = (sitemapXml.match(/<loc>/gi) ?? []).length;
+  console.log(`Wrote sitemap.xml (${detailUrls.length} vacancies of ${locCount} <loc> entries).`);
 
-  // 2) grid fragment → detail URLs (stored verbatim as ground truth).
-  await sleep(delayMs);
-  const gridUrl = `${origin}${resultsPath}ajaxaction/posbrowser_gridhandler/?pagestamp=${pagestamp}`;
-  const gridRes = await eaFetch(gridUrl, cookie);
-  if (gridRes.status !== 200) {
-    console.error(`investec grid endpoint returned HTTP ${gridRes.status}.`);
-    console.error(`Tried: GET ${gridUrl}`);
-    process.exit(1);
-  }
-  const gridHtml = await gridRes.text();
-  writeFileSync(join(fixturesDir, 'grid.html'), gridHtml);
-  const detailUrls = extractDetailUrls(gridHtml, origin);
-  console.log(`Wrote grid.html (${detailUrls.length} vacancies).`);
-
-  // 3) detail pages → full HTML. Pick three for variety: a Western Cape city, a
+  // 2) detail pages → full HTML. Pick three for variety: a Western Cape city, a
   // Gauteng city, and a posting whose JSON-LD address is empty (city lives in
   // the title only) to exercise the no-location branch.
   let wc, gp, noLoc;
@@ -369,7 +356,7 @@ async function captureEarcu(cfg: EarcuConfig): Promise<void> {
     if (wc && gp && noLoc) break;
     await sleep(delayMs);
     const res = await eaFetch(url);
-    if (res.status !== 200) throw new Error(`Detail ${url} returned HTTP ${res.status}`);
+    if (res.status !== 200) throw new Error(`Detail ${url} returned ${statusNote(res)}`);
     const html = await res.text();
     const posting = extractJobPostingLd(html);
     if (!posting) continue;
@@ -395,26 +382,28 @@ async function captureEarcu(cfg: EarcuConfig): Promise<void> {
     capturedAt: new Date().toISOString(),
     ats: 'eArcu',
     endpoints: {
-      results: `GET ${resultsUrl}`,
-      grid: `GET ${origin}${resultsPath}ajaxaction/posbrowser_gridhandler/?pagestamp={pagestamp}`,
+      sitemap: `GET ${sitemapUrl}`,
       detail: `GET ${origin}/jobs/vacancy/{slug}/{id}/description/`,
     },
     totalAtCapture: detailUrls.length,
+    locsAtCapture: locCount,
     files: {
-      'grid.html': 'The grid AJAX HTML fragment; anchors are the detail-page URLs.',
+      'sitemap.xml': `The full URL sitemap (${locCount} <loc> entries, ${detailUrls.length} vacancies) — the enumeration source.`,
       'detail-1.html': fileNoteEarcu(wc),
       'detail-2.html': fileNoteEarcu(gp),
       'detail-3.html': fileNoteEarcu(noLoc),
     },
     notes: [
       'Corporate www.investec.com is behind Cloudflare Turnstile and 403s bots — NEVER fetch it; only careers.investec.co.za is used.',
-      'The results page sets session cookies (earcusessionid, earcusession, __cf_bm) and embeds a per-load pagestamp that rotates on every load.',
-      'The grid endpoint returns text/html (Accept: application/json is ignored) and needs the session cookie + that pagestamp.',
+      'DISCOVERY MOVED TO THE SITEMAP (2026-07-28). Since ~midday SAST 2026-07-27 the eArcu search-results page /jobs/vacancy/find/results/ — and therefore the posbrowser_gridhandler AJAX endpoint that needs its per-load pagestamp + session cookies — sits behind an AWS WAF JavaScript challenge: it answers HTTP 202 with header "x-amzn-waf-action: challenge" and an EMPTY body for any client that does not execute the challenge JS. It is not UA-based (browser UA strings are challenged too) and not intermittent. 202 is a 2xx, so the old res.ok check waved it through and the run died at pagestamp extraction — the client now requires status === 200 everywhere and names the WAF header in the error.',
+      'The sitemap (GET /jobs/sitemap.xml) and the detail pages are NOT challenged — 200, full body, cookie-free, honest UA.',
+      'The sitemap <urlset> mixes three kinds of <loc>: /jobs/vacancy/{slug}/{id}/description/ (the real vacancies), /jobs/talentpool/{slug}/{id}/description/ (evergreen talent pools — NOT jobs, always EXCLUDED) and a handful of ordinary site pages. Talent pools outnumber vacancies roughly 7:1, so the vacancy-path filter is load-bearing. Each url also carries <changefreq>daily</changefreq> and a <lastmod> date (unused: it tracks page regeneration, not posting date).',
+      'robots.txt on careers.investec.co.za disallows only /file/*; its "Sitemap:" line points at the UK host (careers.investec.co.uk/jobs/sitemap.xml) — a copy-paste quirk. The ZA path equivalent exists and is what we fetch.',
       'Detail pages are stable and cookie-free; each embeds ONE application/ld+json JobPosting block.',
-      'id = investec:{identifier.value} (identifier is a PropertyValue object; value is the req number).',
+      'id = investec:{identifier.value} (identifier is a PropertyValue object; value is the req number). NOTE the req number in the slug is NOT the numeric id in the URL path (slug ...-13385-cape-town, path /13403/) — ids always come from the JSON-LD identifier, never the URL.',
       'datePosted is templated to today (untrusted) and validThrough is unreliable — postedDate is set null.',
       'applyUrl is the detail-page URL itself (the /action/apply/?pagestamp=... link is session-bound).',
-      'addressCountry is a display name (South Africa) — map via countryCodeFor; addressLocality can be empty.',
+      'addressCountry is a display name (South Africa) — map via countryCodeFor. A city-less posting has TWO live shapes: an empty jobLocation array (13784, committed as detail-3) or a Place holding an empty PostalAddress (12158 on capture day, covered by a unit test). Both fall through to no location + country ZA; the city named in the slug is never mined.',
     ],
   };
   writeFileSync(join(fixturesDir, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);

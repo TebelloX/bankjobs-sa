@@ -52,11 +52,9 @@ export type {
 export type { EarcuConfig } from './earcu/client';
 export {
   fetchAllEarcu,
-  extractPagestamp,
   extractDetailUrls,
   extractJobPostingLd,
   extractCanonicalUrl,
-  cookieHeaderFrom,
   EARCU_UA,
 } from './earcu/client';
 

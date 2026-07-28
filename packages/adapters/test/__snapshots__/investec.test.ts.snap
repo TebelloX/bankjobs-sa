@@ -1,214 +1,30 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`investecAdapter.normalize — snapshots > normalizes 12158 1`] = `
+exports[`investecAdapter.normalize — snapshots > normalizes 13385 1`] = `
 {
-  "applyUrl": "https://careers.investec.co.za/jobs/vacancy/internal-consultant-wi---paarl-12158-paarl/12176/description/",
+  "applyUrl": "https://careers.investec.co.za/jobs/vacancy/relationship-manager--business-and-commercial-banking-13385-cape-town/13403/description/",
   "brand": "Investec",
-  "category": "Other",
+  "category": "Sales",
   "country": "ZA",
   "descriptionHtml": "<p>Description of the role </p>
-<p>Main responsibilities:</p>
-<p>•    Executing all administrative duties relating to investments, including, but not limited to: client onboarding &amp; account opening, investments, additions, payments, repurchases, switches and transfers, assisting with and effective resolution of all client queries</p>
-<p>•    Educating clients on technology and platforms available to them to improve their investment administration experience</p>
-<p>•    Gathering client information – internally and externally</p>
-<p>•    Working with external vendors/product providers and LISPs</p>
-<p>•    Researching products and competitors</p>
-<p>•    Completing of ad-hoc projects and attendance of relevant training courses and client meetings where required</p>
-<p>•    Preparing, printing &amp; binding proposals and reviews </p>
-<p>•    Pre-completing and formatting various documents</p>
-<p>•    Providing timely feedback within a compliance context on investment reviews, client remediation and client debtors book, and maintain meticulous client records </p>
-<p>•    Initiating, facilitating &amp; completing of platform transfer requests incl. Section 14, Section 37 &amp; Section 42 transfers both in and out </p>
-<p>•    Building and maintaining strong internal and external stakeholder relationships</p>
-<p>•    Problem-solving &amp; troubleshooting to enhance clients' experience</p>
-<p>•    Efficient multi-tasking in terms of managing multiple transactions with different cut-off times and dates</p>
-<p><br />Qualifications &amp; Experience</p>
-<p>•    Relevant tertiary qualification is essential (Financial Planning/Investment Planning/B.Com) <br />•    Basic knowledge of tax and ability to analyse tax statements (upskill on the job if necessary)<br />•    Basic knowledge of investment products, asset allocation and risk profiles (upskill on the job if necessary)<br />•    2-3 years financial planning or wealth management experience advantageous<br />•    MS Office Suite, Advanced Excel would be advantageous</p>
-<p><br />Personal attributes and other requirements:</p>
-<p>•    Ultra-high net worth client service orientation<br />•    Excellent verbal and written communication skills <br />•    Entrepreneurial mindset, self-starter, independent thinker<br />•    Ability to work independently as well as within a team<br />•    Open to learning and challenging, sharing best practices and knowledge with team<br />•    Effective time-management, planning &amp; organisational skills, ability to prioritise &amp; multi-task<br />•    Work beyond traditional work hours if required<br />•    Ability to work effectively under pressure, tenacious temperament<br />•    High attention to detail <br />•    Well-presented and confident<br />•    Strong work ethic &amp; pride in work, honesty &amp; integrity<br />•    Can-do problem solving attitude<br />•    Solution-driven as opposed to task-driven<br />•    Break China for clients &amp; demonstrate cast-iron integrity, resulting in doing right by clients at every opportunity<br />•    Insights, interpersonal skills &amp; meticulous planning to maintain the standard expected by Investec's ultra-high net worth clients<br />•    Commitment to teamwork &amp; positive influence on the team whilst fostering a culture of diversity &amp; inclusion</p>
-<p> </p>
-<p>Investec Culture </p>
-<p>At Investec we look for dynamic, energetic people filled with tenacity, integrity and out of the ordinary thinking.</p>
-<p>We value individuals who in turn value our culture that is, a can-do attitude while challenging convention.</p>
-<p>Diversity, competency, and flexible leadership are respected in pursuit of the growth of our business.</p>
-<p> </p>
-<p> </p>
-<p> </p>",
-  "descriptionText": "Description of the role Main responsibilities: • Executing all administrative duties relating to investments, including, but not limited to: client onboarding & account opening, investments, additions, payments, repurchases, switches and transfers, assisting with and effective resolution of all client queries • Educating clients on technology and platforms available to them to improve their investment administration experience • Gathering client information – internally and externally • Working with external vendors/product providers and LISPs • Researching products and competitors • Completing of ad-hoc projects and attendance of relevant training courses and client meetings where required • Preparing, printing & binding proposals and reviews • Pre-completing and formatting various documents • Providing timely feedback within a compliance context on investment reviews, client remediation and client debtors book, and maintain meticulous client records • Initiating, facilitating & completing of platform transfer requests incl. Section 14, Section 37 & Section 42 transfers both in and out • Building and maintaining strong internal and external stakeholder relationships • Problem-solving & troubleshooting to enhance clients' experience • Efficient multi-tasking in terms of managing multiple transactions with different cut-off times and dates Qualifications & Experience • Relevant tertiary qualification is essential (Financial Planning/Investment Planning/B.Com) • Basic knowledge of tax and ability to analyse tax statements (upskill on the job if necessary) • Basic knowledge of investment products, asset allocation and risk profiles (upskill on the job if necessary) • 2-3 years financial planning or wealth management experience advantageous • MS Office Suite, Advanced Excel would be advantageous Personal attributes and other requirements: • Ultra-high net worth client service orientation • Excellent verbal and written communication skills • Entrepreneurial mindset, self-starter, independent thinker • Ability to work independently as well as within a team • Open to learning and challenging, sharing best practices and knowledge with team • Effective time-management, planning & organisational skills, ability to prioritise & multi-task • Work beyond traditional work hours if required • Ability to work effectively under pressure, tenacious temperament • High attention to detail • Well-presented and confident • Strong work ethic & pride in work, honesty & integrity • Can-do problem solving attitude • Solution-driven as opposed to task-driven • Break China for clients & demonstrate cast-iron integrity, resulting in doing right by clients at every opportunity • Insights, interpersonal skills & meticulous planning to maintain the standard expected by Investec's ultra-high net worth clients • Commitment to teamwork & positive influence on the team whilst fostering a culture of diversity & inclusion Investec Culture At Investec we look for dynamic, energetic people filled with tenacity, integrity and out of the ordinary thinking. We value individuals who in turn value our culture that is, a can-do attitude while challenging convention. Diversity, competency, and flexible leadership are respected in pursuit of the growth of our business.",
-  "employmentType": "Full-time",
-  "excerpt": "Description of the role Main responsibilities: • Executing all administrative duties relating to investments, including, but not limited to: client onboarding & account opening, investments, additions, payments, repurchases, switches and transfers, assisting with and effective resolution of all client queries • Educating clients on technology and platforms available to them to improve their…",
-  "id": "investec:12158",
-  "locations": [],
-  "postedDate": null,
-  "primaryLocation": null,
-  "source": "investec",
-  "title": "Internal Consultant (W&I - Paarl)",
-}
-`;
-
-exports[`investecAdapter.normalize — snapshots > normalizes 13749 1`] = `
-{
-  "applyUrl": "https://careers.investec.co.za/jobs/vacancy/product-owner-and-core-banking-platform-lead-13749-sandton/13767/description/",
-  "brand": "Investec",
-  "category": "Other",
-  "country": "ZA",
-  "descriptionHtml": "<p>Description</p>
-<p>The Account Services Platform delivers the core technical capabilities for account-based and transactional banking services in the UK. The team is responsible for reconciliation, reporting, financial controls, and accurate financial representation of client transactions, while working in an agile, delivery-focused environment with close collaboration across channels, operations, risk, and finance. </p>
-<p>You will leads the vision, strategy, and roadmap for the UK transactional banking platform, delivering secure, scalable, and compliant account services. The role drives product value by balancing customer needs, business priorities, regulatory requirements, and technology modernisation, while providing strategic leadership, people leadership, and coaching to cross-functional teams across the UK and South Africa. It also fosters strong stakeholder relationships, promotes collaboration, and ensures successful product delivery and continuous platform evolution.  </p>
-<p>The Core Banking Platform provides the account, ledger, product configuration, balance, interest, fees, overdraft and servicing capabilities that underpin UK transactional banking. The platform enables current accounts, savings products, accurate financial representation, reconciliation, reporting and controlled integration across Cards, Payments, Channels, Client Lifecycle, Finance, Risk, Operations and Data. </p>
-<p>You will be accountable for the product vision, strategy, roadmap and measurable outcomes for the Bank's core banking capability. The role balances client outcomes, business priorities, regulatory obligations, financial control, operational resilience, platform sustainability and long term technology evolution. </p>
-<p>This is a senior platform product role responsible for shaping the evolution of a critical banking capability. The role requires close partnership with Engineering, Architecture, Operations, Risk, Finance, Product, Compliance, Service Management and strategic technology partners to ensure the platform is secure, resilient, scalable, well governed and aligned to the Bank's strategic objectives. </p>
-<p>Key Responsibilities</p>
-<p>As Leader and Product Owner, you will: </p>
-<ul>
-<li>Define, own, and communicate the platform vision, strategy, roadmap, and measurable outcomes aligned with the Bank's strategic objectives. </li>
-</ul>
-<ul>
-<li>Own the end-to-end product lifecycle, from discovery and prioritisation through delivery, adoption, and continual optimisation. </li>
-</ul>
-<ul>
-<li>Establish and manage a value-driven product backlog, balancing customer value, commercial priorities, regulatory requirements, operational resilience, and technical debt </li>
-<li>Ensure product configuration and change governance is controlled, tested, documented and auditable, including changes to product setup, account rules, fees, interest, overdrafts, limits and servicing capabilities. </li>
-</ul>
-<ul>
-<li>Maintain a strong focus on ledger integrity, accurate financial representation, reconciliation, reporting quality, auditability, data lineage and financial controls across all platform changes. </li>
-</ul>
-<ul>
-<li>Translate business strategy into platform capabilities by working closely with Engineering, Architecture, Operations, Risk, Finance, Product, Compliance, Service Management and other consuming platforms. </li>
-</ul>
-<ul>
-<li>Lead prioritisation and dependency management across Cards, Payments, Channels, Client Lifecycle, Finance, Risk, Operations, Reporting and Data, ensuring platform decisions are made with an enterprise view. </li>
-</ul>
-<ul>
-<li>Lead Agile planning, product governance and delivery alignment across cross-functional teams, ensuring outcomes, risks, dependencies and decisions are visible and actively managed. </li>
-</ul>
-<ul>
-<li>Define and monitor product success through KPIs, OKRs, client insights, service health, control metrics, operational outcomes and delivery metrics, using data to inform product decisions and investment priorities. </li>
-</ul>
-<ul>
-<li>Drive platform modernisation through well governed APIs, resilient integration patterns, scalable configuration, automation and event driven capabilities where they improve speed, control, reliability, resilience or client outcomes. </li>
-</ul>
-<ul>
-<li>Shape the long term evolution of the Core Banking Platform, ensuring product decisions support future modernisation, portability, sustainability and strategic technology transformation where required. </li>
-</ul>
-<ul>
-<li>Identify and manage strategic risks, dependencies and delivery impediments, ensuring risks to client outcomes, regulatory obligations, financial control, operational resilience and business value are understood and addressed. </li>
-</ul>
-<ul>
-<li>Manage strategic technology partner relationships, ensuring roadmap alignment, release awareness, platform constraints, support performance, escalation routes and value realisation are actively understood and managed. </li>
-</ul>
-<ul>
-<li>Lead organisational change by communicating platform strategy, supporting business readiness and driving successful adoption of new capabilities across Product, Operations, Finance, Risk, Service and Technology teams. </li>
-</ul>
-<ul>
-<li>Partner with Service Management, Operations, Engineering and Risk to improve platform health, service stability, supportability, incident learning, root cause remediation and continuous improvement. </li>
-</ul>
-<ul>
-<li>Coach and mentor Product Owners, Business Analysts and platform SMEs, setting standards for discovery, prioritisation, backlog quality, governance, decision making, stakeholder engagement and value measurement. </li>
-</ul>
-<ul>
-<li>Promote a strong culture of ownership, collaboration, accountability and continuous improvement across all jurisdictions (UK, SA, India).  </li>
-</ul>
+<p>The Relationship Manager is accountable for the end‑to‑end management of client relationships within an allocated portfolio. The role is focused on protecting and growing the existing book, deepening client engagement, driving utilisation of products, and increasing Investec Business and Commercial Banking's market share and top‑line revenue.<br />The Relationship Manager is responsible for building deep, profitable, and sustainable client relationships through proactive portfolio management, structured product entrenchment, and the identification and execution of cross‑sell opportunities across Business and Commercial Banking (BCB) and the broader Investec Group.</p>
+<p>Key Deliverables</p>
+<p>•    Retention, defence, and growth of existing facilities within the allocated client portfolio.<br />•    Entrenchment of clients across BCB and the broader Investec Group, increasing overall wallet share.<br />•    Successful implementation, entrenchment, and optimisation of core banking products, including:<br />o    Trade and Import Finance<br />o    Transactional Banking and Overdrafts<br />o    Borrowing Base Facilities<br />o    Term Lending<br />o    Asset Finance<br />•    Identification and execution of cross‑sell and upsell opportunities to deepen client relationships and enhance profitability.<br />•    Growth in operating income through improved utilisation and effective product mix optimisation.<br />•    Origination of new client opportunities via referrals to the New Business Development team.<br />•    Active participation in the credit process in partnership with Portfolio Consultants, applying strong client insight and commercial judgement.<br />•    Seamless implementation and activation of newly approved or amended credit facilities.<br />•    Delivery of a “Private Banking for your Business” client experience, characterised by high‑touch engagement, responsiveness, and proactive relationship management.</p>
+<p>Responsibilities:</p>
+<p>Client &amp; Portfolio Management<br />•    Develop a thorough understanding of clients' businesses, industries, and financial drivers.<br />•    Perform as part of a deal team with Portfolio Consultants and ICs to best serve client requirements<br />•    Assess and manage the portfolio to ensure appropriate growth, defence, and entrenchment strategies are applied.<br />•    Proactively engage clients to grow facilities and address causes of low utilisation.<br />•    Ensure optimal product mix to achieve appropriate blended returns.<br />•    Take ownership of post-credit implementation and activation of approved facilities and amendments.<br />Product Entrenchment &amp; Cross-Selling<br />•    Identify opportunities to further entrench clients within BCB and the broader Group.<br />•    Drive cross-sell initiatives across transactional banking, trade finance, borrowing base facilities, debtor finance, asset finance and other relevant solutions.<br />•    Partner with internal product specialists to ensure full client adoption of appropriate banking solutions.<br />•    Increase product penetration and long-term client “stickiness” within the portfolio.<br />Credit &amp; Risk Management<br />•    Participate actively in the credit process as part of the deal team.<br />•    Provide detailed client insights to support sound credit decisions.<br />•    Maintain strong credit oversight and portfolio quality.<br />•    Ensure adherence to internal governance, risk frameworks and regulatory standards.<br />Stakeholder &amp; Operational Management<br />•    Partner closely with Credit, Operations, Legal and other internal stakeholders to deliver seamless client execution.<br />•    Prepare and implement operational requirements for newly activated deals.<br />•    Collaborate across the internal value chain to deliver integrated solutions.</p>
 <p>Qualifications, Experience and Skills</p>
-<p>Experience &amp; Skills </p>
-<ul>
-<li>Significant experience in Product or Application Ownership within Financial Services or Banking, ideally with exposure to core banking, transactional banking, deposits, savings, current accounts or ledger based platforms. </li>
-</ul>
-<ul>
-<li>Proven experience delivering large scale platform, core banking or transactional banking transformation initiatives in complex, regulated environments. </li>
-</ul>
-<ul>
-<li>Strong understanding of core banking platforms, APIs, event-driven architecture, microservices, integration patterns, and modern technology platforms.  </li>
-</ul>
-<ul>
-<li>Experience with one or more modern core banking platforms such as Mambu, Finacle, Temenos, Thought Machine, Oracle FLEXCUBE or similar would be advantageous. </li>
-<li>Strong understanding of account lifecycle, ledger movements, balances, interest, fees, overdrafts, limits, product configuration, financial representation and account servicing. </li>
-<li>Strong Business Analysis capability, including business process modelling, data modelling, API specifications (Swagger/OpenAPI), and requirements management. </li>
-</ul>
-<ul>
-<li>Experience delivering technology change within highly regulated environments. </li>
-</ul>
-<ul>
-<li>Strong knowledge of Agile product delivery, product lifecycle management, DevSecOps, and continuous delivery practices. </li>
-</ul>
-<ul>
-<li>Excellent communication, stakeholder management, negotiation, and influencing skills. </li>
-</ul>
-<ul>
-<li>Demonstrated ability to lead cross-functional teams and manage complex dependencies within a matrix organisation. </li>
-</ul>
-<ul>
-<li>Strong analytical, strategic thinking, and decision-making skills. </li>
-</ul>
-<p>Personal, Behavioural &amp; Cultural Expectations </p>
-<ul>
-<li>Client and colleague outcome focused, with a strong commitment to delivering measurable business value while maintaining control, resilience and service quality. </li>
-</ul>
-<ul>
-<li>Demonstrates strategic thinking, sound judgement and resilience when managing ambiguity, complexity and competing priorities. </li>
-</ul>
-<ul>
-<li>Builds trusted relationships through collaboration, emotional intelligence, transparency and effective communication. </li>
-</ul>
-<ul>
-<li>Leads through influence, empowering teams and fostering accountability in a matrix environment. </li>
-</ul>
-<ul>
-<li>Champions innovation, continuous improvement and a culture of learning and knowledge sharing. </li>
-</ul>
-<ul>
-<li>Acts with integrity, professionalism and a strong commitment to governance, risk management, financial control and operational excellence. </li>
-<li>Comfortable challenging the status quo while remaining pragmatic, delivery focused and commercially aware. </li>
-</ul>
-<p>Investec Culture </p>
-<p>At Investec we look for intelligent, energetic people filled with passion, integrity and curiosity. We value individuals who in turn value our culture that is, a flexible attitude comfortable to live with ambiguity and willing to challenge the status quo. Diversity, talent and leadership are respected in pursuit of the growth of our business. People who can manage themselves and build strong relationships in order to get things done, will perform in out of the ordinary ways in our environment. </p>
+<p>•    BCom degree or equivalent financial qualification.<br />•    Minimum of 5 years' relevant experience within Business Banking, supported by a strong lending and credit background.<br />•    FAIS accreditation (required to operate as a licensed representative for intermediary services across long‑ and short‑term deposits) preferred.<br />•    Solid commercial and financial acumen, with proven ability to read and interpret Annual Financial Statements.<br />•    Strong product knowledge across Trade and Import Finance (including forwarding and clearing/logistics), Borrowing Base Facilities, Term Lending, Asset Finance, Transactional Banking and Overdrafts.<br />•    Demonstrated experience managing senior client relationships at MD, FD and CEO level, with the ability to engage effectively with executive stakeholders.<br />•    Proven capability to originate, upsell and cross‑sell tailored banking solutions.<br />•    Well-developed negotiation, problem‑solving, planning and prioritisation skills.<br />•    Strong collaborator with a track record of working effectively across internal teams and multiple stakeholders.</p>
+<p>Personal Attributes</p>
+<p>•    Dynamic, energetic and driven.<br />•    Demonstrates tenacity, integrity and sound judgement.<br />•    High level of professionalism and client-centric mindset.<br />•    Embraces Investec's culture of out-of-the-ordinary thinking and challenging convention.<br />•    Values diversity, competency and flexible leadership in pursuit of business growth.</p>
+<p>What We Value</p>
+<p>At Investec we seek creative, talented people with passion, energy and stamina, who collaborate unselfishly.</p>
 <p> </p>
 <p> </p>
 <p> </p>",
-  "descriptionText": "Description The Account Services Platform delivers the core technical capabilities for account-based and transactional banking services in the UK. The team is responsible for reconciliation, reporting, financial controls, and accurate financial representation of client transactions, while working in an agile, delivery-focused environment with close collaboration across channels, operations, risk, and finance. You will leads the vision, strategy, and roadmap for the UK transactional banking platform, delivering secure, scalable, and compliant account services. The role drives product value by balancing customer needs, business priorities, regulatory requirements, and technology modernisation, while providing strategic leadership, people leadership, and coaching to cross-functional teams across the UK and South Africa. It also fosters strong stakeholder relationships, promotes collaboration, and ensures successful product delivery and continuous platform evolution. The Core Banking Platform provides the account, ledger, product configuration, balance, interest, fees, overdraft and servicing capabilities that underpin UK transactional banking. The platform enables current accounts, savings products, accurate financial representation, reconciliation, reporting and controlled integration across Cards, Payments, Channels, Client Lifecycle, Finance, Risk, Operations and Data. You will be accountable for the product vision, strategy, roadmap and measurable outcomes for the Bank's core banking capability. The role balances client outcomes, business priorities, regulatory obligations, financial control, operational resilience, platform sustainability and long term technology evolution. This is a senior platform product role responsible for shaping the evolution of a critical banking capability. The role requires close partnership with Engineering, Architecture, Operations, Risk, Finance, Product, Compliance, Service Management and strategic technology partners to ensure the platform is secure, resilient, scalable, well governed and aligned to the Bank's strategic objectives. Key Responsibilities As Leader and Product Owner, you will: Define, own, and communicate the platform vision, strategy, roadmap, and measurable outcomes aligned with the Bank's strategic objectives. Own the end-to-end product lifecycle, from discovery and prioritisation through delivery, adoption, and continual optimisation. Establish and manage a value-driven product backlog, balancing customer value, commercial priorities, regulatory requirements, operational resilience, and technical debt Ensure product configuration and change governance is controlled, tested, documented and auditable, including changes to product setup, account rules, fees, interest, overdrafts, limits and servicing capabilities. Maintain a strong focus on ledger integrity, accurate financial representation, reconciliation, reporting quality, auditability, data lineage and financial controls across all platform changes. Translate business strategy into platform capabilities by working closely with Engineering, Architecture, Operations, Risk, Finance, Product, Compliance, Service Management and other consuming platforms. Lead prioritisation and dependency management across Cards, Payments, Channels, Client Lifecycle, Finance, Risk, Operations, Reporting and Data, ensuring platform decisions are made with an enterprise view. Lead Agile planning, product governance and delivery alignment across cross-functional teams, ensuring outcomes, risks, dependencies and decisions are visible and actively managed. Define and monitor product success through KPIs, OKRs, client insights, service health, control metrics, operational outcomes and delivery metrics, using data to inform product decisions and investment priorities. Drive platform modernisation through well governed APIs, resilient integration patterns, scalable configuration, automation and event driven capabilities where they improve speed, control, reliability, resilience or client outcomes. Shape the long term evolution of the Core Banking Platform, ensuring product decisions support future modernisation, portability, sustainability and strategic technology transformation where required. Identify and manage strategic risks, dependencies and delivery impediments, ensuring risks to client outcomes, regulatory obligations, financial control, operational resilience and business value are understood and addressed. Manage strategic technology partner relationships, ensuring roadmap alignment, release awareness, platform constraints, support performance, escalation routes and value realisation are actively understood and managed. Lead organisational change by communicating platform strategy, supporting business readiness and driving successful adoption of new capabilities across Product, Operations, Finance, Risk, Service and Technology teams. Partner with Service Management, Operations, Engineering and Risk to improve platform health, service stability, supportability, incident learning, root cause remediation and continuous improvement. Coach and mentor Product Owners, Business Analysts and platform SMEs, setting standards for discovery, prioritisation, backlog quality, governance, decision making, stakeholder engagement and value measurement. Promote a strong culture of ownership, collaboration, accountability and continuous improvement across all jurisdictions (UK, SA, India). Qualifications, Experience and Skills Experience & Skills Significant experience in Product or Application Ownership within Financial Services or Banking, ideally with exposure to core banking, transactional banking, deposits, savings, current accounts or ledger based platforms. Proven experience delivering large scale platform, core banking or transactional banking transformation initiatives in complex, regulated environments. Strong understanding of core banking platforms, APIs, event-driven architecture, microservices, integration patterns, and modern technology platforms. Experience with one or more modern core banking platforms such as Mambu, Finacle, Temenos, Thought Machine, Oracle FLEXCUBE or similar would be advantageous. Strong understanding of account lifecycle, ledger movements, balances, interest, fees, overdrafts, limits, product configuration, financial representation and account servicing. Strong Business Analysis capability, including business process modelling, data modelling, API specifications (Swagger/OpenAPI), and requirements management. Experience delivering technology change within highly regulated environments. Strong knowledge of Agile product delivery, product lifecycle management, DevSecOps, and continuous delivery practices. Excellent communication, stakeholder management, negotiation, and influencing skills. Demonstrated ability to lead cross-functional teams and manage complex dependencies within a matrix organisation. Strong analytical, strategic thinking, and decision-making skills. Personal, Behavioural & Cultural Expectations Client and colleague outcome focused, with a strong commitment to delivering measurable business value while maintaining control, resilience and service quality. Demonstrates strategic thinking, sound judgement and resilience when managing ambiguity, complexity and competing priorities. Builds trusted relationships through collaboration, emotional intelligence, transparency and effective communication. Leads through influence, empowering teams and fostering accountability in a matrix environment. Champions innovation, continuous improvement and a culture of learning and knowledge sharing. Acts with integrity, professionalism and a strong commitment to governance, risk management, financial control and operational excellence. Comfortable challenging the status quo while remaining pragmatic, delivery focused and commercially aware. Investec Culture At Investec we look for intelligent, energetic people filled with passion, integrity and curiosity. We value individuals who in turn value our culture that is, a flexible attitude comfortable to live with ambiguity and willing to challenge the status quo. Diversity, talent and leadership are respected in pursuit of the growth of our business. People who can manage themselves and build strong relationships in order to get things done, will perform in out of the ordinary ways in our environment.",
+  "descriptionText": "Description of the role The Relationship Manager is accountable for the end‑to‑end management of client relationships within an allocated portfolio. The role is focused on protecting and growing the existing book, deepening client engagement, driving utilisation of products, and increasing Investec Business and Commercial Banking's market share and top‑line revenue. The Relationship Manager is responsible for building deep, profitable, and sustainable client relationships through proactive portfolio management, structured product entrenchment, and the identification and execution of cross‑sell opportunities across Business and Commercial Banking (BCB) and the broader Investec Group. Key Deliverables • Retention, defence, and growth of existing facilities within the allocated client portfolio. • Entrenchment of clients across BCB and the broader Investec Group, increasing overall wallet share. • Successful implementation, entrenchment, and optimisation of core banking products, including: o Trade and Import Finance o Transactional Banking and Overdrafts o Borrowing Base Facilities o Term Lending o Asset Finance • Identification and execution of cross‑sell and upsell opportunities to deepen client relationships and enhance profitability. • Growth in operating income through improved utilisation and effective product mix optimisation. • Origination of new client opportunities via referrals to the New Business Development team. • Active participation in the credit process in partnership with Portfolio Consultants, applying strong client insight and commercial judgement. • Seamless implementation and activation of newly approved or amended credit facilities. • Delivery of a “Private Banking for your Business” client experience, characterised by high‑touch engagement, responsiveness, and proactive relationship management. Responsibilities: Client & Portfolio Management • Develop a thorough understanding of clients' businesses, industries, and financial drivers. • Perform as part of a deal team with Portfolio Consultants and ICs to best serve client requirements • Assess and manage the portfolio to ensure appropriate growth, defence, and entrenchment strategies are applied. • Proactively engage clients to grow facilities and address causes of low utilisation. • Ensure optimal product mix to achieve appropriate blended returns. • Take ownership of post-credit implementation and activation of approved facilities and amendments. Product Entrenchment & Cross-Selling • Identify opportunities to further entrench clients within BCB and the broader Group. • Drive cross-sell initiatives across transactional banking, trade finance, borrowing base facilities, debtor finance, asset finance and other relevant solutions. • Partner with internal product specialists to ensure full client adoption of appropriate banking solutions. • Increase product penetration and long-term client “stickiness” within the portfolio. Credit & Risk Management • Participate actively in the credit process as part of the deal team. • Provide detailed client insights to support sound credit decisions. • Maintain strong credit oversight and portfolio quality. • Ensure adherence to internal governance, risk frameworks and regulatory standards. Stakeholder & Operational Management • Partner closely with Credit, Operations, Legal and other internal stakeholders to deliver seamless client execution. • Prepare and implement operational requirements for newly activated deals. • Collaborate across the internal value chain to deliver integrated solutions. Qualifications, Experience and Skills • BCom degree or equivalent financial qualification. • Minimum of 5 years' relevant experience within Business Banking, supported by a strong lending and credit background. • FAIS accreditation (required to operate as a licensed representative for intermediary services across long‑ and short‑term deposits) preferred. • Solid commercial and financial acumen, with proven ability to read and interpret Annual Financial Statements. • Strong product knowledge across Trade and Import Finance (including forwarding and clearing/logistics), Borrowing Base Facilities, Term Lending, Asset Finance, Transactional Banking and Overdrafts. • Demonstrated experience managing senior client relationships at MD, FD and CEO level, with the ability to engage effectively with executive stakeholders. • Proven capability to originate, upsell and cross‑sell tailored banking solutions. • Well-developed negotiation, problem‑solving, planning and prioritisation skills. • Strong collaborator with a track record of working effectively across internal teams and multiple stakeholders. Personal Attributes • Dynamic, energetic and driven. • Demonstrates tenacity, integrity and sound judgement. • High level of professionalism and client-centric mindset. • Embraces Investec's culture of out-of-the-ordinary thinking and challenging convention. • Values diversity, competency and flexible leadership in pursuit of business growth. What We Value At Investec we seek creative, talented people with passion, energy and stamina, who collaborate unselfishly.",
   "employmentType": "Full-time",
-  "excerpt": "Description The Account Services Platform delivers the core technical capabilities for account-based and transactional banking services in the UK. The team is responsible for reconciliation, reporting, financial controls, and accurate financial representation of client transactions, while working in an agile, delivery-focused environment with close collaboration across channels, operations, risk,…",
-  "id": "investec:13749",
-  "locations": [
-    {
-      "city": "Johannesburg",
-      "province": "Gauteng",
-      "raw": "Johannesburg",
-    },
-  ],
-  "postedDate": null,
-  "primaryLocation": "Johannesburg, Gauteng",
-  "source": "investec",
-  "title": "Product Owner and Core Banking Platform Lead",
-}
-`;
-
-exports[`investecAdapter.normalize — snapshots > normalizes 13787 1`] = `
-{
-  "applyUrl": "https://careers.investec.co.za/jobs/vacancy/product-analyst-13787-cape-town/13805/description/",
-  "brand": "Investec",
-  "category": "Other",
-  "country": "ZA",
-  "descriptionHtml": "<p>Description</p>
-<p>Investec Alternatives (within Investec Bank plc) is building its off-balance sheet funds and funding capability as a strategic growth priority, creating an opportunity to develop capital-efficient solutions that meet client needs and draw on our specialist expertise, client relationships and distinctive deal flow.</p>
-<p>The Product Analyst will play an important role in shaping this platform, helping turn market opportunities into well-structured, scalable and operationally robust fund solutions.</p>
-<p>Working across new fund establishment and existing fund oversight, the role brings together investment teams, internal stakeholders and external service providers to support effective product development, governance, controls, compliance, operations and investor reporting.</p>
-<p>The role of the Product Analyst is to work on the product development, launch and ongoing management of new funds.</p>
-<p> </p>
-<p>Key Responsibilities</p>
-<p>Product Development<br />•    Incorporation of fund entities<br />•    Opening bank accounts for fund entities<br />•    Idenditying service providers and assisting in the negotiation of key terms with service providers (e.g. Administrators, AIFM's, Depositary, Risk Advisory, Lawyers and Tax Advisers)<br />•    Identity and assist in the establishment of subscription line and leverage facilities to support fund operations and growth<br />•    Assist in the negotiation and completion of fund documentation (investor agreements, management agreements, PPM etc)<br />•    Assist in concluding the funds investment strategy<br />Launch<br />•    Supporting achieving regulatory approvals for fund structures<br />•    Assisting in the onboarding of investors<br />•    Ensuring all systems are in place and effective<br />Ongoing Management<br />•    Cash flow management (capital calls, distributions, utilization of subline, cash flow forecasting) <br />•    Risk Management (legal, regulatory, reputations)<br />•    Transaction management – ensuring appropriate cash settlement of transactions and tracking receipt of income<br />•    Asset valuation<br />•    Treasury risk management – supporting the hedging of relevant exposures<br />•    Relationship management with key stakeholders, internal and external<br />•    Monitoring and reporting of KPIs<br />•    Monitoring and reporting of financial, legal and regulatory reporting<br />•    Continuous engagement with portfolio manager and investment teams</p>
-<p> </p>
-<p>Qualifications, Experience and Skills</p>
-<p>Bcom Honours/CA with 3-5 years product analysis experience in alternative investments</p>
-<p> </p>
-<p>Investec Culture </p>
-<p>At Investec we look for intelligent, energetic people filled with passion, integrity and curiosity. We value individuals who in turn value our culture that is, a flexible attitude comfortable to live with ambiguity and willing to challenge the status quo. Diversity, talent and leadership are respected in pursuit of the growth of our business. People who can manage themselves and build strong relationships in order to get things done, will perform in out of the ordinary ways in our environment. </p>
-<p> </p>
-<p> </p>
-<p> </p>",
-  "descriptionText": "Description Investec Alternatives (within Investec Bank plc) is building its off-balance sheet funds and funding capability as a strategic growth priority, creating an opportunity to develop capital-efficient solutions that meet client needs and draw on our specialist expertise, client relationships and distinctive deal flow. The Product Analyst will play an important role in shaping this platform, helping turn market opportunities into well-structured, scalable and operationally robust fund solutions. Working across new fund establishment and existing fund oversight, the role brings together investment teams, internal stakeholders and external service providers to support effective product development, governance, controls, compliance, operations and investor reporting. The role of the Product Analyst is to work on the product development, launch and ongoing management of new funds. Key Responsibilities Product Development • Incorporation of fund entities • Opening bank accounts for fund entities • Idenditying service providers and assisting in the negotiation of key terms with service providers (e.g. Administrators, AIFM's, Depositary, Risk Advisory, Lawyers and Tax Advisers) • Identity and assist in the establishment of subscription line and leverage facilities to support fund operations and growth • Assist in the negotiation and completion of fund documentation (investor agreements, management agreements, PPM etc) • Assist in concluding the funds investment strategy Launch • Supporting achieving regulatory approvals for fund structures • Assisting in the onboarding of investors • Ensuring all systems are in place and effective Ongoing Management • Cash flow management (capital calls, distributions, utilization of subline, cash flow forecasting) • Risk Management (legal, regulatory, reputations) • Transaction management – ensuring appropriate cash settlement of transactions and tracking receipt of income • Asset valuation • Treasury risk management – supporting the hedging of relevant exposures • Relationship management with key stakeholders, internal and external • Monitoring and reporting of KPIs • Monitoring and reporting of financial, legal and regulatory reporting • Continuous engagement with portfolio manager and investment teams Qualifications, Experience and Skills Bcom Honours/CA with 3-5 years product analysis experience in alternative investments Investec Culture At Investec we look for intelligent, energetic people filled with passion, integrity and curiosity. We value individuals who in turn value our culture that is, a flexible attitude comfortable to live with ambiguity and willing to challenge the status quo. Diversity, talent and leadership are respected in pursuit of the growth of our business. People who can manage themselves and build strong relationships in order to get things done, will perform in out of the ordinary ways in our environment.",
-  "employmentType": "Full-time",
-  "excerpt": "Description Investec Alternatives (within Investec Bank plc) is building its off-balance sheet funds and funding capability as a strategic growth priority, creating an opportunity to develop capital-efficient solutions that meet client needs and draw on our specialist expertise, client relationships and distinctive deal flow.",
-  "id": "investec:13787",
+  "excerpt": "Description of the role The Relationship Manager is accountable for the end‑to‑end management of client relationships within an allocated portfolio. The role is focused on protecting and growing the existing book, deepening client engagement, driving utilisation of products, and increasing Investec Business and Commercial Banking's market share and top‑line revenue.",
+  "id": "investec:13385",
   "locations": [
     {
       "city": "Cape Town",
@@ -219,6 +35,136 @@ exports[`investecAdapter.normalize — snapshots > normalizes 13787 1`] = `
   "postedDate": null,
   "primaryLocation": "Cape Town, Western Cape",
   "source": "investec",
-  "title": "Product Analyst",
+  "title": "Relationship Manager- Business and Commercial Banking",
+}
+`;
+
+exports[`investecAdapter.normalize — snapshots > normalizes 13784 1`] = `
+{
+  "applyUrl": "https://careers.investec.co.za/jobs/vacancy/technical-lead---rewards-13784-sandton/13802/description/",
+  "brand": "Investec",
+  "category": "Software & IT",
+  "country": "ZA",
+  "descriptionHtml": "<p>Description</p>
+<p>We are looking for a Technical Lead to drive the technical direction, quality, and health of the Investec Rewards technology platform and its supporting engineering systems.<br />This role is suited to an experienced engineer who wants to remain hands-on, while stepping into a broader leadership position. As a Tech Lead, you will spend less time on day-to-day feature delivery and more time solving complex engineering problems, shaping system design, and enabling your team to deliver high-quality, scalable solutions.<br />You will work closely with Engineering Leads, Application Owners, and Architects to ensure systems are well-designed, maintainable, and aligned to our engineering standards. You will also play a key role in mentoring engineers and raising the overall engineering bar within the team.</p>
+<p> </p>
+<p>Key Responsibilities</p>
+<p>•    Own the technical design and architecture of systems within your team, while partnering with Engineering Leads and Architects on key technical decisions<br />•    Maintain the long-term health of systems, addressing risks such as coupling, scalability, and technical debt<br />•    Drive adoption and consistent use of engineering standards and best practices<br />•    Set and uphold a high bar for code quality through active participation in code reviews<br />•    Ensure solutions are maintainable, testable, and production-ready<br />•    Intervene where necessary to address quality issues or engineering gaps<br />•    Support delivery by unblocking teams and resolving complex technical challenges<br />•    Partner with Application Owners to ensure delivery is technically sound and sustainable<br />•    Participate in incident response and lead technical problem-solving when required<br />•    Mentor and coach engineers, particularly Senior Software Engineers<br />•    Provide constructive feedback to support individual and team growth<br />•    Contribute to platform roadmap discussions and technical direction<br />•    Monitor and optimise cloud usage, balancing cost, performance, and reliability<br />•    Participate in engineering forums, communities of practice, and knowledge sharing<br />•    Contribute to broader engineering initiatives, standards, and reusable components</p>
+<p> </p>
+<p>Qualifications, Experience and Skills</p>
+<p>•    Technical Leadership: Experience defining technical direction, establishing engineering standards, conducting architecture, design and code reviews, and mentoring engineers across complex technology platforms.<br />•    Proficient in Programming Languages and Frameworks: Strong hands-on experience with .NET, C#, TypeScript and modern software engineering practices, with the ability to guide teams in designing and delivering scalable, maintainable and resilient solutions.<br />•    Front-end Development: Strong knowledge of Angular, TypeScript, HTML and CSS, with experience delivering modern customer-facing web applications and guiding front-end engineering standards.<br />•    Back-end Development and Solution Architecture: Experience designing distributed systems, APIs and enterprise applications, with the ability to make sound architectural decisions that balance business needs, engineering quality and long-term platform sustainability.<br />•    Cloud Engineering: Strong Microsoft Azure experience, including cloud-native services, containerised workloads, security, monitoring, infrastructure automation and cost optimisation.<br />•    Databases and Data Management: Experience working with SQL, relational databases, data integration patterns and performance optimisation across enterprise platforms.<br />•    API Development and Integration: Ability to design, govern and support integrations across internal and external systems using modern API and service-oriented architecture principles.<br />•    Version Control and Engineering Governance: Experience with Git, pull request processes, source control governance and the implementation of engineering standards and best practices across teams.<br />•    DevOps and Continuous Delivery: Strong understanding of Azure DevOps, CI/CD pipelines, release management, infrastructure automation and modern software delivery practices.<br />•    Engineering Quality and Operational Excellence: Experience driving code quality, testing standards, incident management, root cause analysis and continuous improvement to ensure solutions are production-ready and operationally resilient.<br />•    Technical Stewardship: Experience maintaining the long-term health of systems by driving engineering quality, managing technical debt, improving resilience, and ensuring solutions remain scalable, maintainable and aligned to architectural standards.<br />•    Security Best Practices: Strong understanding of secure software development, authentication, authorisation and vulnerability management within regulated environments.<br />•    Stakeholder Management and Communication: Excellent communication skills with the ability to engage engineers, architects, product owners, business stakeholders and senior leadership while influencing technical outcomes.</p>
+<p> </p>
+<p>Investec Culture </p>
+<p>At Investec we look for intelligent, energetic people filled with passion, integrity and curiosity. We value individuals who in turn value our culture that is, a flexible attitude comfortable to live with ambiguity and willing to challenge the status quo. Diversity, talent and leadership are respected in pursuit of the growth of our business. People who can manage themselves and build strong relationships in order to get things done, will perform in out of the ordinary ways in our environment. </p>
+<p> </p>
+<p> </p>
+<p> </p>",
+  "descriptionText": "Description We are looking for a Technical Lead to drive the technical direction, quality, and health of the Investec Rewards technology platform and its supporting engineering systems. This role is suited to an experienced engineer who wants to remain hands-on, while stepping into a broader leadership position. As a Tech Lead, you will spend less time on day-to-day feature delivery and more time solving complex engineering problems, shaping system design, and enabling your team to deliver high-quality, scalable solutions. You will work closely with Engineering Leads, Application Owners, and Architects to ensure systems are well-designed, maintainable, and aligned to our engineering standards. You will also play a key role in mentoring engineers and raising the overall engineering bar within the team. Key Responsibilities • Own the technical design and architecture of systems within your team, while partnering with Engineering Leads and Architects on key technical decisions • Maintain the long-term health of systems, addressing risks such as coupling, scalability, and technical debt • Drive adoption and consistent use of engineering standards and best practices • Set and uphold a high bar for code quality through active participation in code reviews • Ensure solutions are maintainable, testable, and production-ready • Intervene where necessary to address quality issues or engineering gaps • Support delivery by unblocking teams and resolving complex technical challenges • Partner with Application Owners to ensure delivery is technically sound and sustainable • Participate in incident response and lead technical problem-solving when required • Mentor and coach engineers, particularly Senior Software Engineers • Provide constructive feedback to support individual and team growth • Contribute to platform roadmap discussions and technical direction • Monitor and optimise cloud usage, balancing cost, performance, and reliability • Participate in engineering forums, communities of practice, and knowledge sharing • Contribute to broader engineering initiatives, standards, and reusable components Qualifications, Experience and Skills • Technical Leadership: Experience defining technical direction, establishing engineering standards, conducting architecture, design and code reviews, and mentoring engineers across complex technology platforms. • Proficient in Programming Languages and Frameworks: Strong hands-on experience with .NET, C#, TypeScript and modern software engineering practices, with the ability to guide teams in designing and delivering scalable, maintainable and resilient solutions. • Front-end Development: Strong knowledge of Angular, TypeScript, HTML and CSS, with experience delivering modern customer-facing web applications and guiding front-end engineering standards. • Back-end Development and Solution Architecture: Experience designing distributed systems, APIs and enterprise applications, with the ability to make sound architectural decisions that balance business needs, engineering quality and long-term platform sustainability. • Cloud Engineering: Strong Microsoft Azure experience, including cloud-native services, containerised workloads, security, monitoring, infrastructure automation and cost optimisation. • Databases and Data Management: Experience working with SQL, relational databases, data integration patterns and performance optimisation across enterprise platforms. • API Development and Integration: Ability to design, govern and support integrations across internal and external systems using modern API and service-oriented architecture principles. • Version Control and Engineering Governance: Experience with Git, pull request processes, source control governance and the implementation of engineering standards and best practices across teams. • DevOps and Continuous Delivery: Strong understanding of Azure DevOps, CI/CD pipelines, release management, infrastructure automation and modern software delivery practices. • Engineering Quality and Operational Excellence: Experience driving code quality, testing standards, incident management, root cause analysis and continuous improvement to ensure solutions are production-ready and operationally resilient. • Technical Stewardship: Experience maintaining the long-term health of systems by driving engineering quality, managing technical debt, improving resilience, and ensuring solutions remain scalable, maintainable and aligned to architectural standards. • Security Best Practices: Strong understanding of secure software development, authentication, authorisation and vulnerability management within regulated environments. • Stakeholder Management and Communication: Excellent communication skills with the ability to engage engineers, architects, product owners, business stakeholders and senior leadership while influencing technical outcomes. Investec Culture At Investec we look for intelligent, energetic people filled with passion, integrity and curiosity. We value individuals who in turn value our culture that is, a flexible attitude comfortable to live with ambiguity and willing to challenge the status quo. Diversity, talent and leadership are respected in pursuit of the growth of our business. People who can manage themselves and build strong relationships in order to get things done, will perform in out of the ordinary ways in our environment.",
+  "employmentType": "Full-time",
+  "excerpt": "Description We are looking for a Technical Lead to drive the technical direction, quality, and health of the Investec Rewards technology platform and its supporting engineering systems. This role is suited to an experienced engineer who wants to remain hands-on, while stepping into a broader leadership position.",
+  "id": "investec:13784",
+  "locations": [],
+  "postedDate": null,
+  "primaryLocation": null,
+  "source": "investec",
+  "title": "Technical Lead - Rewards",
+}
+`;
+
+exports[`investecAdapter.normalize — snapshots > normalizes 13804 1`] = `
+{
+  "applyUrl": "https://careers.investec.co.za/jobs/vacancy/mobile-app-developer--13804-sandton/13822/description/",
+  "brand": "Investec",
+  "category": "Software & IT",
+  "country": "ZA",
+  "descriptionHtml": "<p>Description</p>
+<p>The Mobile Developer for Investec Business Online (IBOL) forms part of the Investec Business &amp; Commercial Banking (BCB) division and operates within the BCB IT environment.</p>
+<p>This is a hands-on engineering role focused on building, maintaining, securing, and supporting enterprise-grade mobile applications across iOS and Android using React Native, Expo, TypeScript, and modern mobile delivery tooling.</p>
+<p>The role contributes to reliable mobile delivery by translating business and design requirements into high-quality technical solutions, integrating with enterprise services, supporting CI/CD and release processes, and maintaining strong engineering discipline across code quality, testing, security, performance, accessibility, and production support.</p>
+<p>The Mobile Developer works closely with product owners, designers, QA, backend engineers, platform teams, architecture, and operations to deliver secure, scalable, maintainable, and customer-focused mobile outcomes aligned with Investec BCB priorities</p>
+<p>Key Responsibilities</p>
+<p>Mobile Engineering Delivery &amp; Execution</p>
+<ul>
+<li>Build, enhance, and maintain mobile application features across iOS and Android using React Native, Expo, TypeScript, JavaScript, and React fundamentals.</li>
+<li>Translate business requirements, wireframes, Figma designs, and design-system guidance into polished, accessible, and maintainable mobile user interfaces.</li>
+<li>Contribute to end-to-end delivery from refinement and development through testing, deployment, release, and post-implementation support.</li>
+<li>Apply sound engineering judgement when using AI-assisted development tools such as Codex, Cursor, Copilot, or ChatGPT to improve productivity without compromising accountability or quality.</li>
+</ul>
+<p>Enterprise Mobile Tooling, Monorepos &amp; Shared Packages</p>
+<ul>
+<li>Work effectively within mobile monorepos, shared packages, dependency management models, and workspace tooling.</li>
+<li>Support sustainable mobile architecture by keeping shared components, packages, and platform conventions clean, reusable, and well documented.</li>
+</ul>
+<p>CI/CD, Build, Signing &amp; Release Management</p>
+<ul>
+<li>Support Azure DevOps CI/CD using YAML pipelines, secure files and secrets, automated builds, automated testing, code-signing, and release approvals.</li>
+<li>Build, sign, distribute, and support mobile applications through App Store Connect, TestFlight, Google Play Console, and approved internal distribution channels.</li>
+<li>Contribute to reliable release processes, versioning discipline, environment readiness, and release evidence required for enterprise governance.</li>
+</ul>
+<p>Integration, Security &amp; Enterprise Services</p>
+<ul>
+<li>Integrate mobile applications with RESTful APIs, authentication flows, secure storage, and enterprise backend services.</li>
+<li>Apply good mobile security practices, data privacy awareness, and secure coding principles in line with banking and internal governance expectations.</li>
+<li>Identify and escalate technical risks, integration constraints, security considerations, and operational dependencies early.</li>
+</ul>
+<p>Quality Engineering, Observability &amp; Production Support</p>
+<ul>
+<li>Contribute to automated testing, TDD/BDD practices, mobile quality gates, code review, and defect prevention.</li>
+<li>Improve mobile performance, accessibility, observability, maintainability, and resilience across production applications.</li>
+<li>Support production incidents, diagnostics, root-cause analysis, and continuous improvement of mobile reliability.</li>
+</ul>
+<p>Agile Collaboration &amp; Engineering Discipline</p>
+<ul>
+<li>Work within Agile/Scrum delivery practices, contributing to sprint planning, backlog refinement, reviews, retrospectives, and transparent progress tracking in Azure DevOps.</li>
+<li>Demonstrate strong Git discipline, clear pull requests, constructive code reviews, and accountability for the quality of software shipped.</li>
+</ul>
+<p>• Collaborate effectively with product, design, QA, backend, platform, architecture, and operations stakeholders.</p>
+<p>Qualifications, Experience and Skills</p>
+<p>ESSENTIAL TECHNICAL KNOWLEDGE</p>
+<ul>
+<li>Strong React Native, Expo ecosystem, and TypeScript experience.</li>
+<li>Strong JavaScript and React fundamentals, including modern state management and navigation patterns.</li>
+<li>Experience building and maintaining iOS and Android apps in enterprise environments.</li>
+<li>Experience using error and analytics tools like Dynatrace/Sentry/Splunk.</li>
+<li>Strong understanding of monorepos, shared packages, dependency management, and mobile workspace tooling.</li>
+<li>Experience with Azure DevOps CI/CD, including YAML pipelines, secure files/secrets, automated builds, testing, signing, and release approvals.</li>
+<li>Practical experience building, signing, distributing, and supporting mobile apps through App Store Connect, TestFlight, Google Play Console, and internal distribution channels.</li>
+<li>Experience integrating with RESTful APIs, authentication flows, secure storage, and enterprise backend services.</li>
+<li>Good understanding of mobile security, performance, accessibility, observability, and production support.</li>
+<li>Experience with automated testing, TDD/BDD practices, and mobile quality gates.</li>
+<li>Ability to implement polished UI from Figma, wireframes, and design systems.</li>
+<li>Strong Git, code review, Agile/Scrum, and engineering delivery discipline.</li>
+<li>Comfortable using AI-assisted development tools such as Codex, Cursor, Copilot, or ChatGPT to improve productivity while maintaining accountability, code quality, and sound engineering judgement.</li>
+</ul>
+<p>DESIRABLE SKILLS</p>
+<ul>
+<li>Native iOS/Android experience with Swift/Kotlin or native module development is advantageous.</li>
+<li>Azure certifications such as AZ-900, AZ-204, or AZ-400 are advantageous.</li>
+<li>Experience in Digital / Online Banking channels and platforms is advantageous.</li>
+<li>Understanding of payments, foreign exchange, lending, and other transactional banking products is advantageous.</li>
+</ul>
+<p>SUMMARY PROFILE</p>
+<p>We are looking for a modern mobile engineer who can work confidently across React Native, Expo, TypeScript, enterprise CI/CD, mobile distribution, and production support. The ideal candidate uses AI tools intelligently to accelerate delivery, but still demonstrates strong fundamentals, ownership, security awareness, and accountability for the software they ship.</p>
+<p> </p>
+<p>Investec Culture </p>
+<p>At Investec we look for intelligent, energetic people filled with passion, integrity and curiosity. We value individuals who in turn value our culture that is, a flexible attitude comfortable to live with ambiguity and willing to challenge the status quo. Diversity, talent and leadership are respected in pursuit of the growth of our business. People who can manage themselves and build strong relationships in order to get things done, will perform in out of the ordinary ways in our environment. </p>
+<p> </p>
+<p> </p>
+<p> </p>",
+  "descriptionText": "Description The Mobile Developer for Investec Business Online (IBOL) forms part of the Investec Business & Commercial Banking (BCB) division and operates within the BCB IT environment. This is a hands-on engineering role focused on building, maintaining, securing, and supporting enterprise-grade mobile applications across iOS and Android using React Native, Expo, TypeScript, and modern mobile delivery tooling. The role contributes to reliable mobile delivery by translating business and design requirements into high-quality technical solutions, integrating with enterprise services, supporting CI/CD and release processes, and maintaining strong engineering discipline across code quality, testing, security, performance, accessibility, and production support. The Mobile Developer works closely with product owners, designers, QA, backend engineers, platform teams, architecture, and operations to deliver secure, scalable, maintainable, and customer-focused mobile outcomes aligned with Investec BCB priorities Key Responsibilities Mobile Engineering Delivery & Execution Build, enhance, and maintain mobile application features across iOS and Android using React Native, Expo, TypeScript, JavaScript, and React fundamentals. Translate business requirements, wireframes, Figma designs, and design-system guidance into polished, accessible, and maintainable mobile user interfaces. Contribute to end-to-end delivery from refinement and development through testing, deployment, release, and post-implementation support. Apply sound engineering judgement when using AI-assisted development tools such as Codex, Cursor, Copilot, or ChatGPT to improve productivity without compromising accountability or quality. Enterprise Mobile Tooling, Monorepos & Shared Packages Work effectively within mobile monorepos, shared packages, dependency management models, and workspace tooling. Support sustainable mobile architecture by keeping shared components, packages, and platform conventions clean, reusable, and well documented. CI/CD, Build, Signing & Release Management Support Azure DevOps CI/CD using YAML pipelines, secure files and secrets, automated builds, automated testing, code-signing, and release approvals. Build, sign, distribute, and support mobile applications through App Store Connect, TestFlight, Google Play Console, and approved internal distribution channels. Contribute to reliable release processes, versioning discipline, environment readiness, and release evidence required for enterprise governance. Integration, Security & Enterprise Services Integrate mobile applications with RESTful APIs, authentication flows, secure storage, and enterprise backend services. Apply good mobile security practices, data privacy awareness, and secure coding principles in line with banking and internal governance expectations. Identify and escalate technical risks, integration constraints, security considerations, and operational dependencies early. Quality Engineering, Observability & Production Support Contribute to automated testing, TDD/BDD practices, mobile quality gates, code review, and defect prevention. Improve mobile performance, accessibility, observability, maintainability, and resilience across production applications. Support production incidents, diagnostics, root-cause analysis, and continuous improvement of mobile reliability. Agile Collaboration & Engineering Discipline Work within Agile/Scrum delivery practices, contributing to sprint planning, backlog refinement, reviews, retrospectives, and transparent progress tracking in Azure DevOps. Demonstrate strong Git discipline, clear pull requests, constructive code reviews, and accountability for the quality of software shipped. • Collaborate effectively with product, design, QA, backend, platform, architecture, and operations stakeholders. Qualifications, Experience and Skills ESSENTIAL TECHNICAL KNOWLEDGE Strong React Native, Expo ecosystem, and TypeScript experience. Strong JavaScript and React fundamentals, including modern state management and navigation patterns. Experience building and maintaining iOS and Android apps in enterprise environments. Experience using error and analytics tools like Dynatrace/Sentry/Splunk. Strong understanding of monorepos, shared packages, dependency management, and mobile workspace tooling. Experience with Azure DevOps CI/CD, including YAML pipelines, secure files/secrets, automated builds, testing, signing, and release approvals. Practical experience building, signing, distributing, and supporting mobile apps through App Store Connect, TestFlight, Google Play Console, and internal distribution channels. Experience integrating with RESTful APIs, authentication flows, secure storage, and enterprise backend services. Good understanding of mobile security, performance, accessibility, observability, and production support. Experience with automated testing, TDD/BDD practices, and mobile quality gates. Ability to implement polished UI from Figma, wireframes, and design systems. Strong Git, code review, Agile/Scrum, and engineering delivery discipline. Comfortable using AI-assisted development tools such as Codex, Cursor, Copilot, or ChatGPT to improve productivity while maintaining accountability, code quality, and sound engineering judgement. DESIRABLE SKILLS Native iOS/Android experience with Swift/Kotlin or native module development is advantageous. Azure certifications such as AZ-900, AZ-204, or AZ-400 are advantageous. Experience in Digital / Online Banking channels and platforms is advantageous. Understanding of payments, foreign exchange, lending, and other transactional banking products is advantageous. SUMMARY PROFILE We are looking for a modern mobile engineer who can work confidently across React Native, Expo, TypeScript, enterprise CI/CD, mobile distribution, and production support. The ideal candidate uses AI tools intelligently to accelerate delivery, but still demonstrates strong fundamentals, ownership, security awareness, and accountability for the software they ship. Investec Culture At Investec we look for intelligent, energetic people filled with passion, integrity and curiosity. We value individuals who in turn value our culture that is, a flexible attitude comfortable to live with ambiguity and willing to challenge the status quo. Diversity, talent and leadership are respected in pursuit of the growth of our business. People who can manage themselves and build strong relationships in order to get things done, will perform in out of the ordinary ways in our environment.",
+  "employmentType": "Full-time",
+  "excerpt": "Description The Mobile Developer for Investec Business Online (IBOL) forms part of the Investec Business & Commercial Banking (BCB) division and operates within the BCB IT environment. This is a hands-on engineering role focused on building, maintaining, securing, and supporting enterprise-grade mobile applications across iOS and Android using React Native, Expo, TypeScript, and modern mobile…",
+  "id": "investec:13804",
+  "locations": [
+    {
+      "city": "Johannesburg",
+      "province": "Gauteng",
+      "raw": "Johannesburg",
+    },
+  ],
+  "postedDate": null,
+  "primaryLocation": "Johannesburg, Gauteng",
+  "source": "investec",
+  "title": "Mobile App Developer",
 }
 `;

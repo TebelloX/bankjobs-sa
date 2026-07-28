@@ -18,7 +18,12 @@ import type { EarcuJobPosting, EarcuRawPosting, LdPlace } from './earcu/types';
 const SOURCE = 'investec' as const;
 const BRAND = 'Investec' as const;
 
-/** Investec's SA careers site runs on eArcu. Verified 2026-07-21. */
+/**
+ * Investec's SA careers site runs on eArcu. Verified 2026-07-21; discovery moved
+ * from the search-results grid to the sitemap on 2026-07-28 (the results page is
+ * behind an AWS WAF JS challenge — see {@link fetchAllEarcu}). The sitemap path
+ * is the eArcu default, so it stays out of this config.
+ */
 export const INVESTEC_EARCU_CONFIG: EarcuConfig = {
   host: 'careers.investec.co.za',
 };
@@ -93,8 +98,9 @@ export const investecAdapter: SourceAdapter<EarcuRawPosting> = {
     const address = firstPlace(posting.jobLocation)?.address;
 
     // Mirror standardbank.ts: normalizeLocation over the city only. Some Investec
-    // postings carry an empty JSON-LD address (city in the title, not the data),
-    // which falls through to no location rather than a raw string.
+    // postings carry no JSON-LD city at all (an empty jobLocation array, or a
+    // Place with an empty PostalAddress — the city lives in the title/slug, not
+    // the data), which falls through to no location rather than a raw string.
     const rawCity = (address?.addressLocality ?? '').trim();
     const normalized = rawCity === '' ? null : normalizeLocation(rawCity);
     const locations: JobLocation[] =
