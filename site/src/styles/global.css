@@ -1129,6 +1129,12 @@ a.pager-link:hover {
 .site-footer a:hover {
   text-decoration-color: var(--ink);
 }
+/* Ships with the `hidden` attribute; author `display` elsewhere would
+   out-specify the UA's [hidden] rule and show a dead link to no-JS visitors
+   (same reason as .share-btn[hidden]). */
+.ft-saved[hidden] {
+  display: none;
+}
 
 /* ---- insights ----
    The figures page, in the same ledger idiom as everything else: a bar is a

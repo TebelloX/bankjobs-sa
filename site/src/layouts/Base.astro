@@ -123,7 +123,7 @@ const year = new Date().getFullYear();
       // Every import here is dependency-free by design — none of them reaches
       // lib/data.ts, so the gitignored job snapshot never lands in this bundle.
       import { formatUpdatedLabel } from '../lib/freshness';
-      import { getLocalStorage } from '../lib/savedJobs';
+      import { getLocalStorage, loadSaved } from '../lib/savedJobs';
       import { isNewSince, recordVisit } from '../lib/visit';
 
       // Re-render the header freshness label relative to NOW ('today 19:58',
@@ -133,12 +133,16 @@ const year = new Date().getFullYear();
       const generatedAt = el?.dataset.generatedAt;
       if (el && generatedAt) el.textContent = formatUpdatedLabel(generatedAt);
 
+      // One storage handle, shared below: visit bookkeeping and the footer's
+      // saved-link check both read the same localStorage.
+      const storage = getLocalStorage();
+
       // Visit bookkeeping is SITE-WIDE: any page view is browsing activity, so
       // the session clock cannot depend on which page was landed on. Rows that
       // first appeared after the previous session get their flag unhidden;
       // with no previous session (a first-ever visit, or storage we cannot
       // write to) nothing is flagged at all.
-      const visit = recordVisit(getLocalStorage());
+      const visit = recordVisit(storage);
       if (visit.prev) {
         for (const row of document.querySelectorAll<HTMLElement>('[data-first-seen]')) {
           if (isNewSince(row.dataset.firstSeen ?? null, visit.prev)) {
@@ -146,15 +150,27 @@ const year = new Date().getFullYear();
           }
         }
       }
+
+      // The footer's "saved" link is only useful to a visitor who actually has
+      // a shortlist — reveal it once loadSaved (this same storage handle)
+      // proves the list is non-empty. No-JS or unwritable-storage visitors
+      // never see it, which is honest: the localStorage shortlist is unusable
+      // for them anyway.
+      if (loadSaved(storage).length > 0) {
+        document.querySelector('.ft-saved')?.removeAttribute('hidden');
+      }
     </script>
 
     <footer class="site-footer">
       <div class="wrap">
-        {/* Phones keep the "made with" line AND the saved link — the shortlist
-            is stored per-device and phones are the main audience, so it is the
-            one footer link that must survive the mobile block in global.css
-            (which hides .ft-extra: copyright + about). */}
-        <p>Made with ❤️ by Tebello · <a href="/saved/">saved</a><span class="ft-extra"> · &copy; {year} mybankjobs · <a href="/fit/">fit</a> · <a href="/insights/">insights</a> · <a href="/about/">about</a></span></p>
+        {/* The saved link ships hidden and is revealed by the script above only
+            for a visitor whose shortlist is non-empty — on EVERY viewport, not
+            just mobile, so there is one rule rather than a media-query special
+            case. The separator dot lives inside .ft-saved too, so a hidden
+            link leaves no dangling " · ". No-JS or unwritable-storage visitors
+            never see it, which is honest: the localStorage shortlist is
+            unusable for them anyway. */}
+        <p>Made with ❤️ by Tebello<span class="ft-saved" hidden> · <a href="/saved/">saved</a></span><span class="ft-extra"> · &copy; {year} mybankjobs · <a href="/fit/">fit</a> · <a href="/insights/">insights</a> · <a href="/about/">about</a></span></p>
       </div>
     </footer>
   </body>

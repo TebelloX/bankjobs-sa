@@ -215,6 +215,29 @@ test('saving a vacancy lists it on /saved, and removing it empties the list', as
   await expect(page.locator('#saved-count')).toHaveText('no saved vacancies');
 });
 
+test('the footer saved link only appears once a vacancy is saved', async ({ page }) => {
+  // Fresh context, nothing saved yet: the link ships hidden and stays that way.
+  await page.goto('/');
+  const footerSaved = page.locator('.ft-saved');
+  await expect(footerSaved).toBeHidden();
+
+  await page.goto('/vacancies/');
+  await page.locator('a[href^="/jobs/"]').first().click();
+  await page.locator('[data-save-toggle]').click();
+  await expect(page.locator('[data-save-toggle]')).toHaveText(/saved/);
+
+  // The footer script re-runs fresh on every page load.
+  await page.goto('/');
+  await expect(footerSaved).toBeVisible();
+
+  await page.goto('/saved/');
+  await page.locator('#saved-list .row-remove').first().click();
+  await expect(page.locator('#saved-list .job-row')).toHaveCount(0);
+
+  await page.goto('/');
+  await expect(footerSaved).toBeHidden();
+});
+
 test('a saved vacancy that is no longer listed is flagged and not linked', async ({ page }) => {
   // A job id that cannot be in the snapshot: the saved page marks any entry the
   // published /data/jobs.json does not carry, because its /jobs/ page is gone.
@@ -252,6 +275,27 @@ test('a saved vacancy that is no longer listed is flagged and not linked', async
 });
 
 test('every page footer links to the saved list', async ({ page }) => {
+  // The footer link only renders for a visitor with a shortlist — seed one
+  // entry so it is there to click.
+  await page.addInitScript(
+    ([key, entry]) => {
+      window.localStorage.setItem(key as string, JSON.stringify([entry]));
+    },
+    [
+      SAVED_KEY,
+      {
+        id: 'absa:footer-link-test-0000',
+        slug: 'absa-footer-link-test-0000',
+        title: 'Footer Link Test Vacancy',
+        brand: 'Absa',
+        category: 'Branch & Retail',
+        primaryLocation: 'Sandton, Gauteng',
+        postedDate: '2026-01-05',
+        savedAt: '2026-07-01T09:00:00.000Z',
+      },
+    ],
+  );
+
   await page.goto('/');
   await page.locator('.site-footer a[href="/saved/"]').click();
   await expect(page.locator('h1')).toHaveText('Saved vacancies');
