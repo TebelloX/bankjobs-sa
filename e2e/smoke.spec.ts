@@ -529,7 +529,7 @@ test('choosing a qualification reckons the buckets and writes a shareable URL', 
   expect(new URL(page.url()).searchParams.get('qual')).toBe('postgrad');
 });
 
-test('fit answers are remembered on this device and a bare revisit restores them', async ({
+test('fit answers are remembered on this device but a bare revisit withholds results until asked', async ({
   page,
 }) => {
   await page.goto('/fit/');
@@ -540,10 +540,18 @@ test('fit answers are remembered on this device and a bare revisit restores them
   await expect(count).toHaveText(FIT_LOADED);
   const line = (await count.textContent())!;
 
-  // A bare revisit — no parameters — rebuilds the same profile from
-  // mybankjobs.match.v1 and lands on the identical reckoning.
+  // A bare revisit — no parameters — refills the form from mybankjobs.match.v1
+  // but does NOT show results yet: a job list appearing before the visitor did
+  // anything on THIS visit reads as an unexplained default, not as "your own
+  // answer from last time". #fit-restore is the one explicit action that
+  // reproduces the identical reckoning.
   await page.goto('/fit/');
   await expect(page.locator('#fit-qual')).toHaveValue('degree');
+  await expect(count).toBeHidden();
+  const restore = page.getByRole('button', { name: /show my matches from last time/i });
+  await expect(restore).toBeVisible();
+
+  await restore.click();
   await expect(count).toHaveText(line);
 });
 

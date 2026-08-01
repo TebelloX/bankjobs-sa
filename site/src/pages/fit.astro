@@ -172,9 +172,19 @@ const description =
       a short list that looks like the whole ledger. */}
   <p id="fit-above" class="muted" hidden></p>
 
-  <p id="fit-empty" class="list-empty" hidden>
-    Pick your highest qualification to see matching roles.
-  </p>
+  {/* A returning visitor's answers are PREFILLED into the form above (see the
+      script's "prefill" section) but never auto-shown as results — a list of
+      jobs appearing before anyone touched anything on this visit reads as an
+      unexplained default, not as "your own answer from last time". So the
+      island holds this back until the visitor confirms it, either by pressing
+      #fit-restore or by changing any field themselves. #fit-restore stays
+      hidden except in exactly that one situation. */}
+  <div id="fit-empty" class="list-empty" hidden>
+    <p id="fit-empty-text">Pick your highest qualification to see matching roles.</p>
+    <button type="button" id="fit-restore" class="fit-restore" hidden>
+      Show my matches from last time
+    </button>
+  </div>
 
   {
     sections.map((s) => (
@@ -255,6 +265,8 @@ const description =
     const count = document.getElementById('fit-count');
     const above = document.getElementById('fit-above');
     const empty = document.getElementById('fit-empty');
+    const emptyText = document.getElementById('fit-empty-text');
+    const restoreBtn = document.getElementById('fit-restore') as HTMLButtonElement | null;
 
     /** One result bucket's three elements plus its own reveal state. */
     interface Section {
@@ -352,6 +364,14 @@ const description =
       prefill(yearsSel, fromUrl ? (initial.get('years') ?? '') : (stored?.years ?? ''));
       nameInput.value = fromUrl ? (initial.get('name') ?? '') : (stored?.name ?? '');
 
+      // A remembered qualification is filled into the form above so the visitor
+      // can SEE what it recalled, but it is not matched against yet — only a
+      // link's parameters (an explicit, referred intent) skip straight to
+      // results. Without this gate, every return visit would open on a full
+      // job list nobody asked for on THIS visit, which reads as an unexplained
+      // default rather than "your own answer from last time".
+      let awaitingRestore = !fromUrl && Boolean(stored?.qual);
+
       // ---- url + storage --------------------------------------------------
 
       function setParam(url: URL, key: string, value: string): void {
@@ -426,15 +446,25 @@ const description =
           : `${n} roles ask for a qualification more than one level above yours.`;
       }
 
+      /** Back to the ordinary "nothing chosen yet" wording — used once any
+       *  real render happens, so the one-time "last time" copy cannot linger
+       *  once the visitor has made a choice on THIS visit. */
+      function resetEmptyMessage(): void {
+        if (emptyText) emptyText.textContent = 'Pick your highest qualification to see matching roles.';
+        if (restoreBtn) restoreBtn.hidden = true;
+      }
+
       /** Match the whole snapshot against the form and redraw. */
       function render(): void {
         if (!loaded) return;
+        awaitingRestore = false;
 
         const level = qualLevel();
         if (level === null) {
           // Nothing to say yet, and no half-sentence pretending otherwise.
           hideResults();
           count!.hidden = true;
+          resetEmptyMessage();
           empty!.hidden = false;
           return;
         }
@@ -484,6 +514,10 @@ const description =
       // The country scope is neither shareable state nor an answer about the
       // visitor, so it moves no URL parameter and nothing into storage.
       if (intl) intl.addEventListener('change', render);
+      // The one explicit action that turns a prefilled-but-unapplied form into
+      // a real match: same as any other change, just triggered by a button
+      // instead of an input event.
+      if (restoreBtn) restoreBtn.addEventListener('click', apply);
 
       // Both snapshots are needed before anything can be matched, so they load
       // together and fail together. The prefilled form is NOT written back to
@@ -498,7 +532,16 @@ const description =
           reqs = snapshot.jobs;
           taxonomy = snapshot.taxonomy;
           loaded = true;
-          render();
+          if (awaitingRestore) {
+            // Remembered answers sit filled-in above, unmatched, until the
+            // visitor asks for them — see the awaitingRestore comment above.
+            count!.hidden = true;
+            if (emptyText) emptyText.textContent = 'Your last answers are filled in above.';
+            if (restoreBtn) restoreBtn.hidden = false;
+            empty!.hidden = false;
+          } else {
+            render();
+          }
         })
         .catch(() => {
           hideResults();
