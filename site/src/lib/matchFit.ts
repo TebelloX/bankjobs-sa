@@ -14,7 +14,7 @@
 // tuned rules file and a stale client cannot disagree.
 //
 // The price of that isolation is compileKeyword() below — a deliberate copy of
-// core's keywordToRegex, three lines of it, with identical semantics. Copies
+// core's keywordToRegex, with identical semantics. Copies
 // drift, so site/test/matchFit.test.ts asserts for EVERY keyword in the shipped
 // taxonomy that this compiler and core's agree, over a corpus built out of the
 // cases the boundaries exist for: 'IT' must match "IT department" and not
@@ -97,11 +97,12 @@ const SCORE_EXPERIENCE_MET = 1;
  *
  * A byte-for-byte behavioural copy of packages/core/src/keywords.ts —
  * metacharacters escaped ('ca(sa)' → 'ca\(sa\)'), interior whitespace joined on
- * \s+ so a multi-word keyword matches as a phrase across any spacing, and
- * alphanumeric LOOKAROUNDS rather than \b so that 'IT' and 'b com' survive
- * being listed at all. Not \b: '\bit\b' would happily match the "it" in
- * "digital" once the surrounding characters are punctuation, and the taxonomy
- * leans on short keywords.
+ * \s+ so a multi-word keyword matches as a phrase across any spacing, a
+ * literal "'" matching straight/curly/backtick alike (ATS prose emits the
+ * curly "Bachelor's Degree"), and alphanumeric LOOKAROUNDS rather than \b so
+ * that 'IT' and 'b com' survive being listed at all. Not \b: '\bit\b' would
+ * happily match the "it" in "digital" once the surrounding characters are
+ * punctuation, and the taxonomy leans on short keywords.
  *
  * The duplication is the point (see the file header); the parity test is the
  * guard. Do not "fix" this by importing core.
@@ -111,7 +112,8 @@ function compileKeyword(keyword: string): RegExp {
     .trim()
     .split(/\s+/)
     .map((word) => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-    .join('\\s+');
+    .join('\\s+')
+    .replace(/'/g, "['’`]");
   return new RegExp(`(?<![a-z0-9])${body}(?![a-z0-9])`, 'i');
 }
 

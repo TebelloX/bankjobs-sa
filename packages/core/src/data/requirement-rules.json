@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "windowChars": 450,
   "headings": {
     "global": [
@@ -20,10 +20,25 @@
   },
   "qualTypes": {
     "matric": ["matric", "grade 12", "national senior certificate", "nsc"],
-    "certificate": ["higher certificate", "national certificate", "certificate"],
-    "diploma": ["diploma", "national diploma", "ndip", "advanced certificate"],
+    "certificate": [
+      "higher certificate",
+      "higher certificates",
+      "national certificate",
+      "certificate",
+      "certificates"
+    ],
+    "diploma": [
+      "diploma",
+      "diplomas",
+      "national diploma",
+      "national diplomas",
+      "ndip",
+      "advanced certificate",
+      "advanced certificates"
+    ],
     "degree": [
       "degree",
+      "degrees",
       "bachelor",
       "bachelors",
       "bachelor's",
@@ -38,12 +53,15 @@
       "btech",
       "b tech",
       "advanced diploma",
+      "advanced diplomas",
       "first degree"
     ],
     "postgrad": [
       "honours",
+      "honour's",
       "hons",
       "postgraduate",
+      "postgraduates",
       "post graduate",
       "post-graduate",
       "masters",
@@ -56,7 +74,8 @@
       "cta",
       "chartered accountant",
       "ca(sa)",
-      "professional qualification"
+      "professional qualification",
+      "professional qualifications"
     ]
   },
   "fields": [
@@ -90,7 +109,8 @@
         "tax",
         "auditing",
         "internal audit",
-        "audit"
+        "audit",
+        "audits"
       ]
     },
     {
@@ -119,6 +139,7 @@
       "keywords": [
         "information technology",
         "computer science",
+        "computer sciences",
         "informatics",
         "information systems",
         "software engineering",

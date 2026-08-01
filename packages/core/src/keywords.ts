@@ -13,7 +13,12 @@ export function escapeRegex(input: string): string {
  * Compile a keyword into a case-insensitive, word-boundary regex. Multi-word
  * keywords match as phrases (interior whitespace matches one-or-more spaces).
  * Boundaries use lookarounds on alphanumerics so keywords like `.net` and `IT`
- * still match without being swallowed by neighbouring word characters.
+ * still match without being swallowed by neighbouring word characters. A
+ * literal `'` in the keyword matches a straight, curly ('’') or backtick
+ * apostrophe alike, because ATS-emitted prose uses the curly form ("Bachelor’s
+ * Degree") while a keyword list is typed with a straight one — the same
+ * tolerance requirements.ts's YEARS_PATTERNS already needs for "years’
+ * experience".
  *
  * The lookarounds are load-bearing in both directions: `intern` must not match
  * "Internal Consultant" or "International Wealth", and `learner` must not match
@@ -21,6 +26,11 @@ export function escapeRegex(input: string): string {
  * so suffixed forms have to be listed as their own keywords.
  */
 export function keywordToRegex(keyword: string): RegExp {
-  const body = keyword.trim().split(/\s+/).map(escapeRegex).join('\\s+');
+  const body = keyword
+    .trim()
+    .split(/\s+/)
+    .map(escapeRegex)
+    .join('\\s+')
+    .replace(/'/g, "['’`]");
   return new RegExp(`(?<![a-z0-9])${body}(?![a-z0-9])`, 'i');
 }

@@ -160,6 +160,29 @@ const cases: Case[] = [
     expected: { minQual: 3, minNqf: null, fields: ['it', 'engineering'], minYears: null },
   },
   {
+    // The reported /fit accuracy bug, pinned: qualification tables often list
+    // options in the PLURAL ("Bachelor`s Degrees and Advanced Diplomas"), and
+    // v2's keyword lists only had singular forms ("degree", "advanced
+    // diploma"). Neither matched, so 61 of 553 live jobs (11%) got the wrong
+    // minQual — most of them OVERSTATED (shown as 'degree' when the ad's real
+    // floor was 'diploma'), which the file header calls the unrecoverable
+    // direction of error. Rules v3 adds the plural forms.
+    //
+    // minQual is 2 (diploma), not 3 (degree): the bare 'diplomas' keyword
+    // fires inside "Advanced Diplomas" and the minimum wins over 'bachelor'/
+    // 'advanced diploma' — the same min-take rule that already resolves
+    // "Honours degree" to 'degree'. The backtick in "Bachelor`s" is verbatim
+    // from the live ad; ATSes emit straight, curly and backtick apostrophes
+    // interchangeably, which is also why keywordToRegex treats them as one.
+    name: 'absa branch manager (plural qualification names, backtick apostrophe)',
+    source: 'absa',
+    title: 'Branch Manager - Alfa House',
+    text:
+      'Education Bachelor`s Degrees and Advanced Diplomas: Business, Commerce and ' +
+      'Management Studies (Required)',
+    expected: { minQual: 2, minNqf: null, fields: ['business-commerce'], minYears: null },
+  },
+  {
     // FirstRand's advisor boilerplate, where the global heading 'education'
     // matches MID-SENTENCE ("…experience and education to Private Wealth
     // clients…") and opens a 450-char window over pure marketing copy. Under v1
@@ -255,6 +278,20 @@ describe('extractRequirements', () => {
         extractRequirements({ title: 'x', descriptionText: `Education ${form}`, source: 'absa' })
           .minNqf,
       ).toBe(6);
+    }
+  });
+
+  it('matches a keyword apostrophe against straight, curly and backtick forms', () => {
+    // "master's" has no bare 'master' fallback keyword (only 'masters', a
+    // different literal string), so this isolates the apostrophe fix: without
+    // it, none of the three real-world forms an ATS emits would match at all.
+    for (const form of ["Master's", 'Master’s', 'Master`s']) {
+      const result = extractRequirements({
+        title: 'Analyst',
+        descriptionText: `Qualifications ${form} in Finance required`,
+        source: 'absa',
+      });
+      expect(result.minQual).toBe(4);
     }
   });
 
