@@ -25,6 +25,9 @@ on:
     # Deliberately OFF the top of the hour: GitHub cron is best-effort and
     # drops :00 slots under load far more often (the 04:00 run on 22 Jul 2026
     # simply never fired). Odd minutes get materially better delivery.
+    # Dropped slots are additionally covered by the bankjobs-cron Cloudflare
+    # Worker (packages/cron): it fires at :20 and dispatches this workflow if
+    # no run was created for the slot. Keep its crons in step with this line.
     - cron: '2 2,9,14 * * *'
   workflow_dispatch:
     inputs:

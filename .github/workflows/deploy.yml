@@ -17,6 +17,10 @@ on:
         description: Also deploy the Worker API
         type: boolean
         default: false
+      cron_worker:
+        description: Also deploy the cron watchdog Worker
+        type: boolean
+        default: false
 
 concurrency:
   group: deploy
@@ -81,6 +85,59 @@ jobs:
       - name: Deploy Worker
         if: ${{ steps.gate.outputs.deploy == 'true' }}
         run: cd packages/api && pnpm exec wrangler deploy
+
+  # Deploys packages/cron (the GitHub-cron watchdog) — same git-diff gate
+  # pattern as the worker job above. Its GITHUB_TOKEN secret is set once via
+  # `wrangler secret put`, never by CI, so a redeploy never touches it.
+  cron-worker:
+    name: Deploy cron watchdog Worker
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: fdef463f845c9fd71e57e85f4ac40cae
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Decide whether the cron Worker needs a deploy
+        id: gate
+        env:
+          IS_DISPATCH: ${{ github.event_name == 'workflow_dispatch' }}
+          WANT_CRON: ${{ inputs.cron_worker == true }}
+          BEFORE_SHA: ${{ github.event.before }}
+          CURRENT_SHA: ${{ github.sha }}
+        run: |
+          if [ "$IS_DISPATCH" = "true" ]; then
+            echo "Manual dispatch, cron_worker input = $WANT_CRON."
+            echo "deploy=$WANT_CRON" >> "$GITHUB_OUTPUT"
+          elif [ -z "$BEFORE_SHA" ] || [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
+            echo "No previous commit to diff against — deploying to be safe."
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+          elif git diff --quiet "$BEFORE_SHA" "$CURRENT_SHA" -- packages/cron; then
+            echo "No cron-Worker paths changed since $BEFORE_SHA."
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Cron-Worker paths changed since $BEFORE_SHA."
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: pnpm/action-setup@v4
+        if: ${{ steps.gate.outputs.deploy == 'true' }}
+
+      - uses: actions/setup-node@v4
+        if: ${{ steps.gate.outputs.deploy == 'true' }}
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+        if: ${{ steps.gate.outputs.deploy == 'true' }}
+
+      - name: Deploy cron Worker
+        if: ${{ steps.gate.outputs.deploy == 'true' }}
+        run: cd packages/cron && pnpm exec wrangler deploy
 
   # Every push to main rebuilds and redeploys the site — not just after the
   # next ingest.yml cron cycle — so site/content changes go live right away.

@@ -1,0 +1,18 @@
+{
+  "name": "bankjobs-cron",
+  "main": "src/index.ts",
+  // Same pin as packages/api — bump both together if a newer feature is needed.
+  "compatibility_date": "2025-09-01",
+  // Scheduled handler only; this Worker has no HTTP surface at all.
+  "workers_dev": false,
+  "triggers": {
+    // 18 minutes after each ingest.yml slot (2 2,9,14 * * * UTC): late enough
+    // that a GitHub cron delivered up to ~15 min late has already created its
+    // run, early enough that a dropped slot still ingests well inside the
+    // 3-runs/day freshness budget. Cloudflare cron is UTC.
+    "crons": ["20 2,9,14 * * *"],
+  },
+  // Secret (set once via `wrangler secret put GITHUB_TOKEN`, never in git):
+  //   GITHUB_TOKEN — needs only Actions read/write on TebelloX/bankjobs-sa
+  //   (fine-grained PAT) or a classic token with `repo` scope.
+}

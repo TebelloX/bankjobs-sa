@@ -62,6 +62,15 @@ importers:
         specifier: ^2.13.0
         version: 2.16.1
 
+  packages/cron:
+    devDependencies:
+      '@cloudflare/workers-types':
+        specifier: 4.20250906.0
+        version: 4.20250906.0
+      wrangler:
+        specifier: 4.112.0
+        version: 4.112.0(@cloudflare/workers-types@4.20250906.0)
+
   packages/ingest:
     dependencies:
       '@bankjobs/adapters':

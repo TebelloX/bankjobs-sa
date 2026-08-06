@@ -10,6 +10,7 @@ site/src/data/jobs-full.json
 site/src/data/insights.json
 .DS_Store
 .wrangler/
+.dev.vars
 coverage/
 *.log
 

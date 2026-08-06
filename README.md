@@ -54,6 +54,14 @@ One-time setup:
 `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_D1_DATABASE_ID` are committed directly in the workflow —
 they're identifiers, not credentials.
 
+GitHub's schedule trigger is best-effort and occasionally drops a slot outright. The
+`bankjobs-cron` Cloudflare Worker in [`packages/cron`](packages/cron) covers exactly that gap:
+it fires 18 minutes after each ingest slot, checks the GitHub API for a run created in the last
+25 minutes, and dispatches `ingest.yml` via `workflow_dispatch` if the slot never fired. It
+needs a `GITHUB_TOKEN` Worker secret (`wrangler secret put GITHUB_TOKEN` from `packages/cron`;
+a fine-grained PAT with Actions read/write on this repo is enough). It deliberately does not
+retry runs that started and failed — red runs are a human's signal.
+
 To exercise the remote path locally:
 
 ```sh
