@@ -16,7 +16,7 @@ export const GET: APIRoute = (context) => {
   return rss({
     title: ALL_FEED.title,
     description:
-      "Open vacancies at South Africa's banks, straight from the banks' own career systems. Free, no ads, updated a few times a day.",
+      "Open vacancies at South Africa's banks — no recruiter reposts, no duplicates, no expired ads. Free, updated a few times a day.",
     site: new URL('/', site),
     items: toFeedItems(saJobs(), site),
   });
