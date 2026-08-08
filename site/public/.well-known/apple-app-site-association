@@ -2,7 +2,7 @@
   "applinks": {
     "details": [
       {
-        "appIDs": ["TEAMID.za.co.mybankjobs.app"],
+        "appIDs": ["QM8DQT8NXU.za.co.mybankjobs.app"],
         "components": [
           { "/": "/feeds/*", "exclude": true },
           { "/": "/data/*", "exclude": true },
