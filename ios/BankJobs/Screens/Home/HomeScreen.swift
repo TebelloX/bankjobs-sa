@@ -3,7 +3,7 @@ import JobsKit
 
 /// Home — the port of site/src/pages/index.astro: condensed hero, the
 /// signature statement card, the trust strip, the coverage ledger, the 20
-/// newest SA rows and the method band, with the site footer's links.
+/// newest SA rows and the method band, closing with an About button.
 struct HomeScreen: View {
     @Environment(AppModel.self) private var model
 
@@ -83,7 +83,7 @@ struct HomeScreen: View {
                 .padding(.bottom, Spacing.xxl)
 
             method
-            footer
+            aboutButton
         }
     }
 
@@ -353,34 +353,20 @@ struct HomeScreen: View {
         }
     }
 
-    // MARK: - Footer
+    // MARK: - About button
 
-    private var footer: some View {
-        let year = Calendar(identifier: .gregorian).component(.year, from: Date())
-        return VStack(spacing: Spacing.sm) {
-            HairlineRule(color: .ink, height: 2)
-            Text("Made with ❤️ by Tebello · © \(String(year)) mybankjobs")
-                .font(.system(size: 13))
-                .foregroundStyle(Color.inkSoft)
-                .padding(.top, Spacing.lg)
-            HStack(spacing: Spacing.lg) {
-                Button("fit") { model.selectedTab = .fit }
-                NavigationLink(value: Route.insights) { footerLabel("insights") }
-                NavigationLink(value: Route.about) { footerLabel("about") }
-            }
-            .buttonStyle(.plain)
-            .font(.system(size: 13))
-            .foregroundStyle(Color.inkSoft)
-            .padding(.bottom, Spacing.xxl)
+    private var aboutButton: some View {
+        NavigationLink(value: Route.about) {
+            Text("About mybankjobs")
+                .font(.display(15, weight: .extrabold, relativeTo: .body))
+                .foregroundStyle(Color.paper)
+                .padding(.horizontal, 26)
+                .padding(.vertical, 12)
+                .background(Color.ink)
         }
+        .buttonStyle(.plain)
+        .padding(.vertical, Spacing.xxl)
         .frame(maxWidth: .infinity)
-    }
-
-    private func footerLabel(_ title: String) -> some View {
-        Text(title)
-            .font(.system(size: 13))
-            .underline(color: .rule)
-            .foregroundStyle(Color.inkSoft)
     }
 }
 
