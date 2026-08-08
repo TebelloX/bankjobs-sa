@@ -3,3 +3,4 @@ fixtures/
 site/dist/
 pnpm-lock.yaml
 docs/
+ios/
