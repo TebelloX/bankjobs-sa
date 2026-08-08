@@ -1,0 +1,50 @@
+---
+import Base from '../layouts/Base.astro';
+
+const description =
+  'The mybankjobs privacy policy, for the website and the iOS app: no accounts, no tracking, and everything you type stays on your device.';
+---
+
+<Base title="Privacy — mybankjobs" description={description} narrow>
+  <a class="backlink" href="/">← All vacancies</a>
+  <div class="prose">
+  <h1>Privacy</h1>
+
+  <p class="lede">
+    mybankjobs has no accounts, asks for no personal details, and has nothing to log you into. This
+    page covers both the website and the mybankjobs iOS app.
+  </p>
+
+  <h2>The iOS app</h2>
+  <p>
+    The app collects nothing. Your saved jobs, your “find your fit” answers, and your visit history
+    live only on your device, and deleting the app deletes them. The app talks to our servers for
+    exactly one reason: to download the public vacancy listings — the same anonymous requests your
+    browser makes when it opens this website. No identifier, account, or analytics event travels
+    with them.
+  </p>
+  <p>
+    Applying always happens on the bank's own official website, which has its own privacy policy —
+    nothing you enter there passes through us.
+  </p>
+
+  <h2>The website</h2>
+  <p>
+    No accounts, no cookies, no tracking. At most we use privacy-friendly, cookieless analytics to
+    count page views in aggregate — never anything that identifies you. What you type into search or
+    “find your fit” stays in your browser.
+  </p>
+  <p>
+    Browser notifications are the one exception, and only if you switch them on. When you do, your
+    browser hands us an anonymous delivery address — a push endpoint plus two encryption keys — and
+    that is all we store. It doesn't tell us who you are, and nothing is attached to it: no email,
+    no name, no history of what you looked at. Turn notifications off and we delete it.
+  </p>
+
+  <h2>Questions</h2>
+  <p>
+    Anything unclear, or want something checked or removed? Email
+    <a href="mailto:tebellonamo@gmail.com">tebellonamo@gmail.com</a> — requests are honoured promptly.
+  </p>
+  </div>
+</Base>

@@ -1,0 +1,22 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["TEAMID.za.co.mybankjobs.app"],
+        "components": [
+          { "/": "/feeds/*", "exclude": true },
+          { "/": "/data/*", "exclude": true },
+          { "/": "/jobs/*" },
+          { "/": "/banks/*" },
+          { "/": "/vacancies" },
+          { "/": "/vacancies/*" },
+          { "/": "/browse/*" },
+          { "/": "/search" },
+          { "/": "/search/" },
+          { "/": "/fit" },
+          { "/": "/fit/" }
+        ]
+      }
+    ]
+  }
+}

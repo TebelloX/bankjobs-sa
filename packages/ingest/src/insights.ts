@@ -188,4 +188,11 @@ export async function emitInsights(db: JobsDb, snapshotDir: string, now: string)
   const srcDataDir = join(snapshotDir, 'src', 'data');
   mkdirSync(srcDataDir, { recursive: true });
   writeFileSync(join(srcDataDir, 'insights.json'), JSON.stringify(insights));
+
+  // Also published as a public snapshot: the iOS app renders /insights/ (and
+  // "added since your last visit") from this same file, fetched at runtime the
+  // way the site's own islands fetch /data/jobs.json.
+  const publicDataDir = join(snapshotDir, 'public', 'data');
+  mkdirSync(publicDataDir, { recursive: true });
+  writeFileSync(join(publicDataDir, 'insights.json'), JSON.stringify(insights));
 }

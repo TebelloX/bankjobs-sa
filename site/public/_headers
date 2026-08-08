@@ -58,3 +58,11 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   X-Frame-Options: DENY
+
+# Apple App Site Association (universal links for the iOS app). Pages serves
+# extensionless files as application/octet-stream; Apple's CDN requires
+# application/json served directly with no redirect. Header blocks are
+# cumulative, so this path also keeps the /* security headers above (a CSP on a
+# JSON response is inert).
+/.well-known/apple-app-site-association
+  Content-Type: application/json
