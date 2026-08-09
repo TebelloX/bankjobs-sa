@@ -57,6 +57,23 @@ struct JobRowView: View {
         return "posted \(InsightsDerived.formatDayShort(postedDate))"
     }
 
+    /// The whole row as one VoiceOver element: "posted 3d" would be read
+    /// "three dee", and the NEW tag / bookmark glyph carry state that the
+    /// fragments never announce.
+    private var accessibilityText: String {
+        var parts = [title]
+        if isNew { parts.append("new posting") }
+        if isSaved { parts.append("saved") }
+        parts.append(sourceLine.replacingOccurrences(of: " · ", with: ", "))
+        if let note { parts.append(note) }
+        if !when.isEmpty {
+            parts.append(
+                when.replacingOccurrences(
+                    of: #"(\d+)d\b"#, with: "$1 days ago", options: .regularExpression))
+        }
+        return parts.joined(separator: ", ")
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .firstTextBaseline, spacing: Spacing.md) {
@@ -75,7 +92,7 @@ struct JobRowView: View {
                         }
                         if isSaved {
                             Image(systemName: "bookmark.fill")
-                                .font(.system(size: 11))
+                                .scaledSystemFont(12, relativeTo: .caption2)
                                 .foregroundStyle(Color.inkSoft)
                         }
                     }
@@ -104,5 +121,7 @@ struct JobRowView: View {
             HairlineRule()
         }
         .contentShape(Rectangle())
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityText)
     }
 }

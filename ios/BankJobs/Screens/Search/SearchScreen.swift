@@ -23,6 +23,7 @@ struct SearchScreen: View {
     @State private var poolCount = 0
     @State private var hasRun = false
     @State private var debounceTask: Task<Void, Never>?
+    @FocusState private var fieldFocused: Bool
 
     var body: some View {
         ScrollView {
@@ -44,11 +45,14 @@ struct SearchScreen: View {
                         + Text("Find roles that fit your qualification →")
                         .underline(color: .rule)
                         .foregroundColor(.ink))
-                        .font(.system(size: 14.5))
+                        .scaledSystemFont(14.5, relativeTo: .subheadline)
                         .multilineTextAlignment(.leading)
                         .fixedSize(horizontal: false, vertical: true)
+                        .frame(minHeight: 44, alignment: .leading)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("Not sure what to search for? Find roles that fit your qualification")
                 .padding(.bottom, Spacing.lg)
 
                 countLine
@@ -58,12 +62,14 @@ struct SearchScreen: View {
             }
             .padding(Spacing.lg)
         }
+        .scrollDismissesKeyboard(.immediately)
         .background(Color.paper.ignoresSafeArea())
         .navigationTitle("Search")
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(Color.paper, for: .navigationBar)
         .task {
             consumePendingParams()
+            consumePendingFocus()
             runSearch()
         }
         .onChange(of: model.snapshot?.fetchedAt) { runSearch() }
@@ -72,6 +78,9 @@ struct SearchScreen: View {
                 consumePendingParams()
                 runSearch()
             }
+        }
+        .onChange(of: model.pendingSearchFocus) { _, wants in
+            if wants { consumePendingFocus() }
         }
         .onChange(of: query) {
             debounceTask?.cancel()
@@ -97,16 +106,40 @@ struct SearchScreen: View {
         VStack(alignment: .leading, spacing: Spacing.md) {
             VStack(alignment: .leading, spacing: Spacing.sm) {
                 Text("Search by title, bank, category or location")
-                    .font(.system(size: 15, weight: .semibold))
+                    .scaledSystemFont(15, weight: .semibold)
                     .foregroundStyle(Color.ink)
-                TextField(
-                    "Try \u{201C}teller\u{201D}, \u{201C}developer\u{201D}, \u{201C}credit analyst\u{201D}…",
-                    text: $query
-                )
-                .textFieldStyle(.plain)
-                .font(.system(size: 16))
-                .autocorrectionDisabled()
-                .padding(.horizontal, Spacing.lg)
+                // The HIG's search-field anatomy: search icon, field, clear
+                // button — plus a Search key and no auto-capitalized queries.
+                HStack(spacing: Spacing.sm) {
+                    Image(systemName: "magnifyingglass")
+                        .scaledSystemFont(14, relativeTo: .subheadline)
+                        .foregroundStyle(Color.inkSoft)
+                        .accessibilityHidden(true)
+                    TextField(
+                        "Try \u{201C}teller\u{201D}, \u{201C}developer\u{201D}, \u{201C}credit analyst\u{201D}…",
+                        text: $query
+                    )
+                    .textFieldStyle(.plain)
+                    .scaledSystemFont(16)
+                    .autocorrectionDisabled()
+                    .textInputAutocapitalization(.never)
+                    .submitLabel(.search)
+                    .focused($fieldFocused)
+                    if !query.isEmpty {
+                        Button {
+                            query = ""
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .scaledSystemFont(16)
+                                .foregroundStyle(Color.inkSoft)
+                                .frame(width: 44, height: 48)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Clear search text")
+                    }
+                }
+                .padding(.leading, Spacing.lg)
                 .frame(height: 48)
                 .background(Color.white)
                 .overlay(Rectangle().strokeBorder(Color.ink, lineWidth: 2))
@@ -126,7 +159,7 @@ struct SearchScreen: View {
             VStack(alignment: .leading, spacing: 2) {
                 Toggle(isOn: $includeInternational) {
                     Text("Include international roles")
-                        .font(.system(size: 14))
+                        .scaledSystemFont(14, relativeTo: .subheadline)
                         .foregroundStyle(Color.inkSoft)
                 }
                 .tint(.focus)
@@ -167,14 +200,16 @@ struct SearchScreen: View {
                     .foregroundStyle(Color.ink)
                     .lineLimit(1)
                     Image(systemName: "chevron.down")
-                        .font(.system(size: 9, weight: .semibold))
+                        .scaledSystemFont(11, weight: .semibold, relativeTo: .caption2)
                         .foregroundStyle(Color.inkSoft)
+                        .accessibilityHidden(true)
                 }
                 .padding(.horizontal, 12)
-                .frame(height: 40)
+                .frame(height: 44)
                 .background(Color.white)
-                .overlay(Rectangle().strokeBorder(Color.rule, lineWidth: Hairline.width))
+                .overlay(Rectangle().strokeBorder(Color.inkSoft, lineWidth: Hairline.width))
             }
+            .accessibilityLabel("\(label) filter")
         }
     }
 
@@ -232,8 +267,8 @@ struct SearchScreen: View {
                     .font(.mono(12.5, relativeTo: .footnote))
                     .foregroundStyle(Color.ink)
                     .padding(.horizontal, 14)
-                    .frame(height: 40)
-                    .overlay(Rectangle().strokeBorder(Color.rule, lineWidth: Hairline.width))
+                    .frame(height: 44)
+                    .overlay(Rectangle().strokeBorder(Color.inkSoft, lineWidth: Hairline.width))
                 }
             }
         } else if !matched.isEmpty {
@@ -254,6 +289,7 @@ struct SearchScreen: View {
 
     private func runSearch() {
         guard let snapshot = model.snapshot else { return }
+        let announce = hasRun // only user-driven changes, never the first fill
         let result = SearchFilter.apply(
             SearchQuery(
                 q: query,
@@ -265,6 +301,20 @@ struct SearchScreen: View {
         matched = result.matched
         poolCount = result.poolCount
         hasRun = true
+        if announce {
+            // The visual count line updates silently; VoiceOver needs to hear
+            // that typing or filtering changed the result set.
+            AccessibilityNotification.Announcement(
+                "\(result.matched.count) of \(result.poolCount) vacancies"
+            ).post()
+        }
+    }
+
+    /// Home's hero search box asked for the keyboard — deliver it.
+    private func consumePendingFocus() {
+        guard model.pendingSearchFocus else { return }
+        model.pendingSearchFocus = false
+        fieldFocused = true
     }
 
     /// A shared /search?q=&brand=&category=&province= link: slugs resolve via

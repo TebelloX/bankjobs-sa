@@ -14,6 +14,10 @@ struct InsightsScreen: View {
         Group {
             if let snapshot = model.snapshot, let insights = snapshot.insights {
                 loaded(snapshot, insights)
+            } else if model.snapshot == nil && model.isRefreshing {
+                // Cold launch with the fetch in flight — this used to claim
+                // the figures were "unavailable" while they were still loading.
+                loading
             } else {
                 unavailable
             }
@@ -24,25 +28,38 @@ struct InsightsScreen: View {
         .toolbarBackground(Color.paper, for: .navigationBar)
     }
 
-    private var unavailable: some View {
-        VStack(alignment: .leading, spacing: Spacing.md) {
-            EyebrowText("Insights")
-            PageTitleView(title: "Bank hiring, in figures")
-            EmptyStateView(
-                "The figures behind the statement aren't available right now — pull to refresh, or read them on the website."
-            )
-            Button {
-                if let url = URL(string: "\(JobsKitInfo.siteOrigin)/insights/") {
-                    model.presentWebsite(url)
-                }
-            } label: {
-                ArrowLinkLabel("The figures on the website →")
-            }
-            .buttonStyle(.plain)
-            Spacer()
+    private var loading: some View {
+        VStack(spacing: Spacing.md) {
+            ProgressView()
+            Text("Loading the figures…")
+                .font(.mono(13, relativeTo: .footnote))
+                .foregroundStyle(Color.inkSoft)
         }
-        .padding(Spacing.lg)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var unavailable: some View {
+        // A ScrollView so the "pull to refresh" the copy promises can happen.
+        ScrollView {
+            VStack(alignment: .leading, spacing: Spacing.md) {
+                EyebrowText("Insights")
+                PageTitleView(title: "Bank hiring, in figures")
+                EmptyStateView(
+                    "The figures behind the statement aren't available right now — pull to refresh, or read them on the website."
+                )
+                Button {
+                    if let url = URL(string: "\(JobsKitInfo.siteOrigin)/insights/") {
+                        model.presentWebsite(url)
+                    }
+                } label: {
+                    ArrowLinkLabel("The figures on the website →")
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(Spacing.lg)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .refreshable { await model.refresh() }
     }
 
     // MARK: - Loaded
@@ -119,7 +136,7 @@ struct InsightsScreen: View {
                 .foregroundStyle(Color.ink)
                 .fixedSize(horizontal: false, vertical: true)
             Text(when)
-                .font(.mono(10.5, relativeTo: .caption2))
+                .font(.mono(11, relativeTo: .caption2))
                 .foregroundStyle(Color.inkSoft)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -273,8 +290,11 @@ struct InsightsScreen: View {
                 }
             }
             .frame(height: 64)
+            // Path/Rectangle aren't accessibility elements, so the label needs
+            // an element of its own to land on.
+            .accessibilityElement(children: .ignore)
             .accessibilityLabel(
-                "Open vacancies per day, lowest \(minOpen), highest \(maxOpen)")
+                "Chart: open vacancies per day, lowest \(minOpen), highest \(maxOpen)")
             HStack {
                 Text("low \(minOpen)")
                 Spacer()
@@ -320,7 +340,7 @@ struct InsightsScreen: View {
                 Text(
                     "\(runs.total) fetches since \(since) — \(runs.success) clean, \(other) cautioned or failed."
                 )
-                .font(.system(size: 16.5))
+                .scaledSystemFont(16.5)
                 .foregroundStyle(Color.ink)
                 .fixedSize(horizontal: false, vertical: true)
 
@@ -379,7 +399,7 @@ struct InsightsScreen: View {
                         ? "These figures are counted from the same records as every page on this site. What you won't find yet: how long roles stay open, or how hiring moves with the seasons — a role has to close before we can say how long it stood, and a season has to pass before we can compare it. We'd rather show you four honest days than four imaginary months. The record lengthens three times a day."
                         : "These figures are counted from the same records as every page on this site. What you won't find yet: how hiring moves with the seasons — a season has to pass before we can compare it. We'd rather show you the record we have than months we don't. The record lengthens three times a day."
                 )
-                .font(.system(size: 15))
+                .scaledSystemFont(15)
                 .foregroundStyle(Color.ink)
                 .fixedSize(horizontal: false, vertical: true)
 
@@ -389,7 +409,7 @@ struct InsightsScreen: View {
                     }
                         ?? "Since \(since), \(closedTotal) \(closedNoun) come off the statement. When enough have, this page will start reporting how long roles typically stay open."
                 )
-                .font(.system(size: 15))
+                .scaledSystemFont(15)
                 .foregroundStyle(Color.ink)
                 .fixedSize(horizontal: false, vertical: true)
 
@@ -477,6 +497,10 @@ struct InsightsScreen: View {
                         .foregroundStyle(Color.inkSoft)
                         .padding(.vertical, 9)
                         .gridColumnAlignment(index == 0 ? .leading : .trailing)
+                        // "✓ clean" would be read "check mark clean".
+                        .accessibilityLabel(
+                            title.filter { !"✓⚠✕".contains($0) }
+                                .trimmingCharacters(in: .whitespaces))
                 }
             }
             gridRule(color: .ink, height: 2)
@@ -506,6 +530,8 @@ struct InsightsScreen: View {
             .foregroundStyle(Color.ink)
             .padding(.vertical, 9)
             .gridColumnAlignment(leading ? .leading : .trailing)
+            // An empty cell prints an em dash; "none" beats hearing "em dash".
+            .accessibilityLabel(text == "\u{2014}" ? "none" : text)
     }
 
     /// A full-width rule row inside a Grid.

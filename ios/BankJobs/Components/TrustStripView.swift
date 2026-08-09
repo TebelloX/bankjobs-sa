@@ -29,7 +29,7 @@ struct TrustStripView: View {
                             .font(.display(15, weight: .extrabold, relativeTo: .headline))
                             .foregroundStyle(Color.ink)
                         Text(item.body)
-                            .font(.system(size: 14))
+                            .scaledSystemFont(14, relativeTo: .subheadline)
                             .foregroundStyle(Color.inkSoft)
                             .fixedSize(horizontal: false, vertical: true)
                     }

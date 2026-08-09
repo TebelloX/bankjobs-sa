@@ -55,5 +55,10 @@ struct LedgerBarView: View {
         }
         .padding(.vertical, 10)
         .contentShape(Rectangle())
+        // One element per row: "FNB, 155 roles" — not three fragments and a
+        // silent bar.
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(label)
+        .accessibilityValue("\(count) \(resolvedUnit ?? "")")
     }
 }

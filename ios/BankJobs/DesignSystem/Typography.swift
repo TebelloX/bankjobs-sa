@@ -90,6 +90,40 @@ extension Font {
     }
 }
 
+// MARK: - Scaled system font
+//
+// SwiftUI's `Font.system(size:)` is a fixed point size that ignores Dynamic
+// Type. Body copy set in the system face (the site's `--sans`) must scale, so
+// this modifier wraps the size in `@ScaledMetric`, which tracks the
+// environment's size category live — including scoped `.dynamicTypeSize`
+// overrides that the `UIFontMetrics` path in `Font.display` cannot see.
+private struct ScaledSystemFont: ViewModifier {
+    @ScaledMetric private var size: CGFloat
+    private let weight: Font.Weight
+
+    init(size: CGFloat, weight: Font.Weight, relativeTo textStyle: Font.TextStyle) {
+        _size = ScaledMetric(wrappedValue: size, relativeTo: textStyle)
+        self.weight = weight
+    }
+
+    func body(content: Content) -> some View {
+        content.font(.system(size: size, weight: weight))
+    }
+}
+
+extension View {
+    /// System-face text at a custom base size that scales with Dynamic Type
+    /// relative to `textStyle` — the drop-in replacement for a fixed
+    /// `.font(.system(size:))` on body copy.
+    func scaledSystemFont(
+        _ size: CGFloat,
+        weight: Font.Weight = .regular,
+        relativeTo textStyle: Font.TextStyle = .body
+    ) -> some View {
+        modifier(ScaledSystemFont(size: size, weight: weight, relativeTo: textStyle))
+    }
+}
+
 // MARK: - Debug diagnostics
 #if DEBUG
 /// Debug-only sanity check that UIAppFonts registration produced the families

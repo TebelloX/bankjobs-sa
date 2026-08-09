@@ -83,12 +83,12 @@ struct StatementCardView: View {
         HStack(alignment: .firstTextBaseline, spacing: 10) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(job.title)
-                    .font(.system(size: 14.5, weight: .semibold))
+                    .scaledSystemFont(14.5, weight: .semibold, relativeTo: .subheadline)
                     .foregroundStyle(Color.ink)
                     .fixedSize(horizontal: false, vertical: true)
                     .multilineTextAlignment(.leading)
                 Text(sourceLine(job))
-                    .font(.system(size: 12))
+                    .scaledSystemFont(12, relativeTo: .caption)
                     .foregroundStyle(Color.inkSoft)
                     .fixedSize(horizontal: false, vertical: true)
                     .multilineTextAlignment(.leading)

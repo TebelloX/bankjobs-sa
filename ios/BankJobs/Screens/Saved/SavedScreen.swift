@@ -10,6 +10,9 @@ import JobsKit
 struct SavedScreen: View {
     @Environment(AppModel.self) private var model
 
+    /// The remove outcome, said out loud: a failed write used to vanish.
+    @State private var removeStatus: String?
+
     var body: some View {
         Group {
             if model.savedJobs.isEmpty {
@@ -37,6 +40,23 @@ struct SavedScreen: View {
         .toolbarBackground(Color.paper, for: .navigationBar)
         .task { await model.reloadSaved() }
         .refreshable { await model.refresh() }
+        .sensoryFeedback(.success, trigger: removeStatus) { _, new in
+            new?.hasPrefix("removed") == true
+        }
+        .sensoryFeedback(.warning, trigger: removeStatus) { _, new in
+            new?.hasPrefix("could not") == true
+        }
+    }
+
+    /// One removal path for the swipe and the button: the persisted result is
+    /// surfaced (text, haptic, VoiceOver) instead of silently discarded.
+    private func remove(_ entry: SavedJob) {
+        Task {
+            let result = await model.removeSaved(id: entry.id)
+            let status = result.ok ? "removed from your list" : "could not remove — try again"
+            removeStatus = status
+            AccessibilityNotification.Announcement(status).post()
+        }
     }
 
     /// Ids still on the statement. nil = no snapshot yet — every row stays
@@ -65,7 +85,7 @@ struct SavedScreen: View {
                                 top: 0, leading: Spacing.lg, bottom: 0, trailing: Spacing.lg))
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
-                                Task { await model.removeSaved(id: entry.id) }
+                                remove(entry)
                             } label: {
                                 Label("Remove", systemImage: "trash")
                             }
@@ -99,12 +119,13 @@ struct SavedScreen: View {
                 }
             }
             Button {
-                Task { await model.removeSaved(id: entry.id) }
+                remove(entry)
             } label: {
                 Text("remove")
                     .font(.mono(11.5, relativeTo: .caption2))
                     .foregroundStyle(Color.inkSoft)
-                    .padding(.vertical, 13)
+                    .frame(minWidth: 44, minHeight: 44)
+                    .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .accessibilityLabel("Remove \(entry.title)")
@@ -119,6 +140,11 @@ struct SavedScreen: View {
                 .font(.mono(12.5, relativeTo: .caption))
                 .monospacedDigit()
                 .foregroundStyle(Color.inkSoft)
+            if let removeStatus {
+                Text(removeStatus)
+                    .font(.mono(11.5, relativeTo: .caption2))
+                    .foregroundStyle(Color.inkSoft)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.paper)

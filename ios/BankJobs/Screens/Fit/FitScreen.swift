@@ -62,7 +62,7 @@ struct FitScreen: View {
                 Text(
                     "This runs entirely on your device — nothing you type leaves this screen or gets sent anywhere. Your answers are remembered on this device only."
                 )
-                .font(.system(size: 13.5))
+                .scaledSystemFont(13.5, relativeTo: .footnote)
                 .foregroundStyle(Color.inkSoft)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.bottom, Spacing.lg)
@@ -74,6 +74,7 @@ struct FitScreen: View {
             }
             .padding(Spacing.lg)
         }
+        .scrollDismissesKeyboard(.immediately)
         .background(Color.paper.ignoresSafeArea())
         .navigationTitle("Find your fit")
         .navigationBarTitleDisplayMode(.inline)
@@ -113,7 +114,7 @@ struct FitScreen: View {
         VStack(alignment: .leading, spacing: Spacing.md) {
             VStack(alignment: .leading, spacing: Spacing.sm) {
                 Text("Your qualification, in your own words (optional)")
-                    .font(.system(size: 15, weight: .semibold))
+                    .scaledSystemFont(15, weight: .semibold)
                     .foregroundStyle(Color.ink)
                 TextField(
                     "e.g. \u{201C}BCom Accounting\u{201D}",
@@ -132,7 +133,7 @@ struct FitScreen: View {
                         })
                 )
                 .textFieldStyle(.plain)
-                .font(.system(size: 16))
+                .scaledSystemFont(16)
                 .autocorrectionDisabled()
                 .padding(.horizontal, Spacing.lg)
                 .frame(height: 48)
@@ -167,7 +168,7 @@ struct FitScreen: View {
                     })
             ) {
                 Text("Include international roles")
-                    .font(.system(size: 14))
+                    .scaledSystemFont(14, relativeTo: .subheadline)
                     .foregroundStyle(Color.inkSoft)
             }
             .tint(.focus)
@@ -202,14 +203,16 @@ struct FitScreen: View {
                     .foregroundStyle(Color.ink)
                     .lineLimit(1)
                     Image(systemName: "chevron.down")
-                        .font(.system(size: 9, weight: .semibold))
+                        .scaledSystemFont(11, weight: .semibold, relativeTo: .caption2)
                         .foregroundStyle(Color.inkSoft)
+                        .accessibilityHidden(true)
                 }
                 .padding(.horizontal, 12)
-                .frame(height: 40)
+                .frame(height: 44)
                 .background(Color.white)
-                .overlay(Rectangle().strokeBorder(Color.rule, lineWidth: Hairline.width))
+                .overlay(Rectangle().strokeBorder(Color.inkSoft, lineWidth: Hairline.width))
             }
+            .accessibilityLabel(label)
         }
     }
 
@@ -244,12 +247,16 @@ struct FitScreen: View {
         } else if awaitingRestore {
             VStack(alignment: .leading, spacing: Spacing.sm) {
                 EmptyStateView("Your last answers are filled in above.")
-                Button("Show my matches from last time") {
+                Button {
                     apply()
+                } label: {
+                    Text("Show my matches from last time")
+                        .scaledSystemFont(14.5, relativeTo: .subheadline)
+                        .underline(color: .rule)
+                        .foregroundStyle(Color.ink)
+                        .frame(minHeight: 44, alignment: .leading)
+                        .contentShape(Rectangle())
                 }
-                .font(.system(size: 14.5))
-                .underline(color: .rule)
-                .foregroundStyle(Color.ink)
                 .buttonStyle(.plain)
             }
         } else if qualLevel == nil {
@@ -268,7 +275,7 @@ struct FitScreen: View {
                 // Roles two or more levels above are counted, never listed.
                 if buckets.aboveCount > 0 {
                     Text(aboveLabel(buckets.aboveCount))
-                        .font(.system(size: 13.5))
+                        .scaledSystemFont(13.5, relativeTo: .footnote)
                         .foregroundStyle(Color.inkSoft)
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.bottom, Spacing.sm)
@@ -282,7 +289,7 @@ struct FitScreen: View {
                                 .padding(.top, Spacing.xl)
                                 .padding(.bottom, Spacing.xs)
                             Text(section.note)
-                                .font(.system(size: 13.5))
+                                .scaledSystemFont(13.5, relativeTo: .footnote)
                                 .foregroundStyle(Color.inkSoft)
                                 .fixedSize(horizontal: false, vertical: true)
                                 .padding(.bottom, Spacing.md)

@@ -44,9 +44,17 @@ struct JobDetailScreen: View {
             }
         }
         .background(Color.paper.ignoresSafeArea())
+        .navigationTitle(navTitle)
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(Color.paper, for: .navigationBar)
         .task(id: slug) { await load() }
+    }
+
+    /// The bar was blank before — a lone unlabeled back chevron. The brand
+    /// names where you are; "Vacancy" covers every pre-load state.
+    private var navTitle: String {
+        if case .loaded(let detail) = state { return detail.brand }
+        return "Vacancy"
     }
 
     private func load() async {
@@ -95,6 +103,7 @@ struct JobDetailScreen: View {
                     .font(.display(26, weight: .black, relativeTo: .title1))
                     .foregroundStyle(Color.ink)
                     .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityAddTraits(.isHeader)
                     .padding(.bottom, Spacing.md)
                 HairlineRule(color: .ink, height: 2)
                     .padding(.bottom, Spacing.md)
@@ -148,10 +157,11 @@ struct JobDetailScreen: View {
                 .font(.display(level == 3 ? 16 : 15, weight: .extrabold, relativeTo: .headline))
                 .foregroundStyle(Color.ink)
                 .fixedSize(horizontal: false, vertical: true)
+                .accessibilityAddTraits(.isHeader)
                 .padding(.top, Spacing.sm)
         case .paragraph(let text):
             Text(text)
-                .font(.system(size: 15))
+                .scaledSystemFont(15)
                 .foregroundStyle(Color.ink)
                 .fixedSize(horizontal: false, vertical: true)
         case .list(let ordered, let items):
@@ -159,12 +169,13 @@ struct JobDetailScreen: View {
                 ForEach(Array(items.enumerated()), id: \.offset) { index, item in
                     HStack(alignment: .firstTextBaseline, spacing: Spacing.sm) {
                         Text(ordered ? "\(index + 1)." : "•")
-                            .font(.system(size: 15))
+                            .scaledSystemFont(15)
                             .monospacedDigit()
                             .foregroundStyle(Color.inkSoft)
                             .frame(minWidth: 18, alignment: .trailing)
+                            .accessibilityHidden(!ordered)
                         Text(item)
-                            .font(.system(size: 15))
+                            .scaledSystemFont(15)
                             .foregroundStyle(Color.ink)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -197,7 +208,7 @@ struct JobDetailScreen: View {
             .buttonStyle(.plain)
 
             Text("You'll apply on the bank's own system. We never handle applications or CVs.")
-                .font(.system(size: 13.5))
+                .scaledSystemFont(13.5, relativeTo: .footnote)
                 .foregroundStyle(Color.inkSoft)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, Spacing.md)
@@ -219,6 +230,19 @@ struct JobDetailScreen: View {
                     .padding(.top, Spacing.xs)
             }
         }
+        // The site's role="status", finally ported: a felt tick on success, a
+        // warning buzz on a refused write — and VoiceOver hears the same line
+        // sighted users read (posted from the save toggle).
+        .sensoryFeedback(.success, trigger: saveStatus, condition: Self.isSaveSuccess)
+        .sensoryFeedback(.warning, trigger: saveStatus, condition: Self.isSaveFailure)
+    }
+
+    private static func isSaveSuccess(_ old: String?, _ new: String?) -> Bool {
+        new == "saved to your list" || new == "removed from your list"
+    }
+
+    private static func isSaveFailure(_ old: String?, _ new: String?) -> Bool {
+        new?.hasPrefix("could not") == true
     }
 
     private func saveChip(_ detail: JobDetail) -> some View {
@@ -233,10 +257,12 @@ struct JobDetailScreen: View {
                         postedDate: detail.postedDate))
                 // The label mirrors the PERSISTED state; a refused write is
                 // said out loud rather than shown as a save.
-                saveStatus =
+                let status =
                     result.ok
                     ? (result.saved ? "saved to your list" : "removed from your list")
                     : "could not save — this device is not storing it"
+                saveStatus = status
+                AccessibilityNotification.Announcement(status).post()
             }
         } label: {
             chipLabel(
@@ -245,12 +271,15 @@ struct JobDetailScreen: View {
                 active: saved)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(saved ? "Saved to your list" : "Save this vacancy")
+        .accessibilityAddTraits(saved ? .isSelected : [])
     }
 
     private func chipLabel(icon: String, text: String, active: Bool) -> some View {
         HStack(spacing: 6) {
             Image(systemName: icon)
-                .font(.system(size: 12))
+                .scaledSystemFont(12, relativeTo: .caption)
+                .accessibilityHidden(true)
             Text(text)
                 .font(.mono(12.5, relativeTo: .footnote))
         }
@@ -318,7 +347,7 @@ struct JobDetailScreen: View {
                 Text(
                     "When a vacancy disappears from the bank's system, it's removed here — the statement only ever lists what's genuinely open."
                 )
-                .font(.system(size: 14.5))
+                .scaledSystemFont(14.5, relativeTo: .subheadline)
                 .foregroundStyle(Color.inkSoft)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.bottom, Spacing.lg)
@@ -366,15 +395,10 @@ struct JobDetailScreen: View {
             .foregroundStyle(Color.paper)
             .padding(.horizontal, 26)
             .padding(.vertical, 12)
+            .frame(minHeight: 44)
             .background(Color.ink)
             .buttonStyle(.plain)
-            Button("Open on the website") {
-                model.presentWebsite(Endpoints.websiteJob(slug: slug))
-            }
-            .font(.system(size: 14.5))
-            .underline(color: .rule)
-            .foregroundStyle(Color.ink)
-            .buttonStyle(.plain)
+            websiteFallbackButton
         }
         .padding(Spacing.xl)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -383,7 +407,7 @@ struct JobDetailScreen: View {
     private var failedView: some View {
         VStack(spacing: Spacing.md) {
             Text("Couldn't load this vacancy — check your connection and try again.")
-                .font(.system(size: 15))
+                .scaledSystemFont(15)
                 .foregroundStyle(Color.inkSoft)
                 .multilineTextAlignment(.center)
             Button("Try again") {
@@ -393,18 +417,27 @@ struct JobDetailScreen: View {
             .foregroundStyle(Color.paper)
             .padding(.horizontal, 26)
             .padding(.vertical, 12)
+            .frame(minHeight: 44)
             .background(Color.ink)
             .buttonStyle(.plain)
-            Button("Open on the website") {
-                model.presentWebsite(Endpoints.websiteJob(slug: slug))
-            }
-            .font(.system(size: 14.5))
-            .underline(color: .rule)
-            .foregroundStyle(Color.ink)
-            .buttonStyle(.plain)
+            websiteFallbackButton
         }
         .padding(Spacing.xl)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var websiteFallbackButton: some View {
+        Button {
+            model.presentWebsite(Endpoints.websiteJob(slug: slug))
+        } label: {
+            Text("Open on the website")
+                .scaledSystemFont(14.5, relativeTo: .subheadline)
+                .underline(color: .rule)
+                .foregroundStyle(Color.ink)
+                .frame(minHeight: 44)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 }
 

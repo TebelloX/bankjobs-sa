@@ -8,7 +8,7 @@ struct EmptyStateView: View {
 
     var body: some View {
         Text(text)
-            .font(.system(size: 15))
+            .scaledSystemFont(15)
             .foregroundStyle(Color.inkSoft)
             .fixedSize(horizontal: false, vertical: true)
             .padding(.vertical, Spacing.lg)

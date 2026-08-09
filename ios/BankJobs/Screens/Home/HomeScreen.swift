@@ -24,7 +24,7 @@ struct HomeScreen: View {
                 // honest to show but the failure and a way to retry.
                 VStack(spacing: Spacing.md) {
                     Text("Couldn't load vacancies — check your connection and try again.")
-                        .font(.system(size: 15))
+                        .scaledSystemFont(15)
                         .foregroundStyle(Color.inkSoft)
                         .multilineTextAlignment(.center)
                     Button("Try again") {
@@ -34,6 +34,7 @@ struct HomeScreen: View {
                     .foregroundStyle(Color.paper)
                     .padding(.horizontal, 26)
                     .padding(.vertical, 12)
+                    .frame(minHeight: 44)
                     .background(Color.ink)
                 }
                 .padding(Spacing.xl)
@@ -50,24 +51,28 @@ struct HomeScreen: View {
 
     private func loaded(_ snapshot: DataStore.Snapshot) -> some View {
         ScrollView {
-            TimelineView(.periodic(from: .now, by: 60)) { context in
-                content(snapshot, now: context.date)
-            }
+            content(snapshot)
         }
         .refreshable { await model.refresh() }
     }
 
-    private func content(_ snapshot: DataStore.Snapshot, now: Date) -> some View {
+    private func content(_ snapshot: DataStore.Snapshot) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            hero(snapshot, now: now)
+            hero(snapshot)
                 .padding(.horizontal, Spacing.lg)
                 .padding(.top, Spacing.lg)
 
-            StatementCardView(
-                jobs: Array(JobFilter.allSA.apply(to: snapshot).prefix(4)),
-                totalSA: snapshot.meta.totalSA,
-                now: now
-            )
+            // The card re-renders each minute for its live dates; the timeline
+            // is scoped here (and on the hero's updated-line) so the periodic
+            // tick no longer rebuilds the whole screen — a full-tree rebuild
+            // can move the VoiceOver cursor mid-read.
+            TimelineView(.periodic(from: .now, by: 60)) { context in
+                StatementCardView(
+                    jobs: Array(JobFilter.allSA.apply(to: snapshot).prefix(4)),
+                    totalSA: snapshot.meta.totalSA,
+                    now: context.date
+                )
+            }
             .padding(.horizontal, Spacing.lg)
             .padding(.top, Spacing.xl)
             .padding(.bottom, Spacing.xxl)
@@ -89,7 +94,7 @@ struct HomeScreen: View {
 
     // MARK: - Hero
 
-    private func hero(_ snapshot: DataStore.Snapshot, now: Date) -> some View {
+    private func hero(_ snapshot: DataStore.Snapshot) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             StalenessBanner(snapshot: snapshot, lastRefreshFailed: model.lastRefreshError != nil)
                 .padding(.bottom, Spacing.lg)
@@ -107,29 +112,33 @@ struct HomeScreen: View {
             .padding(.bottom, Spacing.md)
 
             // The trust line — real, live, recomputed against the viewing
-            // instant (and on foregrounding, via the TimelineView above).
-            (Text("Last updated ")
-                + Text(Freshness.formatUpdatedLabel(snapshot.meta.generatedAt, now: now))
-                .font(.mono(12.5, semibold: true, relativeTo: .caption))
-                .foregroundColor(.ink)
-                + Text(" · ")
-                + Text("\(snapshot.meta.totalSA)")
-                .font(.mono(12.5, semibold: true, relativeTo: .caption))
-                .foregroundColor(.ink)
-                + Text(" open vacancies"))
-                .font(.mono(12.5, relativeTo: .caption))
-                .foregroundStyle(Color.inkSoft)
-                .padding(.bottom, Spacing.lg)
+            // instant by its own scoped timeline.
+            TimelineView(.periodic(from: .now, by: 60)) { context in
+                (Text("Last updated ")
+                    + Text(Freshness.formatUpdatedLabel(snapshot.meta.generatedAt, now: context.date))
+                    .font(.mono(12.5, semibold: true, relativeTo: .caption))
+                    .foregroundColor(.ink)
+                    + Text(" · ")
+                    + Text("\(snapshot.meta.totalSA)")
+                    .font(.mono(12.5, semibold: true, relativeTo: .caption))
+                    .foregroundColor(.ink)
+                    + Text(" open vacancies"))
+                    .font(.mono(12.5, relativeTo: .caption))
+                    .foregroundStyle(Color.inkSoft)
+            }
+            .padding(.bottom, Spacing.lg)
 
             // The hero search box, standing in for the site's GET form: tapping
-            // it lands on the Search tab.
+            // it lands on the Search tab with the real field focused, so the
+            // affordance it imitates actually delivers a keyboard.
             Button {
+                model.pendingSearchFocus = true
                 model.selectedTab = .search
             } label: {
                 HStack(spacing: 0) {
                     Text("Try \u{201C}teller\u{201D}, \u{201C}developer\u{201D}…")
-                        .font(.system(size: 15))
-                        .foregroundStyle(Color.inkSoft.opacity(0.7))
+                        .scaledSystemFont(15)
+                        .foregroundStyle(Color.inkSoft)
                         .padding(.horizontal, Spacing.lg)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     Text("Search")
@@ -144,6 +153,7 @@ struct HomeScreen: View {
                 .overlay(Rectangle().strokeBorder(Color.ink, lineWidth: 2))
             }
             .buttonStyle(.plain)
+            .accessibilityLabel("Search vacancies")
             .padding(.bottom, Spacing.md)
 
             popular
@@ -162,7 +172,7 @@ struct HomeScreen: View {
     private var popular: some View {
         VStack(alignment: .leading, spacing: Spacing.xs) {
             Text("Popular:")
-                .font(.system(size: 13.5))
+                .scaledSystemFont(13.5, relativeTo: .footnote)
                 .foregroundStyle(Color.inkSoft)
             FlowLayout(spacing: 14, lineSpacing: 8) {
                 quickLink("Branch & retail", route: .list(.category(slug: "branch-retail")))
@@ -187,10 +197,11 @@ struct HomeScreen: View {
 
     private func quickLabel(_ title: String) -> some View {
         Text(title)
-            .font(.system(size: 13.5))
+            .scaledSystemFont(13.5, relativeTo: .footnote)
             .underline(color: .rule)
             .foregroundStyle(Color.ink)
-            .padding(.vertical, 4)
+            .padding(.vertical, 14)
+            .contentShape(Rectangle())
     }
 
     private func searchFor(_ query: String) {
@@ -248,6 +259,9 @@ struct HomeScreen: View {
                         .font(.mono(12, relativeTo: .caption))
                         .underline(color: .rule)
                         .foregroundStyle(Color.inkSoft)
+                        .frame(minHeight: 44, alignment: .leading)
+                        .contentShape(Rectangle())
+                        .accessibilityLabel("\(added) added since your last visit")
                 }
                 .buttonStyle(.plain)
                 .padding(.bottom, Spacing.sm)
@@ -282,6 +296,7 @@ struct HomeScreen: View {
                             Text("→")
                                 .font(.mono(15, relativeTo: .body))
                                 .foregroundStyle(Color.inkSoft)
+                                .accessibilityHidden(true)
                         }
                         .padding(.vertical, 14)
                     }
@@ -347,7 +362,7 @@ struct HomeScreen: View {
                 .font(.display(15.5, weight: .extrabold, relativeTo: .headline))
                 .foregroundStyle(Color.ink)
             Text(body)
-                .font(.system(size: 14.5))
+                .scaledSystemFont(14.5, relativeTo: .subheadline)
                 .foregroundStyle(Color.inkSoft)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -362,6 +377,7 @@ struct HomeScreen: View {
                 .foregroundStyle(Color.paper)
                 .padding(.horizontal, 26)
                 .padding(.vertical, 12)
+                .frame(minHeight: 44)
                 .background(Color.ink)
         }
         .buttonStyle(.plain)

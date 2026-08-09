@@ -37,7 +37,7 @@ struct StalenessBanner: View {
                 .padding(Spacing.md)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(Color.paperDeep)
-                .overlay(Rectangle().strokeBorder(Color.rule, lineWidth: Hairline.width))
+                .overlay(Rectangle().strokeBorder(Color.inkSoft, lineWidth: Hairline.width))
         }
     }
 }

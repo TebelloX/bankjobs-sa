@@ -25,8 +25,35 @@ struct JobListScreen: View {
             }
         }
         .background(Color.paper.ignoresSafeArea())
+        .navigationTitle(navTitle)
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(Color.paper, for: .navigationBar)
+    }
+
+    /// A short bar title so the screen is named and the next push gets a real
+    /// back label — the in-body h1 keeps carrying the full phrasing.
+    private var navTitle: String {
+        switch filter {
+        case .allSA: return "All vacancies"
+        case .province(let name): return name
+        case .city(let value): return CityNamesFallback.displayName(value)
+        case .category(let slug): return Catalog.categoryName(forSlug: slug) ?? "Category"
+        case .categoryProvince(let slug, let province):
+            return "\(Catalog.categoryName(forSlug: slug) ?? "Category") · \(province)"
+        case .brand(let name): return name
+        case .entryLevel: return "Entry-level"
+        case .graduate: return "Early careers"
+        case .graduateInternational: return "Early careers abroad"
+        case .international: return "International"
+        }
+    }
+
+    /// City filters carry a slug or a display name; show it readably without
+    /// needing the snapshot (the bar title renders before data lands).
+    private enum CityNamesFallback {
+        static func displayName(_ value: String) -> String {
+            value.split(separator: "-").map(\.capitalized).joined(separator: " ")
+        }
     }
 
     private func loaded(_ snapshot: DataStore.Snapshot) -> some View {
@@ -80,6 +107,7 @@ struct JobListScreen: View {
                     .font(.mono(13, relativeTo: .footnote))
                     .foregroundStyle(Color.inkSoft))
                     .foregroundStyle(Color.ink)
+                    .accessibilityAddTraits(.isHeader)
                     .padding(.bottom, Spacing.md)
                 HairlineRule(color: .ink, height: 2)
                 ForEach(group.jobs) { job in

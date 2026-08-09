@@ -41,8 +41,10 @@ struct RootTabView: View {
             .tag(AppTab.saved)
         }
         .sheet(item: $model.presentedURL) { presented in
+            // SFSafariViewController manages its own chrome and safe areas —
+            // forcing .ignoresSafeArea could push its toolbar under the home
+            // indicator.
             SafariView(url: presented.url)
-                .ignoresSafeArea()
         }
     }
 }

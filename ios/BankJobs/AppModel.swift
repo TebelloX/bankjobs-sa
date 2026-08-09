@@ -81,6 +81,9 @@ final class AppModel {
     /// Deep-link payloads the Search/Fit screens consume then clear.
     var pendingSearchParams: AppRoute.SearchParams?
     var pendingFitParams: AppRoute.FitParams?
+    /// Set by Home's hero search box: the Search screen consumes it and
+    /// focuses the field, so the box that looks like a field delivers one.
+    var pendingSearchFocus = false
 
     /// An external URL to show in an in-app Safari sheet.
     var presentedURL: PresentedURL?

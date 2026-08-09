@@ -31,6 +31,7 @@ struct SecTitleText: View {
             .font(.display(24, weight: .black, relativeTo: .title2))
             .foregroundStyle(Color.ink)
             .fixedSize(horizontal: false, vertical: true)
+            .accessibilityAddTraits(.isHeader)
     }
 }
 
@@ -42,7 +43,7 @@ struct LedeText: View {
 
     var body: some View {
         Text(text)
-            .font(.system(size: 16.5))
+            .scaledSystemFont(16.5)
             .foregroundStyle(Color.inkSoft)
             .fixedSize(horizontal: false, vertical: true)
     }
@@ -56,7 +57,7 @@ struct NoteText: View {
 
     var body: some View {
         Text(text)
-            .font(.system(size: 13))
+            .scaledSystemFont(13, relativeTo: .footnote)
             .foregroundStyle(Color.inkSoft)
             .fixedSize(horizontal: false, vertical: true)
     }
@@ -75,6 +76,7 @@ struct PageTitleView: View {
             .foregroundStyle(Color.inkSoft))
             .foregroundStyle(Color.ink)
             .fixedSize(horizontal: false, vertical: true)
+            .accessibilityAddTraits(.isHeader)
     }
 }
 
@@ -96,11 +98,15 @@ struct ArrowLinkLabel: View {
 
     var body: some View {
         Text(text)
-            .font(.system(size: 14.5))
+            .scaledSystemFont(14.5, relativeTo: .subheadline)
             .underline(color: .rule)
             .foregroundStyle(Color.ink)
             .multilineTextAlignment(.leading)
             .fixedSize(horizontal: false, vertical: true)
+            .frame(minHeight: 44, alignment: .leading)
+            .contentShape(Rectangle())
+            // VoiceOver reads "→" aloud — speak the words without the glyph.
+            .accessibilityLabel(text.replacingOccurrences(of: "→", with: "").trimmingCharacters(in: .whitespaces))
     }
 }
 
@@ -161,16 +167,17 @@ struct QuickLinksRow: View {
         if !links.isEmpty {
             VStack(alignment: .leading, spacing: Spacing.xs) {
                 Text(label)
-                    .font(.system(size: 13.5))
+                    .scaledSystemFont(13.5, relativeTo: .footnote)
                     .foregroundStyle(Color.inkSoft)
                 FlowLayout(spacing: 14, lineSpacing: 8) {
                     ForEach(Array(links.enumerated()), id: \.offset) { _, link in
                         NavigationLink(value: link.route) {
                             Text(link.title)
-                                .font(.system(size: 13.5))
+                                .scaledSystemFont(13.5, relativeTo: .footnote)
                                 .underline(color: .rule)
                                 .foregroundStyle(Color.ink)
-                                .padding(.vertical, 4)
+                                .padding(.vertical, 14)
+                                .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
                     }

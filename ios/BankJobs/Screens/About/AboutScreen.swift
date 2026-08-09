@@ -7,6 +7,10 @@ import JobsKit
 /// screen also hosts the entry point to the design-system token gallery.
 struct AboutScreen: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.openURL) private var openURL
+
+    /// Shown when the mailto hand-off can't complete (no mail app configured).
+    @State private var mailStatus: String?
 
     var body: some View {
         ScrollView {
@@ -54,20 +58,35 @@ struct AboutScreen: View {
 
                 heading("Contact and takedowns")
                 proseView {
+                    // The address in prose is NOT underlined — underline is
+                    // the app's only link affordance and this line isn't one;
+                    // the real button follows.
                     (Text(
                         "Something wrong, or listing your organisation's jobs and want them removed? Email "
                     )
-                        + Text("tebellonamo@gmail.com").underline(color: .rule)
+                        + Text("tebellonamo@gmail.com")
                         + Text(" — requests are honoured promptly."))
                 }
                 Button {
-                    if let url = URL(string: "mailto:tebellonamo@gmail.com") {
-                        UIApplication.shared.open(url)
+                    guard let url = URL(string: "mailto:tebellonamo@gmail.com") else { return }
+                    openURL(url) { accepted in
+                        if !accepted {
+                            // No mail app — don't let the tap die silently.
+                            UIPasteboard.general.string = "tebellonamo@gmail.com"
+                            let status = "No mail app found — address copied instead."
+                            mailStatus = status
+                            AccessibilityNotification.Announcement(status).post()
+                        }
                     }
                 } label: {
                     ArrowLinkLabel("Email tebellonamo@gmail.com →")
                 }
                 .buttonStyle(.plain)
+                if let mailStatus {
+                    Text(mailStatus)
+                        .font(.mono(11.5, relativeTo: .caption2))
+                        .foregroundStyle(Color.inkSoft)
+                }
 
                 // ---- app footer ------------------------------------------------
                 VStack(alignment: .leading, spacing: Spacing.md) {
@@ -79,7 +98,7 @@ struct AboutScreen: View {
                     Text(
                         "Typefaces: Archivo and IBM Plex Mono, bundled under the SIL Open Font License."
                     )
-                    .font(.system(size: 13))
+                    .scaledSystemFont(13, relativeTo: .footnote)
                     .foregroundStyle(Color.inkSoft)
                     .fixedSize(horizontal: false, vertical: true)
 
@@ -113,19 +132,20 @@ struct AboutScreen: View {
         Text(text)
             .font(.display(18, weight: .extrabold, relativeTo: .title3))
             .foregroundStyle(Color.ink)
+            .accessibilityAddTraits(.isHeader)
             .padding(.top, Spacing.lg)
     }
 
     private func prose(_ text: String) -> some View {
         Text(text)
-            .font(.system(size: 15))
+            .scaledSystemFont(15)
             .foregroundStyle(Color.ink)
             .fixedSize(horizontal: false, vertical: true)
     }
 
     private func proseView(@ViewBuilder _ content: () -> Text) -> some View {
         content()
-            .font(.system(size: 15))
+            .scaledSystemFont(15)
             .foregroundStyle(Color.ink)
             .fixedSize(horizontal: false, vertical: true)
     }
