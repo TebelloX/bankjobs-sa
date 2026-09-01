@@ -44,7 +44,7 @@ jobs:
     steps:
       # fetch-depth: 0 — the gate step diffs against the pre-push SHA, which
       # a shallow clone wouldn't have as a local object.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -70,10 +70,10 @@ jobs:
             echo "deploy=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         if: ${{ steps.gate.outputs.deploy == 'true' }}
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         if: ${{ steps.gate.outputs.deploy == 'true' }}
         with:
           node-version: 24
@@ -97,7 +97,7 @@ jobs:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: fdef463f845c9fd71e57e85f4ac40cae
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -123,10 +123,10 @@ jobs:
             echo "deploy=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         if: ${{ steps.gate.outputs.deploy == 'true' }}
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         if: ${{ steps.gate.outputs.deploy == 'true' }}
         with:
           node-version: 24
@@ -152,11 +152,11 @@ jobs:
       CLOUDFLARE_ACCOUNT_ID: fdef463f845c9fd71e57e85f4ac40cae
       CLOUDFLARE_D1_DATABASE_ID: 1ed5662e-2fab-402b-96d1-bac8175a52a6
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
