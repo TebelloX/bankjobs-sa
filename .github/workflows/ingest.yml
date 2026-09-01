@@ -53,11 +53,11 @@ jobs:
       CLOUDFLARE_ACCOUNT_ID: fdef463f845c9fd71e57e85f4ac40cae
       CLOUDFLARE_D1_DATABASE_ID: 1ed5662e-2fab-402b-96d1-bac8175a52a6
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
@@ -182,11 +182,11 @@ jobs:
       CLOUDFLARE_ACCOUNT_ID: fdef463f845c9fd71e57e85f4ac40cae
       CLOUDFLARE_D1_DATABASE_ID: 1ed5662e-2fab-402b-96d1-bac8175a52a6
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
