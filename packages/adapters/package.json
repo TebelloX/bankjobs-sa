@@ -11,6 +11,6 @@
   },
   "dependencies": {
     "@bankjobs/core": "workspace:*",
-    "unpdf": "^1.8.0"
+    "unpdf": "^1.8.1"
   }
 }
